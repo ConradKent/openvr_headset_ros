@@ -1,17 +1,19 @@
-# vrui_mdf
-"Vrui modified" for use with HTC Vive and ROS + Gazebo 
+# openvr_headset_ros <-- the new name for this repository!!
 
-# openvr_display_ros <-- the upcoming new name for this repository(!!)
+OpenVR APIs used to interface with ROS + Gazebo, for use with HTC Vive, Vive Pro, and other SteamVR-compatible headsets
 
-Much of this code was copied from or inspired by the code from vrui_mdf.
+(Originally called vrui_mdf as "'Vrui modified' for use with HTC Vive and ROS + Gazebo")
 
-See https://github.com/zhenyushi/vrui_mdf
+Much of this code was copied from or inspired by the code from vrui_mdf  
+See the repository commit history, and/or: https://github.com/zhenyushi/vrui_mdf
 
-We will be renaming this fork of the original repository, as we are moving away from using Vrui to an OpenVR/OpenCV implementation that is using the SteamVR interface API more natively (currently in extended mode, not direct mode).
+This fork of vrui_mdf has been renamed from the original repository, as we are moving away from using Vrui to an OpenVR/OpenCV implementation that is using the SteamVR interface API more natively (currently in extended mode, not direct mode).
 
-We are attempting to show the changes in a way that makes sense and does not break diff status by having moved the original code into an "archive" subdirectory.
+We are moving to no longer require Vrui as a dependency. We will, however, still be dependent on versions of OpenVR, SteamVR, ROS, and Gazebo for this code to function properly. (We may be moving away from OpenCV to OpenGL as well / eventually.)
 
-For code updates, as we work through the files, we plan to first stage a commit that moves the old code back up to the original top-level locations, then work on / modify the code there.
+We are attempting to show the changes in a way that makes sense and does not break diff status, by having moved the original code into an "archive" subdirectory for the interim.
+
+For code updates, as we work through the older vrui_mdf files, we plan to first stage a commit that moves the old code back up to the original top-level locations, then work on / modify the code there.
 
 As an example, for single-files, starting at the top-level directory:  
 $ git mv archive/README.md README.md  
