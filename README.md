@@ -1,6 +1,22 @@
 # vrui_mdf
 "Vrui modified" for use with HTC Vive and ROS + Gazebo 
 
+# openvr_display_ros <-- the upcoming new name for this repository(!!)
+
+Much of this code was copied from or inspired by the code from vrui_mdf.
+
+See https://github.com/zhenyushi/vrui_mdf
+
+We will be renaming this fork of the original repository, as we are moving away from using Vrui to an OpenVR/OpenCV implementation that is using the SteamVR interface API more natively (currently in extended mode, not direct mode).
+
+We are attempting to show the changes in a way that makes sense and does not break diff status by having moved the original code into an "archive" subdirectory.
+
+For code updates, as we work through the files, we plan to first stage a commit that moves the old code back up to the original top-level locations, then work on / modify the code there.
+
+# Old README.md information continues below!
+
+The below will be updated soon! :)
+
 ## Caution
 
 Version of Vrui we're using is Vrui-4.6-005. (up to 04/08/2019)
