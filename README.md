@@ -13,6 +13,28 @@ We are attempting to show the changes in a way that makes sense and does not bre
 
 For code updates, as we work through the files, we plan to first stage a commit that moves the old code back up to the original top-level locations, then work on / modify the code there.
 
+As an example, for single-files, starting at the top-level directory:  
+$ git mv archive/README.md README.md  
+$ git commit -m "moving README.md up a level prior to file update"  
+$ gedit README.md  
+-- make changes to README.md --  
+$ git add README.md  
+$ git commit -m "update of README.md"  
+$ git push  
+
+(Note that using the 'git rm' here command is equivalent to 'git rm archive/README.md' then 'git add README.md'.)
+
+As an example that includes making new directories, etc., starting at the top-level directory:  
+$ mkdir src  
+$ git add src  
+$ git mv archive/src/imagesub.cpp src  
+$ git commit -m "moving src/imagesub.cpp back to original location prior to file update"  
+$ gedit src/imagesub.cpp  
+-- make changes to src/imagesub.cpp --  
+$ git add src/imagesub.cpp  
+$ git commit -m "update of src/imagesub.cpp"  
+$ git push  
+
 # Old README.md information continues below!
 
 The below will be updated soon! :)
