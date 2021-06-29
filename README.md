@@ -7,7 +7,7 @@ OpenVR APIs used to interface with ROS + Gazebo, for use with HTC Vive, Vive Pro
 Much of this code was copied from or inspired by the code from vrui_mdf  
 See the repository commit history, and/or: https://github.com/zhenyushi/vrui_mdf
 
-This fork of vrui_mdf has been renamed from the original repository, as we are moving away from using Vrui to an OpenVR/OpenCV implementation that is using the SteamVR interface API more natively (currently in extended mode, not direct mode).
+This fork of vrui_mdf has been renamed from the original repository, as we are moving away from using Vrui to an OpenVR/OpenCV/OpenGL implementation that is using the SteamVR interface API. This version will use a subscriber to pull images from a stereo camera as before using the cv bridge feature in ROS. These OpenCV images will then be turned into OpenGL textures, and these textures will be submitted to each eye of the HMD via OpenVR. OpenVR will also handle tracking which will be used to position the stereo camera in the Gazebo simulation.
 
 We are moving to no longer require Vrui as a dependency. We will, however, still be dependent on versions of OpenVR, SteamVR, ROS, and Gazebo for this code to function properly. (We may be moving away from OpenCV to OpenGL as well / eventually.)
 
