@@ -108,7 +108,7 @@ int main(int argc, char **argv)
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 TexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,image.cols,image.rows,0,GL_BGR,GL_UNSIGNED_BYTE,listener_right.image)
-                vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)rightEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+                vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)tex_right, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
                 vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture );
 
             }
