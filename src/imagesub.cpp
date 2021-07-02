@@ -89,12 +89,12 @@ public:
 	  void callback(const sensor_msgs::ImageConstPtr& msg)
 	    {
             //copy image data to the image under the same class, which will be assign as a pointer. Use rba8 format as this is what OpenVR requires for rendering.
-            cv_bridge::toCvShare(msg, "rgba8")->image.copyTo(image);
+            cv_bridge::toCvShare(msg, "bgr8")->image.copyTo(image);
             }
 
 };
 
-
+/* Don't need these listeners for now
 class Listener_ctrlMethod
 {
 public:
@@ -118,6 +118,7 @@ public:
 		vive = msg;
 	    }
 };
+*/
 
 int main(int argc, char **argv)
 {
@@ -126,13 +127,18 @@ int main(int argc, char **argv)
   ros::NodeHandle nh;
   image_transport::ImageTransport it(nh);
 
-  // define and modify window
-  //cv::namedWindow("view",cv::WINDOW_NORMAL); // cv::WINDOW_NORMAL means the window size can be changed
-  //cv::moveWindow("view",1921,0);      // move the window to the VIVE monitor, which is the second moniter on the right side of main monitor, and main monitor has a width of 1920
-  //cv::setWindowProperty("view",0,1);  // setWindowProperty(window name, type of window property(full screen = 0), value of window property(full screen = 1))
-  //cv::startWindowThread();
-  
-  ros::Rate r(100);
+  //OpenGL information on textures is from https://open.gl/textures
+
+  //define and generate textures. We're clamping the textures and using linear interpolation for now.
+  GLuint tex_left
+  glGenTextures(1,&tex_left)
+
+  GLuint tex_right
+  glGenTextures(1,&tex_right)
+
+  vr::IVRSystem *vr::VR_Init( vr::HmdError *peError, vr::EVRApplicationType eApplicationType )
+
+  ros::Rate r(90);
 
   //define class for callback class and subscriber
   Listener_image listener_left,listener_right;
@@ -143,19 +149,19 @@ int main(int argc, char **argv)
   ctrl_methods.control_method = "Velocity";
   ros::Subscriber ctrl_sub = nh.subscribe("control_method", 10, &Listener_ctrlMethod::chatterCallback,&ctrl_methods);
   
+/*
+  // I'm not sure if I need the images as mats to read the image data out of? I'll try reading the bgr data out of the listeners directly for now. Otherwise, we'll read from image_left.data and image_right.data
+  cv::Mat image_left(1200,960, CV_8UC3,cv::Scalar(0,255,255));
+  cv::Mat image_right(1200,960, CV_8UC3,cv::Scalar(0,255,255));
 
-  // final image, left half shows left eye, right half shows right eye
-  cv::Mat image_final_left(1200,1920, CV_8UC3,cv::Scalar(0,255,255));
+  listener_left.image = image_left(cv::Range(0,1200),cv::Range(0,960));
+  listener_right.image = image_right(cv::Range(0,1200),cv::Range(0,960));
+*/
 
-
-  // assign the images under listerner classes as pointers pointing at left or right half of final image
-  // so that the copyTo() will copy the data directly to the final image
-  //listener_left.image = image_final(cv::Range(0,1200),cv::Range(0,960));
-  //listener_right.image = image_final(cv::Range(0,1200),cv::Range(960,1920));
-
+/* Not listening for vive data for now.
   Vive_Listener vive_data;
   ros::Subscriber sub_vive = nh.subscribe("vrui/vive", 1, &Vive_Listener::callback, &vive_data);
-
+*/
 
   while(ros::ok())
   {
@@ -164,14 +170,27 @@ int main(int argc, char **argv)
 
     if(listener_left.image.cols!=0 && listener_right.image.cols!=0) 
     {
-    //probably need to use waitgetposes here
-    Renderframe()
-    //video.write(image_final);
+    //format of waitgetposes used in hellovr_opengl
+    vr::VRCompositor()->WaitGetPoses(m_rTrackedDevicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0 );
 
-    //cv::imshow("view", image_final);
-    //cv::waitKey(1); // necessary for imshow()
+    glBindTexture(GL_TEXTURE_2D, tex_left)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);    //hellovr_opengl runs glTexParameteri once per cycle as far as I can tell, which I wanted to take note of because that seems weird.
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    TexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,image.cols,image.rows,0,GL_BGR,GL_UNSIGNED_BYTE,listener_left.image)
+    vr::Texture_t leftEyeTexture = {(void*)(uintptr_t)tex_left, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+    vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture );
 
 
+    glBindTexture(GL_TEXTURE_2D, tex_right)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    TexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,image.cols,image.rows,0,GL_BGR,GL_UNSIGNED_BYTE,listener_right.image)
+    vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)rightEyeDesc.m_nResolveTextureId, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+    vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture );
 
     }
   r.sleep();
