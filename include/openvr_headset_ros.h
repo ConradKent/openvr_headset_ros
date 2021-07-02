@@ -5,13 +5,6 @@
 #include <Geometry/Point.icpp>
 #include <Geometry/Vector.icpp>
 
-
-#include <Vrui/Internal/VRDeviceClient.cpp>
-#include <Vrui/Internal/HMDConfiguration.cpp>
-#include <Vrui/Internal/VRDevicePipe.cpp>
-#include <Comm/TCPPipe.cpp>
-#include <Vrui/Internal/VRDeviceDescriptor.cpp>
-
 #include <Misc/ThrowStdErr.cpp>
 #include <IO/File.cpp>
 #include <Misc/FdSet.cpp>
