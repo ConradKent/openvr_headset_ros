@@ -9,17 +9,19 @@
 #include <iomanip>
 #include <stdexcept>
 
-#include <Misc/FunctionCalls.h>
-#include <Misc/ConfigurationFile.h>
-#include <Realtime/Time.h>
-#include <Geometry/AffineCombiner.h>
+//#include <Misc/FunctionCalls.h>
+//#include <Misc/ConfigurationFile.h>
+//#include <Realtime/Time.h>
+//#include <Geometry/AffineCombiner.h>
 
 #include <ros/ros.h>
 #include <gazebo_msgs/ModelState.h>
+#include <gazebo_msgs/SpawnModel.h>
 #include <tf/transform_broadcaster.h>
 
 #include "tf/transform_datatypes.h"
 #include <geometry_msgs/Quaternion.h>
+#include <geometry_msgs/Pose.h>
 #include <cmath>
 #include <math.h>
 #include<fstream>
@@ -38,15 +40,15 @@ int main(int argc,char* argv[])
     camera.model_name = "vr_view";
     camera.reference_frame="world";
 
-    try
-    {
+    //try
+    //{
         //CHECK this and make sure we're spawning correctly. Gazebo recommends spawning via roslaunch so we might switch to that.
         gazebo_msgs::SpawnModel sm;
         ros::ServiceClient spawn_model;
-        std::ifstream ifs
-        ifs1.open("/home/zhenyushi/.gazebo/models/vr_view/model.sdf"); //CHECK to generalize.
+        std::ifstream ifs;
+        ifs.open("/open_headset_ros/models/vr_view/model.sdf"); //CHECK to generalize.
         std::stringstream stringstream1;
-        stringstream1 << ifs1.rdbuf();
+        stringstream1 << ifs.rdbuf();
         sm.request.model_name = "vr_view";
         sm.request.model_xml = stringstream1.str();
         sm.request.robot_namespace = ros::this_node::getNamespace();
@@ -61,5 +63,5 @@ int main(int argc,char* argv[])
         {
             gazebo_pub.publish(camera);
         }
-    }
+    //}
 }
