@@ -16,7 +16,7 @@ eye of a VR headset using OpenVR.
 //#include <time.h> CHECK this
 //#include <tf/transform_broadcaster.h> CHECK this
 //#include <math.h> CHECK this
-#include <openvr.h>
+#include <openvr/openvr.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 //Check for more needed includes

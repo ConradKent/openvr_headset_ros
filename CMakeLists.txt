@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 2.8.3)
-project(vrui_mdf)
+cmake_minimum_required(VERSION 3.16.3)
+project(openvr_headset_ros)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -18,8 +18,8 @@ find_package(catkin REQUIRED COMPONENTS
   std_srvs
   tf
   visualization_msgs
-	nodelet
-	rosconsole
+  nodelet
+  rosconsole
   cv_bridge
   roslaunch
   sensor_msgs
@@ -65,13 +65,10 @@ link_directories(${catkin_LIBRARY_RIRS})
 ##     and list every .msg/.srv/.action file to be processed
 ##   * uncomment the generate_messages entry below
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
-
+find_library(OPENVR_LIBRARY openvr_api HINTS /usr/local/lib/)
 ## Generate messages in the 'msg' folder
 add_message_files(DIRECTORY msg
   FILES
-  Vive_trackpad.msg
-  Vive_buttons.msg
-  Vive_controller.msg
   Vive.msg
  )
 
@@ -92,7 +89,7 @@ add_message_files(DIRECTORY msg
 ## Generate added messages and services with any dependencies listed here
  generate_messages(
    DEPENDENCIES
-   vrui_mdf
+   openvr_headset_ros
    geometry_msgs
    std_msgs
  )
@@ -143,7 +140,6 @@ catkin_package(
 
 
 
-
 ###########
 ## Build ##
 ###########
@@ -151,18 +147,25 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 
-set(VRUI "$ENV{HOME}/src/Vrui-4.5-001")
-message("${VRUI}")
+##set(OpenVR "~/openvr") #This might be wrong
+##message("${OpenVR}")
 include_directories(
   ${PROJECT_NAME}
   include
-  ${VRUI}
+##  "${OpenVR}/headers"
+  ${SDL2_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
+  ${OPENVR_INCLUDE_DIR}
 )
+
+##link_directories("$${OPENVR}/lib/linux64")
+find_package(SDL2 REQUIRED)
+find_package(OpenGL REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(Boost REQUIRED COMPONENTS thread)
+##find_package(OpenVR REQUIRED)
 #find_package(catkin REQUIRED COMPONENTS thread)
 
 ## Declare a C++ library
@@ -180,84 +183,23 @@ set(CMAKE_AUTOMOC ON)
 
 
 
-add_executable(tracking
-  src/tracking.cpp
+add_executable(opentracking
+  src/opentracking.cpp
 )
-target_link_libraries (tracking LINK_PUBLIC
+target_link_libraries (opentracking LINK_PUBLIC
 	${catkin_LIBRARIES}
 	${Boost_LIBRARIES}
+	${OPENVR_LIBRARY}
 )
 
 
 
 add_executable(imagesub src/imagesub.cpp)
-target_link_libraries (imagesub ${catkin_LIBRARIES} ${Boost_LIBRARIES} 	${OpenCV_LIBRARIES})
+target_include_directories(imagesub PUBLIC
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+                           $<INSTALL_INTERFACE:include>)
+target_link_libraries (imagesub OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
 
-
-
-
-
-add_executable(controllers
-  src/controllers.cpp
-)
-target_link_libraries (controllers LINK_PUBLIC
-	${catkin_LIBRARIES}
-	${Boost_LIBRARIES}
-)
-
-add_executable(controllers_joy
-  src/controllers_joy.cpp
-)
-target_link_libraries (controllers_joy LINK_PUBLIC
-	${catkin_LIBRARIES}
-	${Boost_LIBRARIES}
-)
-
-
-add_executable(standingpoint
-  src/standingpoint.cpp
-)
-target_link_libraries (standingpoint LINK_PUBLIC
-	${catkin_LIBRARIES}
-	${Boost_LIBRARIES}
-)
-
-
-add_executable(joy_hector
-  src/joy_hector.cpp
-)
-target_link_libraries (joy_hector LINK_PUBLIC
-	${catkin_LIBRARIES}
-	${Boost_LIBRARIES}
-)
-
-
-add_executable(controllers_hector
-  src/controllers_hector.cpp
-)
-target_link_libraries (controllers_hector LINK_PUBLIC
-	${catkin_LIBRARIES}
-	${Boost_LIBRARIES}
-)
-
-
-add_executable(Vrui_server
-  src/Vrui_server.cpp
-)
-target_link_libraries (Vrui_server LINK_PUBLIC
-	${catkin_LIBRARIES}
-	${Boost_LIBRARIES}
-)
-
-
-add_executable(imagesub_4test
-  src/imagesub_4test.cpp
-)
-target_link_libraries (imagesub_4test LINK_PUBLIC
-	${catkin_LIBRARIES}
-	${Boost_LIBRARIES}
-        ${OpenCV_LIBRARIES}
-)
 
 #target_link_libraries(${Boost_LIBRARIES})
 
@@ -266,11 +208,10 @@ target_link_libraries (imagesub_4test LINK_PUBLIC
 ## either from message generation or dynamic reconfigure
 #add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 # see: https://answers.ros.org/question/188982/message-headers-wont-build-first/
-add_dependencies(tracking vrui_mdf_generate_messages_cpp)
-add_dependencies(controllers vrui_mdf_generate_messages_cpp)
-add_dependencies(standingpoint vrui_mdf_generate_messages_cpp)
+
+##add_dependencies(opentracking vrui_mdf_generate_messages_cpp)
+
 ##add_dependencies(newcodes vrui_mdf_generate_messages_cpp)
-add_dependencies(imagesub_4test vrui_mdf_generate_messages_cpp)
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
