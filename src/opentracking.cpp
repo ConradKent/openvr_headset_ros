@@ -46,7 +46,7 @@ int main(int argc,char* argv[])
         gazebo_msgs::SpawnModel sm;
         ros::ServiceClient spawn_model;
         std::ifstream ifs;
-        ifs.open("/open_headset_ros/models/vr_view/model.sdf"); //CHECK to generalize.
+        ifs.open("/home/conrad/catkin_ws/src/openvr_headset_ros/models/vr_view/model.sdf"); //CHECK to generalize.
         std::stringstream stringstream1;
         stringstream1 << ifs.rdbuf();
         sm.request.model_name = "vr_view";
@@ -55,7 +55,7 @@ int main(int argc,char* argv[])
         sm.request.reference_frame = "world";
         spawn_model.call(sm);
 
-        system("rosrun gazebo_ros spawn_model -file $(find vrui_mdf)/models/vr_view/model.sdf -sdf -model vr_view -y 0 -x 0 -z 1");
+        system("rosrun gazebo_ros spawn_model -file /home/conrad/catkin_ws/src/openvr_headset_ros/models/vr_view/model.sdf -sdf -model vr_view -y 0 -x 0 -z 1");
 
 
         //Publish ros camera loop (this will eventually cover tracking as well, camera position will be updated on this loop)

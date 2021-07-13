@@ -20,9 +20,7 @@
   <node name="gazebo" pkg="gazebo_ros" type="gzserver" args="$(arg world) $(arg args)" respawn="false" output="screen"/>
   
 
-  <group if="$(arg gui)">
-    <node name="gazebo_gui" pkg="gazebo_ros" type="gzclient" respawn="false" output="screen"/>
-  </group>
+ 
 
 
 
@@ -35,11 +33,15 @@
 
           <!-- test -->
 	  <node name="spawn_model_cube" pkg="gazebo_ros" type="spawn_model"
-	  args="-file /home/zhenyushi/.gazebo/models/cube_black/model.sdf -sdf -model cube_black 
+	  args="-file ~/catkin_ws/models/cube_black/model.sdf -sdf -model cube_black 
 	  -x 0 -y 0 -z 1" output="screen" />	  
 
 	  <node name="spawn_model_cube1" pkg="gazebo_ros" type="spawn_model"
-	  args="-file /home/zhenyushi/.gazebo/models/cube_black/model.sdf -sdf -model cube_black_0 
+	  args="-file ~/catkin_ws/models/cube_black/model.sdf -sdf -model cube_black_0 
 	  -x 0 -y 0 -z 1" output="screen" />
+	  
+	<group if="$(arg gui)">
+    <node name="gazebo_gui" pkg="gazebo_ros" type="gzclient" respawn="false" output="screen"/>
+  </group>
 
 </launch>
