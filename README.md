@@ -1,32 +1,46 @@
 # New README (in the works, will keep the previous readme info below for now)
 
 What is this?
+
 openvr_headset_ros is a package for ros based on vrui_mdf by Zenyu Shi(https://github.com/zhenyushi/vrui_mdf). The goal of this project is to provide an open source way to view a ros/gazebo simulation through a vr headset. This package will use openvr to get tracking info and send images to the headset for display.
 
+
 Current Progress:
+
 Currently, if you use "roslaunch openvr_headset_ros start.launch", "rosrun openvr_headset_ros opentracking", and "rosrun openvr_headset_ros imagesub" with a headset hooked up to steamvr, a headset model will spawn in Gazebo and your headset will focus on the imagesub node (leave the SteamVR home app) and display some pixel snow. Current priority is getting a video pipeline from gazebo to the headset. The current pipeline (or at least attempted pipeline) is gazebo->a gazebo stereo camera model called "vr_view"->ros publisher in opentracking.cpp->ros subscriber/cv_bridge in imagesub.cpp->OpenGL tex2d in imagesub.cpp->OpenVR Compositor.
 
+
 Software:
-OpenCV
+
+
+OpenCV:
+
 https://docs.opencv.org/4.5.2/d0/d3d/tutorial_general_install.html
+
 Dev package can be installed using:
 
 	$sudo apt install libopencv-dev
 
-OpenGL
+
+OpenGL:
+
 https://www.khronos.org/opengl/wiki/Getting_Started#Downloading_OpenGL
+
 OpenGL is more or less guaranteed to come with your operating system (according to the makers).
 
 
-SDL 
+SDL:
+
 https://wiki.libsdl.org/Installation
+
 Dev package can be installed using:
 
 	$sudo apt install libsdl2-dev
 
+
 Install Process:
 
-To do (it doesn't currently work so no worries!)
+To do
 
 # openvr_headset_ros <-- the new name for this repository!!
 
