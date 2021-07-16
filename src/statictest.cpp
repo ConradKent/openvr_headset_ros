@@ -72,11 +72,16 @@ void CMainApplication::MainInit()
     if (init_OpenVR() != 0) return -1;
 
     //OpenGL Init
+    GLuint tex_left;
+    glGenTextures(1,&tex_left);
 
+    GLuint tex_right;
+    glGenTextures(1,&tex_right);
 
-
-    //
-
+    //Ros Init
+    ros::init(argc, argv, "static_test");
+    ros::NodeHandle nh;
+    ros::Rate r(90);
 
 }
 
@@ -142,19 +147,13 @@ int init_OpenVR()
 
                 return -1;
         }
-
+        uint32_t pnWidth;
+        uint32_t pnHeight;
+        vr_system->GetRecommendedRenderTargetSize(&pnWidth, &pnHeight );
+        vr::TrackedDevicePose_t m_rTrackedDevicePose[ vr::k_unMaxTrackedDeviceCount ];
         return 0;
 }
-//Initialize Left/Right Textures,
-int init_OpenGL()
-{
 
-}
-//Might not be necessary, leaving in so I remember to look over what needs to be done pre-usage for OpenCV
-int init_OpenCV
-{
-
-}
 
 //----------------------------------------------------------------
 // Load Image from png
@@ -162,7 +161,12 @@ int init_OpenCV
 
 void CMainApplication::LoadPNG()
 {
-
+    cv::Mat image_left = cv::imread("/home/conrad/catkin_ws/src/openvr_headset_ros/src/statictest.png");
+    cv::Mat image_right = cv::imread("/home/conrad/catkin_ws/src/openvr_headset_ros/src/statictest.png");
+    if(image_left.empty())
+        {
+        std::cout << "image empty"<< std::endl;
+        }
 }
 
 //----------------------------------------------------------------
@@ -172,6 +176,19 @@ void CMainApplication::LoadPNG()
 void CMainApplication::MatToTex()
 {
 
+    glBindTexture(GL_TEXTURE_2D, tex_left);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);    //hellovr_opengl runs glTexParameteri once per cycle as far as I can tell, which I wanted to take note of because that seems weird.
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,image_left.cols,image_left.rows,0,GL_BGR,GL_UNSIGNED_BYTE,image_left.data);
+
+    glBindTexture(GL_TEXTURE_2D, tex_right);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,image_right.cols,image_right.rows,0,GL_BGR,GL_UNSIGNED_BYTE,image_right.data);
 }
 
 //----------------------------------------------------------------
@@ -181,6 +198,13 @@ void CMainApplication::MatToTex()
 void CMainApplication::RenderFrame()
 {
 
+    vr::Texture_t leftEyeTexture = {(void*)(uintptr_t)tex_left, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+    vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture );
+
+    vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)tex_right, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+    vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture );
+
+    glFinish()
 }
 
 //----------------------------------------------------------------
@@ -189,7 +213,14 @@ void CMainApplication::RenderFrame()
 
 void CMainApplication::RunLoop()
 {
+    while(ros::ok())
+    {
+        ros::spinOnce();
+        // ros::spin() works too, but extra code can run outside the callback function between each spinning if spinOnce() is used
 
+        RenderFrame()
+        r.sleep
+    }
 }
 
 //----------------------------------------------------------------
@@ -198,5 +229,8 @@ void CMainApplication::RunLoop()
 
 int main(int argc,char* argv[])
 {
-
+    MainInit()
+    LoadPNG()
+    MatToTex()
+    RunLoop()
 }
