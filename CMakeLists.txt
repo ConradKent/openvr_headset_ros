@@ -200,6 +200,12 @@ target_include_directories(imagesub PUBLIC
                            $<INSTALL_INTERFACE:include>)
 target_link_libraries (imagesub OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
 
+add_executable(statictest src/statictest.cpp)
+target_include_directories(statictest PUBLIC
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+                           $<INSTALL_INTERFACE:include>)
+target_link_libraries (statictest OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
+
 
 #target_link_libraries(${Boost_LIBRARIES})
 
