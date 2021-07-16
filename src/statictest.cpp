@@ -282,10 +282,10 @@ void CMainApplication::RenderFrame()
 
 
 
-    vr::Texture_t leftEyeTexture = {(void*)(uintptr_t)tex_left, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+    vr::Texture_t leftEyeTexture = {(void*)(uintptr_t)FramebufferLeft, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
     vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture );
 
-    vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)tex_right, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+    vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)FramebufferRight, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
     vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture );
 
     glFinish();
