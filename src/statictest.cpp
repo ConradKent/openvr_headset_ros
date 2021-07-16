@@ -14,6 +14,60 @@
 #include <SDL2/SDL_opengl.h>
 
 //----------------------------------------------------------------
+// Declarations
+//----------------------------------------------------------------
+
+class CMainApplication
+{
+public:
+        CMainApplication( int argc, char *argv[] );
+
+        void MainInit();
+        void MatToTex();
+        void RenderFrame();
+        void init_OpenVR();
+private:
+        GLuint tex_left;
+        GLuint tex_right;
+
+};
+std::string driver_name, driver_serial;
+std::string tracked_device_type[vr::k_unMaxTrackedDeviceCount];
+
+CMainApplication::CMainApplication( int argc, char *argv[] ){};//Should add initializations here I think? I'll figure that out later.
+
+
+//----------------------------------------------------------------
+// Main
+//----------------------------------------------------------------
+
+int main(int argc,char* argv[])
+{
+
+    CMainApplication *pMainApplication = new CMainApplication( argc, argv );
+
+    pMainApplication->init_OpenVR();
+
+    pMainApplication->MatToTex();
+
+    //Ros Init
+    ros::init(argc, argv, "statictest");
+    ros::NodeHandle nh;
+    ros::Rate r(90);
+
+    while(ros::ok())
+    {
+        ros::spinOnce();
+        // ros::spin() works too, but extra code can run outside the callback function between each spinning if spinOnce() is used
+
+        pMainApplication->RenderFrame();
+
+        r.sleep();
+    }
+}
+
+
+//----------------------------------------------------------------
 // Helpers
 //----------------------------------------------------------------
 
@@ -66,28 +120,10 @@ std::string GetTrackedDeviceClassString(vr::ETrackedDeviceClass td_class) {
 // Initialization
 //----------------------------------------------------------------
 
-void CMainApplication::MainInit()
-{
-    //OpenVR Init
-    if (init_OpenVR() != 0) return -1;
-
-    //OpenGL Init
-    GLuint tex_left;
-    glGenTextures(1,&tex_left);
-
-    GLuint tex_right;
-    glGenTextures(1,&tex_right);
-
-    //Ros Init
-    ros::init(argc, argv, "static_test");
-    ros::NodeHandle nh;
-    ros::Rate r(90);
-
-}
-
 //Initialize OpenVR and get pnWidth/pnHeight
-int init_OpenVR()
+void CMainApplication::init_OpenVR()
 {
+    vr::IVRSystem* vr_system;
         // Check whether there is an HMD plugged-in and the SteamVR runtime is installed
         if (vr::VR_IsHmdPresent())
         {
@@ -99,13 +135,11 @@ int init_OpenVR()
                 else
                 {
                         std::cout << "Runtime was not found, quitting app" << std::endl;
-                        return -1;
                 }
         }
         else
         {
                 std::cout << "No HMD was found in the system, quitting app" << std::endl;
-                return -1;
         }
 
         // Load the SteamVR Runtime
@@ -145,28 +179,12 @@ int init_OpenVR()
         {
                 std::cout << "There was a problem indentifying the base stations, please check they are powered on" << std::endl;
 
-                return -1;
         }
         uint32_t pnWidth;
         uint32_t pnHeight;
         vr_system->GetRecommendedRenderTargetSize(&pnWidth, &pnHeight );
         vr::TrackedDevicePose_t m_rTrackedDevicePose[ vr::k_unMaxTrackedDeviceCount ];
-        return 0;
-}
 
-
-//----------------------------------------------------------------
-// Load Image from png
-//----------------------------------------------------------------
-
-void CMainApplication::LoadPNG()
-{
-    cv::Mat image_left = cv::imread("/home/conrad/catkin_ws/src/openvr_headset_ros/src/statictest.png");
-    cv::Mat image_right = cv::imread("/home/conrad/catkin_ws/src/openvr_headset_ros/src/statictest.png");
-    if(image_left.empty())
-        {
-        std::cout << "image empty"<< std::endl;
-        }
 }
 
 //----------------------------------------------------------------
@@ -175,6 +193,22 @@ void CMainApplication::LoadPNG()
 
 void CMainApplication::MatToTex()
 {
+
+
+    //LoadPNG
+    cv::Mat image_left = cv::imread("/home/conrad/catkin_ws/src/openvr_headset_ros/src/statictest.png");
+    cv::Mat image_right = cv::imread("/home/conrad/catkin_ws/src/openvr_headset_ros/src/statictest.png");
+    if(image_left.empty())
+        {
+        std::cout << "image empty"<< std::endl;
+        }
+
+    //OpenGL Init
+
+    glGenTextures(1,&tex_left);
+
+
+    glGenTextures(1,&tex_right);
 
     glBindTexture(GL_TEXTURE_2D, tex_left);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);    //hellovr_opengl runs glTexParameteri once per cycle as far as I can tell, which I wanted to take note of because that seems weird.
@@ -198,39 +232,13 @@ void CMainApplication::MatToTex()
 void CMainApplication::RenderFrame()
 {
 
+
+
     vr::Texture_t leftEyeTexture = {(void*)(uintptr_t)tex_left, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
     vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture );
 
     vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)tex_right, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
     vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture );
 
-    glFinish()
-}
-
-//----------------------------------------------------------------
-// Run main loop
-//----------------------------------------------------------------
-
-void CMainApplication::RunLoop()
-{
-    while(ros::ok())
-    {
-        ros::spinOnce();
-        // ros::spin() works too, but extra code can run outside the callback function between each spinning if spinOnce() is used
-
-        RenderFrame()
-        r.sleep
-    }
-}
-
-//----------------------------------------------------------------
-// Main
-//----------------------------------------------------------------
-
-int main(int argc,char* argv[])
-{
-    MainInit()
-    LoadPNG()
-    MatToTex()
-    RunLoop()
+    glFinish();
 }
