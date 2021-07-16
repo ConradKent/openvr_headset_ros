@@ -27,6 +27,13 @@ public:
         void RenderFrame();
         void init_OpenVR();
 private:
+
+
+        //The framebuffer
+        GLuint FramebufferLeft = 0;
+        GLuint FramebufferRight = 0;
+
+        //The textures
         GLuint tex_left;
         GLuint tex_right;
 
@@ -213,26 +220,57 @@ void CMainApplication::MatToTex()
         std::cout << "image empty"<< std::endl;
         }
 
-    //OpenGL Init
+    //Left eye texture and framebuffer binding
+
+    glGenFramebuffers(1, &FramebufferLeft);
+    glBindFramebuffer(GL_FRAMEBUFFER, FramebufferLeft);
 
     glGenTextures(1,&tex_left);
 
-
-    glGenTextures(1,&tex_right);
-
     glBindTexture(GL_TEXTURE_2D, tex_left);
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);    //hellovr_opengl runs glTexParameteri once per cycle as far as I can tell, which I wanted to take note of because that seems weird.
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
     glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,image_left.cols,image_left.rows,0,GL_BGR,GL_UNSIGNED_BYTE,image_left.data);
 
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, tex_left, 0);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, FramebufferLeft);
+    glViewport(0,0,1852,2056); // Render on the whole framebuffer, complete from the lower left corner to the upper right
+
+    layout(location = 0) out vec3 color;
+    /*
+    //This is a bit of code to check that the framebuffer is okay. Implement later.
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    return false;
+    */
+    //Right eye texture and framebuffer binding
+
+    glGenFramebuffers(1, &FramebufferRight);
+    glBindFramebuffer(GL_FRAMEBUFFER, FramebufferRight);
+
+    glGenTextures(1,&tex_right);
+
     glBindTexture(GL_TEXTURE_2D, tex_right);
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
     glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,image_right.cols,image_right.rows,0,GL_BGR,GL_UNSIGNED_BYTE,image_right.data);
+
+
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, tex_right, 0);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, FramebufferRight);
+    glViewport(0,0,1852,2056); // Render on the whole framebuffer, complete from the lower left corner to the upper right
+
+    layout(location = 0) out vec3 color;
+
 }
 
 //----------------------------------------------------------------
