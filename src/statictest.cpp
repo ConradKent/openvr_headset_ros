@@ -50,6 +50,15 @@ int main(int argc,char* argv[])
 
     pMainApplication->MatToTex();
 
+/*
+    // define and modify OpenCV window to make sure OpenCV data is ingested correctly
+    cv::namedWindow("view",cv::WINDOW_NORMAL); // cv::WINDOW_NORMAL means the window size can be changed
+    cv::moveWindow("view",0,0);      // move the window to the VIVE monitor, which is the second moniter on the right side of main monitor, and main monitor has a width of 1920
+    cv::setWindowProperty("view",0,1);  // setWindowProperty(window name, type of window property(full screen = 0), value of window property(full screen = 1))
+    cv::startWindowThread();
+    cv::Mat image_test = cv::imread("/home/conrad/catkin_ws/src/openvr_headset_ros/src/statictest.png");
+*/
+
     //Ros Init
     ros::init(argc, argv, "statictest");
     ros::NodeHandle nh;
@@ -60,6 +69,7 @@ int main(int argc,char* argv[])
         ros::spinOnce();
         // ros::spin() works too, but extra code can run outside the callback function between each spinning if spinOnce() is used
 
+        /*cv::imshow("view", image_test);*/
         pMainApplication->RenderFrame();
 
         r.sleep();
