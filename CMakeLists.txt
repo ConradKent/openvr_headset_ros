@@ -153,6 +153,9 @@ include_directories(
   ${PROJECT_NAME}
   include
 ##  "${OpenVR}/headers"
+  ${OPENGL_INCLUDE_DIRS}
+  ${GLEW_INCLUDE_DIRS}
+  ${GLUT_INCLUDE_DIRS}
   ${SDL2_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
@@ -165,6 +168,8 @@ find_package(SDL2 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(Boost REQUIRED COMPONENTS thread)
+find_package(GLEW REQUIRED)
+find_package(GLUT REQUIRED)
 ##find_package(OpenVR REQUIRED)
 #find_package(catkin REQUIRED COMPONENTS thread)
 
@@ -198,13 +203,13 @@ add_executable(imagesub src/imagesub.cpp)
 target_include_directories(imagesub PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
                            $<INSTALL_INTERFACE:include>)
-target_link_libraries (imagesub OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
+target_link_libraries (imagesub OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
 
 add_executable(statictest src/statictest.cpp)
 target_include_directories(statictest PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
                            $<INSTALL_INTERFACE:include>)
-target_link_libraries (statictest OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
+target_link_libraries (statictest OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
 
 
 #target_link_libraries(${Boost_LIBRARIES})

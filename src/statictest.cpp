@@ -3,15 +3,19 @@
 //----------------------------------------------------------------
 // Includes
 //----------------------------------------------------------------
-
+#include <SDL2/SDL.h>
 #include <iostream>
+#include <GL/glew.h>
+#include <SDL2/SDL_opengl.h>
+#include <GL/glut.h>
+
+
 #include <ros/ros.h>
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
 #include <openvr/openvr.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_opengl.h>
+
 
 //----------------------------------------------------------------
 // Declarations
@@ -22,20 +26,9 @@ class CMainApplication
 public:
         CMainApplication( int argc, char *argv[] );
 
-        void MainInit();
-        void MatToTex();
-        void RenderFrame();
+
         void init_OpenVR();
-private:
 
-
-        //The framebuffer
-        GLuint FramebufferLeft = 0;
-        GLuint FramebufferRight = 0;
-
-        //The textures
-        GLuint tex_left;
-        GLuint tex_right;
 
 };
 std::string driver_name, driver_serial;
@@ -53,9 +46,99 @@ int main(int argc,char* argv[])
 
     CMainApplication *pMainApplication = new CMainApplication( argc, argv );
 
+    glutInit(&argc, argv);
+    glutCreateWindow("GLEW Test");
+    GLenum err = glewInit();
+    if (GLEW_OK != err)
+    {
+      /* Problem: glewInit failed, something is seriously wrong. */
+      fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+    }
+    fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
+
     pMainApplication->init_OpenVR();
 
-    pMainApplication->MatToTex();
+    std::cout << "MatToTex Start" << std::endl;
+
+    //The framebuffer
+    GLuint FramebufferLeft = 0;
+    GLuint FramebufferRight = 0;
+
+    //The textures
+    GLuint tex_left;
+    GLuint tex_right;
+
+    //LoadPNG
+    cv::Mat image_left = cv::imread("/home/conrad/catkin_ws/src/openvr_headset_ros/src/statictest.png");
+    cv::Mat image_right = cv::imread("/home/conrad/catkin_ws/src/openvr_headset_ros/src/statictest.png");
+    if(image_left.empty())
+        {
+        std::cout << "image empty"<< std::endl;
+        }
+    else
+        {
+        std::cout << "image loaded" << std::endl;
+    }
+    //Left eye texture and framebuffer binding
+
+    glGenFramebuffers(1, &FramebufferLeft);
+    std::cout << "glGenFramebuffers" << std::endl;
+    glBindFramebuffer(GL_FRAMEBUFFER, FramebufferLeft);
+    std::cout << "glBindFramebuffer" << std::endl;
+
+    glGenTextures(1,&tex_left);
+    std::cout << "glGenTextures" << std::endl;
+
+    glBindTexture(GL_TEXTURE_2D, tex_left);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);    //hellovr_opengl runs glTexParameteri once per cycle as far as I can tell, which I wanted to take note of because that seems weird.
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,image_left.cols,image_left.rows,0,GL_BGR,GL_UNSIGNED_BYTE,image_left.data);
+
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, tex_left, 0);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, FramebufferLeft);
+    glViewport(0,0,1852,2056); // Render on the whole framebuffer, complete from the lower left corner to the upper right
+
+
+  //  layout(location = 0) out vec3 color;
+
+    //This is a bit of code to check that the framebuffer is okay. Implement later.
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        {
+        std::cout <<"Framebuffer not complete"<<std::endl;
+        }
+
+    //Right eye texture and framebuffer binding
+
+    glGenFramebuffers(1, &FramebufferRight);
+    glBindFramebuffer(GL_FRAMEBUFFER, FramebufferRight);
+
+    glGenTextures(1,&tex_right);
+
+    glBindTexture(GL_TEXTURE_2D, tex_right);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,image_right.cols,image_right.rows,0,GL_BGR,GL_UNSIGNED_BYTE,image_right.data);
+
+
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, tex_right, 0);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, FramebufferRight);
+    glViewport(0,0,1852,2056); // Render on the whole framebuffer, complete from the lower left corner to the upper right
+
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        {
+        std::cout <<"Framebuffer not complete"<<std::endl;
+        }
+   // layout(location = 0) out vec3 color;
 
 /*
     // define and modify OpenCV window to make sure OpenCV data is ingested correctly
@@ -76,8 +159,17 @@ int main(int argc,char* argv[])
         ros::spinOnce();
         // ros::spin() works too, but extra code can run outside the callback function between each spinning if spinOnce() is used
 
+        vr::TrackedDevicePose_t pose[vr::k_unMaxTrackedDeviceCount];
+        vr::VRCompositor()->WaitGetPoses(pose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
+
         /*cv::imshow("view", image_test);*/
-        pMainApplication->RenderFrame();
+        vr::Texture_t leftEyeTexture = {(void*)(uintptr_t)FramebufferLeft, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+        vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture );
+
+        vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)FramebufferRight, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+        vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture );
+
+        glFinish();;
 
         r.sleep();
     }
@@ -202,91 +294,4 @@ void CMainApplication::init_OpenVR()
         vr_system->GetRecommendedRenderTargetSize(&pnWidth, &pnHeight );
         vr::TrackedDevicePose_t m_rTrackedDevicePose[ vr::k_unMaxTrackedDeviceCount ];
 
-}
-
-//----------------------------------------------------------------
-// Convert OpenCV mat to OpenGL texture
-//----------------------------------------------------------------
-
-void CMainApplication::MatToTex()
-{
-
-
-    //LoadPNG
-    cv::Mat image_left = cv::imread("/home/conrad/catkin_ws/src/openvr_headset_ros/src/statictest.png");
-    cv::Mat image_right = cv::imread("/home/conrad/catkin_ws/src/openvr_headset_ros/src/statictest.png");
-    if(image_left.empty())
-        {
-        std::cout << "image empty"<< std::endl;
-        }
-
-    //Left eye texture and framebuffer binding
-
-    glGenFramebuffers(1, &FramebufferLeft);
-    glBindFramebuffer(GL_FRAMEBUFFER, FramebufferLeft);
-
-    glGenTextures(1,&tex_left);
-
-    glBindTexture(GL_TEXTURE_2D, tex_left);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);    //hellovr_opengl runs glTexParameteri once per cycle as far as I can tell, which I wanted to take note of because that seems weird.
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,image_left.cols,image_left.rows,0,GL_BGR,GL_UNSIGNED_BYTE,image_left.data);
-
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, tex_left, 0);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, FramebufferLeft);
-    glViewport(0,0,1852,2056); // Render on the whole framebuffer, complete from the lower left corner to the upper right
-
-    layout(location = 0) out vec3 color;
-    /*
-    //This is a bit of code to check that the framebuffer is okay. Implement later.
-    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-    return false;
-    */
-    //Right eye texture and framebuffer binding
-
-    glGenFramebuffers(1, &FramebufferRight);
-    glBindFramebuffer(GL_FRAMEBUFFER, FramebufferRight);
-
-    glGenTextures(1,&tex_right);
-
-    glBindTexture(GL_TEXTURE_2D, tex_right);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,image_right.cols,image_right.rows,0,GL_BGR,GL_UNSIGNED_BYTE,image_right.data);
-
-
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, tex_right, 0);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, FramebufferRight);
-    glViewport(0,0,1852,2056); // Render on the whole framebuffer, complete from the lower left corner to the upper right
-
-    layout(location = 0) out vec3 color;
-
-}
-
-//----------------------------------------------------------------
-// Send frame to headset
-//----------------------------------------------------------------
-
-void CMainApplication::RenderFrame()
-{
-
-
-
-    vr::Texture_t leftEyeTexture = {(void*)(uintptr_t)FramebufferLeft, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
-    vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture );
-
-    vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)FramebufferRight, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
-    vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture );
-
-    glFinish();
 }
