@@ -7,19 +7,22 @@ RGBA8, then it submits those texture2d's to each
 eye of a VR headset using OpenVR.
 
 */
+#include <SDL2/SDL.h>
 #include <iostream>
+#include <GL/glew.h>
+#include <SDL2/SDL_opengl.h>
+#include <GL/glut.h>
+
+
 #include <ros/ros.h>
 #include <image_transport/image_transport.h>
 #include "std_msgs/String.h"
-//#include <opencv2/highgui/highgui.hpp> CHECK OpenCV versioning/how to get this futureproofed. We're on opencv version 4 now.
 #include <cv_bridge/cv_bridge.h>
-//#include <time.h> CHECK this
-//#include <tf/transform_broadcaster.h> CHECK this
-//#include <math.h> CHECK this
+#include <opencv2/core.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/highgui.hpp>
 #include <openvr/openvr.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_opengl.h>
-//Check for more needed includes
+
 
 // define callback function in a class so that data running inside the class can be used globally
 class Listener_image
@@ -35,23 +38,12 @@ public:
 
 };
 
-/* Don't need Vive msgs for now. May remove later if we stop using a separate node for tracking.
-class Vive_Listener
-{
-public:
-          vrui_mdf::Vive vive;
 
-          void callback(const vrui_mdf::Vive& msg)
-            {
-                vive = msg;
-            }
-};
-*/
 
 //from https://github.com/matinas/openvrsimplexamples/blob/master/openvrsimplexamples/src/main.cpp
-vr::IVRSystem* vr_system;
-vr::TrackedDevicePose_t tracked_device_pose[vr::k_unMaxTrackedDeviceCount];
 
+
+    vr::IVRSystem* vr_system;
 std::string driver_name, driver_serial;
 std::string tracked_device_type[vr::k_unMaxTrackedDeviceCount];
 int init_OpenVR();
@@ -109,74 +101,139 @@ std::string GetTrackedDeviceClassString(vr::ETrackedDeviceClass td_class) {
 
 int main(int argc, char **argv)
 {
+
+    //initialize glut and glew (opengl stuff)
+    glutInit(&argc, argv);
+    glutCreateWindow("GLEW Test");
+    GLenum err = glewInit();
+    if (GLEW_OK != err)
+    {
+      /* Problem: glewInit failed, something is seriously wrong. */
+      fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+    }
+    fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
+
     // setup ros node
     ros::init(argc, argv, "image_sub");
     ros::NodeHandle nh;
     image_transport::ImageTransport it(nh);
+    ros::Rate r(90);
 
     //initialize OpenVR
     if (init_OpenVR() != 0) return -1;
 
-    //define and generate textures. We're clamping the textures and using linear interpolation for now. OpenGL information on textures is from https://open.gl/textures
-    GLuint tex_left;
-    glGenTextures(1,&tex_left);
+    //define the framebuffers
+    GLuint FramebufferLeft = 0;
+    GLuint FramebufferRight = 0;
 
+    //define the textures
+    GLuint tex_left;
     GLuint tex_right;
-    glGenTextures(1,&tex_right);
+
+
+    //Get the recommended sizes to make cv mats
     uint32_t pnWidth;
     uint32_t pnHeight;
-    vr::TrackedDevicePose_t m_rTrackedDevicePose[ vr::k_unMaxTrackedDeviceCount ];
-
     vr_system->GetRecommendedRenderTargetSize(&pnWidth, &pnHeight );
-    ros::Rate r(90);
+
 
     //define class for callback class and subscriber
     Listener_image listener_left,listener_right;
     image_transport::Subscriber sub_left = it.subscribe("/camera/rgb/left_eye", 1, &Listener_image::callback, &listener_left);
     image_transport::Subscriber sub_right = it.subscribe("/camera/rgb/right_eye", 1, &Listener_image::callback, &listener_right);
   
-//I'm not sure if I need the images as mats to read the image data out of? I'll try reading the bgr data out of the listeners directly for now. Otherwise, we'll read from image_left.data and image_right.data
+    //putting the image info from our listeners onto the opencv mats
     cv::Mat image_left(pnHeight,pnWidth, CV_8UC3,cv::Scalar(0,255,255));
     cv::Mat image_right(pnHeight,pnWidth, CV_8UC3,cv::Scalar(0,255,255));
 
-    listener_left.image = image_left(cv::Range(0,1200),cv::Range(0,960));
-    listener_right.image = image_right(cv::Range(0,1200),cv::Range(0,960));
+    listener_left.image = image_left(cv::Range(0,pnHeight),cv::Range(0,pnWidth));
+    listener_right.image = image_right(cv::Range(0,pnHeight),cv::Range(0,pnWidth));
 
 
-/* Not listening for vive data for now.
-    Vive_Listener vive_data;
-    ros::Subscriber sub_vive = nh.subscribe("vrui/vive", 1, &Vive_Listener::callback, &vive_data);
-*/
+    //Left eye texture and framebuffer binding
+
+    glGenFramebuffers(1, &FramebufferLeft);
+    std::cout << "glGenFramebuffers" << std::endl;
+    glBindFramebuffer(GL_FRAMEBUFFER, FramebufferLeft);
+    std::cout << "glBindFramebuffer" << std::endl;
+
+    glGenTextures(1,&tex_left);
+    std::cout << "glGenTextures" << std::endl;
+
+    glBindTexture(GL_TEXTURE_2D, tex_left);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);    //hellovr_opengl runs glTexParameteri once per cycle as far as I can tell, which I wanted to take note of because that seems weird.
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,image_left.cols,image_left.rows,0,GL_BGR,GL_UNSIGNED_BYTE,image_left.data);
+
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, tex_left, 0);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, FramebufferLeft);
+    glViewport(0,0,1852,2056); // Render on the whole framebuffer, complete from the lower left corner to the upper right
+
+
+  //  layout(location = 0) out vec3 color;
+
+    //This is a bit of code to check that the framebuffer is okay. Implement later.
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        {
+        std::cout <<"Framebuffer not complete"<<std::endl;
+        }
+
+    //Right eye texture and framebuffer binding
+
+    glGenFramebuffers(1, &FramebufferRight);
+    glBindFramebuffer(GL_FRAMEBUFFER, FramebufferRight);
+
+    glGenTextures(1,&tex_right);
+
+    glBindTexture(GL_TEXTURE_2D, tex_right);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,image_right.cols,image_right.rows,0,GL_BGR,GL_UNSIGNED_BYTE,image_right.data);
+
+
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, tex_right, 0);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, FramebufferRight);
+    glViewport(0,0,1852,2056); // Render on the whole framebuffer, complete from the lower left corner to the upper right
+
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        {
+        std::cout <<"Framebuffer not complete"<<std::endl;
+        }
+
+
 
     while(ros::ok())
     {
         ros::spinOnce();
         // ros::spin() works too, but extra code can run outside the callback function between each spinning if spinOnce() is used
 
-            if(listener_left.image.cols!=0 && listener_right.image.cols!=0)
-            {
-                //format of waitgetposes used in hellovr_opengl
-                vr::VRCompositor()->WaitGetPoses(m_rTrackedDevicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
+
+                vr::TrackedDevicePose_t pose[vr::k_unMaxTrackedDeviceCount];
+                vr::VRCompositor()->WaitGetPoses(pose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
+
 
                 glBindTexture(GL_TEXTURE_2D, tex_left);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);    //hellovr_opengl runs glTexParameteri once per cycle as far as I can tell, which I wanted to take note of because that seems weird.
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,image_left.cols,image_left.rows,0,GL_BGR,GL_UNSIGNED_BYTE,image_left.data);
                 vr::Texture_t leftEyeTexture = {(void*)(uintptr_t)tex_left, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
                 vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture );
 
                 glBindTexture(GL_TEXTURE_2D, tex_right);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,image_right.cols,image_right.rows,0,GL_BGR,GL_UNSIGNED_BYTE,image_right.data);
                 vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)tex_right, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
                 vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture );
 
-            }
+                glFinish();
+
             r.sleep();
     }
 
@@ -186,6 +243,8 @@ int main(int argc, char **argv)
 //from https://github.com/matinas/openvrsimplexamples/blob/master/openvrsimplexamples/src/main.cpp
 int init_OpenVR()
 {
+
+
         // Check whether there is an HMD plugged-in and the SteamVR runtime is installed
         if (vr::VR_IsHmdPresent())
         {
@@ -246,5 +305,10 @@ int init_OpenVR()
                 return -1;
         }
 
+
+        vr::TrackedDevicePose_t tracked_device_pose[vr::k_unMaxTrackedDeviceCount];
+
         return 0;
+
+
 }
