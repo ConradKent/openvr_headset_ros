@@ -10,6 +10,7 @@ project(openvr_headset_ros)
 find_package(catkin REQUIRED COMPONENTS
   message_generation
   geometry_msgs
+  openvr_ros
   nodelet
   roscpp
   rospy
@@ -27,8 +28,9 @@ find_package(catkin REQUIRED COMPONENTS
   rviz
 )
 
-find_package(gazebo REQUIRED)
 
+
+find_package(gazebo REQUIRED)
 
 
 link_directories(${catkin_LIBRARY_RIRS})
@@ -70,6 +72,11 @@ find_library(OPENVR_LIBRARY openvr_api HINTS /usr/local/lib/)
 add_message_files(DIRECTORY msg
   FILES
   Vive.msg
+  TrackedDeviceClass.msg
+  TrackedDevicePose.msg
+  TrackedDeviceResult.msg
+  TrackedDeviceRole.msg
+  TrackedDeviceHeader.msg
  )
 
 ## Generate services in the 'srv' folder
@@ -139,7 +146,6 @@ catkin_package(
 )
 
 
-
 ###########
 ## Build ##
 ###########
@@ -195,6 +201,7 @@ target_link_libraries (opentracking LINK_PUBLIC
 	${catkin_LIBRARIES}
 	${Boost_LIBRARIES}
 	${OPENVR_LIBRARY}
+	${CMAKE_DL_LIBS}
 )
 
 
@@ -217,7 +224,7 @@ target_link_libraries (statictest OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARI
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
-#add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+##add_dependencies(${openvr_ros} ${catkin_EXPORTED_TARGETS})
 # see: https://answers.ros.org/question/188982/message-headers-wont-build-first/
 
 ##add_dependencies(opentracking vrui_mdf_generate_messages_cpp)
