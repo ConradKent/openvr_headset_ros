@@ -1,19 +1,19 @@
-# New README (in the works, will keep the previous readme info below for now)
+# openvr_headset_ros
 
-##What is this?
+## What is this?
 
 openvr_headset_ros is a package for ros based on vrui_mdf by Zenyu Shi(https://github.com/zhenyushi/vrui_mdf). The goal of this project is to provide an open source way to view a ros/gazebo simulation through a vr headset. This package will use openvr to get tracking info and send images to the headset for display.
 
 
-##Current Progress:
+## Current Progress:
 
 Currently, if you use "roslaunch openvr_headset_ros start.launch", "rosrun openvr_headset_ros opentracking", and "rosrun openvr_headset_ros imagesub" with a headset hooked up to steamvr, a headset model will spawn in Gazebo and your headset will focus on the imagesub node (leave the SteamVR home app) and display some pixel snow. Current priority is getting a video pipeline from gazebo to the headset. The current pipeline (or at least attempted pipeline) is gazebo->a gazebo stereo camera model called "vr_view"->ros publisher in opentracking.cpp->ros subscriber/cv_bridge in imagesub.cpp->OpenGL tex2d in imagesub.cpp->OpenVR Compositor.
 
 
-##Software:
+## Software:
 
 
-###OpenCV:
+### OpenCV:
 
 https://docs.opencv.org/4.5.2/d0/d3d/tutorial_general_install.html
 
@@ -22,7 +22,7 @@ Dev package can be installed using:
 		$sudo apt install libopencv-dev
 
 
-###OpenGL/GLEW/SDL2:
+### OpenGL/GLEW/SDL2:
 
 OpenGL: https://www.opengl.org//
 GLEW: http://glew.sourceforge.net/
@@ -38,7 +38,7 @@ as well as
 
 GLEW is the "GL Extension Wrangler". It grabs things related to OpenGL and makes it easier to load them into a program. SDL is a library that sets up OpenGL contexts. There are a few redundancies with SDL and GLUT and GLEW in this package as far as I'm aware. I need to do a bit more digging to streamline the OpenGL bits of the package. In the future, you will most likely just need to install GLEW.
 
-###Steam
+### Steam
 
 Steam is a popular platform for hosting games, software, and tools. It is the only portion of this package that is closed source, unfortunately, but SteamVR is necessary for interfacing with VR headsets.
 
@@ -47,7 +47,7 @@ Install steam using:
 		
 Log in to steam/make and account and install SteamVR: https://store.steampowered.com/app/250820/SteamVR/
 
-###OpenVR
+### OpenVR
 
 https://github.com/ValveSoftware/openvr
 Must have SDL2 and GLEW dev packages already installed.
@@ -60,12 +60,12 @@ Install by using:
 		$make
 		$sudo make install
 		
-###ROS/Gazebo
+### ROS/Gazebo
 
 Install ROS Noetic and Gazebo using this tutorial: http://wiki.ros.org/noetic/Installation/Ubuntu
 Set up a Catkin Workspace (~/catkin_ws) using this tutorial: http://wiki.ros.org/catkin/Tutorials/create_a_workspace
 
-##Install Process:
+## Install Process:
 
 Once OpenCV, OpenGL, SteamVR, OpenVR, and ROS are installed:
 
@@ -78,13 +78,13 @@ To run the example code, open a new terminal and source ROS and your catkin work
 
 		$roslaunch openvr_headset_ros VR_empty_test.launch
 
-##Code Based On:
+## Code Based On (updates to comments in code to show where different parts are from coming soon):
 
-###vrui_mdf
+### vrui_mdf
 This package was adapted from vrui_mdf to use OpenVR in place of Vrui.
 Much of this code was copied from or inspired by the code from vrui_mdf.
 See the repository commit history, and/or: https://github.com/zhenyushi/vrui_mdf
 
-###OpenVR_ros
+### OpenVR_ros
 The tracking code is heavily inspired by/adopted from OpenVR_ros
 
