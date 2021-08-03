@@ -10,9 +10,13 @@ openvr_headset_ros is a package for ros based on vrui_mdf by Zenyu Shi(https://g
 openvr_headset_ros will display a stereoscopic view of a gazebo scene to an HTC vive. It will also track the vive's position and orientation to let you move around inside this scene.
 
 Things to be added are:
+
 -Support for other steamvr headsets
+
 -Controller tracking with button/joystick publishing.
+
 -Simple Gazebo scenes with Quadrotors to control/direct via waypoints
+
 -A statictest.cpp file which will operate independently of ROS to demonstrate/test a basic opengl to openvr display pipeline
 
 ## Software:
