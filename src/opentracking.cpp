@@ -238,7 +238,7 @@ inline void PollPoses(vr::IVRSystem* vr_pointer)
 }
 
 //TODO change this to injest from this script instead of external msg (I was testing with just taking in a message from openvr_ros but I think that will be overly complicated, eventually I'll just use all the openvr_ros stuff in a header file I think)
-void callback_positioner(const openvr_ros::TrackedDevicePose::ConstPtr& msg)
+/*void callback_positioner(const openvr_ros::TrackedDevicePose::ConstPtr& msg)
 {
     //struct Position pos;
     //struct Orientation ori;
@@ -252,6 +252,7 @@ void callback_positioner(const openvr_ros::TrackedDevicePose::ConstPtr& msg)
     ORIz = msg->pose.orientation.z;
     ORIw = msg->pose.orientation.w;
 }
+*/
 
 int main(int argc,char* argv[])
 {
@@ -267,7 +268,63 @@ int main(int argc,char* argv[])
     /* gazebo model state publisher and topic */
     ros::Publisher gazebo_pub = n.advertise<gazebo_msgs::ModelState>("gazebo/set_model_state", 10);
     gazebo_msgs::ModelState camera;
-    camera.model_name = "vr_view";
+
+
+    //Get the recommended resolution sizes
+    uint32_t pnWidth;
+    uint32_t pnHeight;
+    vr_pointer->GetRecommendedRenderTargetSize(&pnWidth, &pnHeight );
+
+    std::cout << "Width: " << pnWidth << std::endl;
+    std::cout << "Height: " << pnHeight << std::endl;
+    //TODO clean this up, this is just proof of concept with code that I know works for now. I'll generalize the path to the sdf and get the vr_view tags as variables later.
+    if (pnHeight==2056 && pnWidth==1852) {
+            //Use Vive models
+            camera.model_name = "vr_view_vive";
+            camera.reference_frame="world";
+
+            //ros::Subscriber sub=n.subscribe("tracked_device_pose", 1, callback_positioner); //TODO make sure I understand what the "1" argument is doing correctly. Should be fine as long as I spin ROS right?
+
+            //{
+                //CHECK this and make sure we're spawning correctly. Gazebo recommends spawning via roslaunch so we might switch to that.
+                gazebo_msgs::SpawnModel sm;
+                ros::ServiceClient spawn_model;
+                std::ifstream ifs;
+                ifs.open("/home/conrad/catkin_ws/src/openvr_headset_ros/models/vr_view_vive/model.sdf"); //TODO generalize.
+                std::stringstream stringstream1;
+                stringstream1 << ifs.rdbuf();
+                sm.request.model_name = "vr_view_vive";
+                sm.request.model_xml = stringstream1.str();
+                sm.request.robot_namespace = ros::this_node::getNamespace();
+                sm.request.reference_frame = "world";
+                spawn_model.call(sm);
+
+                system("rosrun gazebo_ros spawn_model -file /home/conrad/catkin_ws/src/openvr_headset_ros/models/vr_view_vive/model.sdf -sdf -model vr_view_vive -y 0 -x 0 -z 1");
+}   else if (pnHeight==2368 && pnWidth==2628) {
+            //Use Vive Pro models
+            camera.model_name = "vr_view_vive_pro";
+            camera.reference_frame="world";
+
+            //ros::Subscriber sub=n.subscribe("tracked_device_pose", 1, callback_positioner); //TODO make sure I understand what the "1" argument is doing correctly. Should be fine as long as I spin ROS right?
+
+            //{
+                //CHECK this and make sure we're spawning correctly. Gazebo recommends spawning via roslaunch so we might switch to that.
+                gazebo_msgs::SpawnModel sm;
+                ros::ServiceClient spawn_model;
+                std::ifstream ifs;
+                ifs.open("/home/conrad/catkin_ws/src/openvr_headset_ros/models/vr_view_vive_pro/model.sdf"); //TODO generalize.
+                std::stringstream stringstream1;
+                stringstream1 << ifs.rdbuf();
+                sm.request.model_name = "vr_view_vive_pro";
+                sm.request.model_xml = stringstream1.str();
+                sm.request.robot_namespace = ros::this_node::getNamespace();
+                sm.request.reference_frame = "world";
+                spawn_model.call(sm);
+
+                system("rosrun gazebo_ros spawn_model -file /home/conrad/catkin_ws/src/openvr_headset_ros/models/vr_view_vive_pro/model.sdf -sdf -model vr_view_vive_pro -y 0 -x 0 -z 1");
+}   else {std::cout << "no camera model found for this headset" << std::endl;}
+
+/*    camera.model_name = "vr_view";
     camera.reference_frame="world";
 
     ros::Subscriber sub=n.subscribe("tracked_device_pose", 1, callback_positioner); //TODO make sure I understand what the "1" argument is doing correctly. Should be fine as long as I spin ROS right?
@@ -288,7 +345,7 @@ int main(int argc,char* argv[])
 
         system("rosrun gazebo_ros spawn_model -file /home/conrad/catkin_ws/src/openvr_headset_ros/models/vr_view/model.sdf -sdf -model vr_view -y 0 -x 0 -z 1");
 
-
+*/
         //Publish ros camera loop (this will eventually cover tracking as well, camera position will be updated on this loop)
         while(ros::ok())
         {
@@ -299,9 +356,9 @@ int main(int argc,char* argv[])
             camera.pose.position.y = POSy;
             camera.pose.position.z = POSz;
 
-            camera.pose.orientation.x = ORIx;
-            camera.pose.orientation.y = ORIy;
-            camera.pose.orientation.z = ORIz;
+            camera.pose.orientation.x = ORIz;
+            camera.pose.orientation.y = ORIx;
+            camera.pose.orientation.z = (-1)*ORIy;
             camera.pose.orientation.w = ORIw;
 
             gazebo_pub.publish(camera);

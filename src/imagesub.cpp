@@ -135,6 +135,8 @@ int main(int argc, char **argv)
     uint32_t pnWidth;
     uint32_t pnHeight;
     vr_system->GetRecommendedRenderTargetSize(&pnWidth, &pnHeight );
+    std::cout << "Width: " << pnWidth << std::endl;
+    std::cout << "Height: " << pnHeight << std::endl;
 
 
     //define class for callback class and subscriber
@@ -172,7 +174,7 @@ int main(int argc, char **argv)
     glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, tex_left, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, FramebufferLeft);
-    glViewport(0,0,1852,2056); // Render on the whole framebuffer, complete from the lower left corner to the upper right
+    glViewport(0,0,pnHeight,pnWidth); // Render on the whole framebuffer, complete from the lower left corner to the upper right
 
 
   //  layout(location = 0) out vec3 color;
@@ -203,7 +205,7 @@ int main(int argc, char **argv)
     glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, tex_right, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, FramebufferRight);
-    glViewport(0,0,1852,2056); // Render on the whole framebuffer, complete from the lower left corner to the upper right
+    glViewport(0,0,pnWidth,pnHeight); // Render on the whole framebuffer, complete from the lower left corner to the upper right
 
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         {
@@ -223,12 +225,12 @@ int main(int argc, char **argv)
 
 
                 glBindTexture(GL_TEXTURE_2D, tex_left);
-                glTexSubImage2D(GL_TEXTURE_2D, 0,GL_RGBA,image_left.cols,image_left.rows,0,GL_BGR,GL_UNSIGNED_BYTE,image_left.data);
+                glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,image_left.cols,image_left.rows,0,GL_BGR,GL_UNSIGNED_BYTE,image_left.data);
                 vr::Texture_t leftEyeTexture = {(void*)(uintptr_t)tex_left, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
                 vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture );
 
                 glBindTexture(GL_TEXTURE_2D, tex_right);
-                glTexSubImage2D(GL_TEXTURE_2D, 0,GL_RGBA,image_right.cols,image_right.rows,0,GL_BGR,GL_UNSIGNED_BYTE,image_right.data);
+                glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,image_right.cols,image_right.rows,0,GL_BGR,GL_UNSIGNED_BYTE,image_right.data);
                 vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)tex_right, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
                 vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture );
 

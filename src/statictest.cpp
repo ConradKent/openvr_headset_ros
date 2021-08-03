@@ -58,8 +58,6 @@ int main(int argc,char* argv[])
 
     pMainApplication->init_OpenVR();
 
-    std::cout << "MatToTex Start" << std::endl;
-
     //The framebuffer
     GLuint FramebufferLeft = 0;
     GLuint FramebufferRight = 0;
