@@ -77,6 +77,8 @@ inline void PollEvents(vr::IVRSystem* vr_pointer)
     static const char* classNames[] = {"Invalid Device", "HMD", "Controller", "Tracker", "Tracking Reference", "Display Redirect"};
     static const char* roleNames[]  = {"invalid", "left", "right", "opt out", "treadmill"};
 
+
+
     if(vr_pointer->PollNextEvent(&event, sizeof(event)))
     {
         vr::TrackedDeviceIndex_t id = event.trackedDeviceIndex;
@@ -143,27 +145,30 @@ vr::HmdVector3_t GetPosition(vr::HmdMatrix34_t matrix) {
     return vector;
 }
 
-inline void PublishTrackedDevicePose(vr::IVRSystem* vr_pointer, const vr::TrackedDevicePose_t& trackedDevicePose)
+inline void PublishTrackedDevicePose(vr::IVRSystem* vr_pointer,
+                                     const ros::Publisher &publisher,
+                                     vr::TrackedDeviceIndex_t id,
+                                     const vr::TrackedDevicePose_t &trackedDevicePose)
 {
     // Do not waste time, just record this moment's timestamp.
-   /*
+
     openvr_ros::TrackedDevicePose msg;
     msg.header.stamp = ros::Time::now();
     msg.header.frame_id = "";
-    */
 
-    vr::ETrackedDeviceClass trackedDeviceClass   = vr::TrackedDeviceClass_HMD; //Tracked vr_pointer->GetTrackedDeviceClass(id);
 
-    //vr::ETrackedControllerRole trackedDeviceRole = vr_pointer->GetControllerRoleForTrackedDeviceIndex(id);
+    vr::ETrackedDeviceClass trackedDeviceClass   = vr_pointer->GetTrackedDeviceClass(id);
 
-    /*
+    vr::ETrackedControllerRole trackedDeviceRole = vr_pointer->GetControllerRoleForTrackedDeviceIndex(id);
+
+
     msg.device_header.ID = (uint16_t) id;
     msg.device_header.Class = (uint8_t) trackedDeviceClass;
     msg.device_header.Role  = (uint8_t) trackedDeviceRole;
     msg.device_header.TrackingResult = (uint8_t) trackedDevicePose.eTrackingResult;
     msg.device_header.PoseIsValid = (bool) trackedDevicePose.bPoseIsValid;
     msg.device_header.DeviceIsConnected = (bool) trackedDevicePose.bDeviceIsConnected;
-    */
+
 
     vr::HmdVector3_t position;
     position = GetPosition(trackedDevicePose.mDeviceToAbsoluteTracking);
@@ -195,29 +200,30 @@ inline void PublishTrackedDevicePose(vr::IVRSystem* vr_pointer, const vr::Tracke
     */
 }
 
-inline void PollPoses(vr::IVRSystem* vr_pointer)
+inline void PollPoses(vr::IVRSystem* vr_pointer, const ros::Publisher &publisher)
 {
-    /*
+
     for (vr::TrackedDeviceIndex_t id = 0; id < vr::k_unMaxTrackedDeviceCount; id++)
     {
         if (!vr_pointer->IsTrackedDeviceConnected(id))
             continue;
-    */
-//TODO change this back to vr_pointer->GetTrackedDeviceClass(id) instead of TrackedDeviceClass_HMD when we track multiple devices.
-        vr::ETrackedDeviceClass trackedDeviceClass = vr::TrackedDeviceClass_HMD;
+
+        //Old code for not using cases vr::ETrackedDeviceClass trackedDeviceClass = vr::TrackedDeviceClass_HMD;
+
+        vr::ETrackedDeviceClass trackedDeviceClass = vr_pointer->GetTrackedDeviceClass(id);
 
         vr::TrackedDevicePose_t trackedDevicePose;
-        /*
+
         vr::VRControllerState_t controllerState;
-//TODO eventually we will iterate through trackedDeviceClass so we can track each device (HMD, controllers, and generic trackers if we have any) for now I'm focusing on HMD.
+
         switch (trackedDeviceClass)
         {
             case vr::ETrackedDeviceClass::TrackedDeviceClass_HMD:
-            */
+
                 // printf("Headset\n");
                 vr_pointer->GetDeviceToAbsoluteTrackingPose(vr::TrackingUniverseStanding, 0, &trackedDevicePose, 1);
-                PublishTrackedDevicePose(vr_pointer, trackedDevicePose);
-                /*break;
+                PublishTrackedDevicePose(vr_pointer, publisher, id, trackedDevicePose);
+                break;
 
             case vr::ETrackedDeviceClass::TrackedDeviceClass_Controller:
                 // printf("Controller: %d\n", id);
@@ -234,25 +240,8 @@ inline void PollPoses(vr::IVRSystem* vr_pointer)
 
         }
     }
-*/
-}
 
-//TODO change this to injest from this script instead of external msg (I was testing with just taking in a message from openvr_ros but I think that will be overly complicated, eventually I'll just use all the openvr_ros stuff in a header file I think)
-/*void callback_positioner(const openvr_ros::TrackedDevicePose::ConstPtr& msg)
-{
-    //struct Position pos;
-    //struct Orientation ori;
-    std::cout <<"CallbackTick"<< std::endl;
-    POSx = msg->pose.position.x;
-    POSy = msg->pose.position.y;
-    POSz = msg->pose.position.z;
-
-    ORIx = msg->pose.orientation.x;
-    ORIy = msg->pose.orientation.y;
-    ORIz = msg->pose.orientation.z;
-    ORIw = msg->pose.orientation.w;
 }
-*/
 
 int main(int argc,char* argv[])
 {
@@ -263,6 +252,12 @@ int main(int argc,char* argv[])
     /* Set up ros node and define publisher for gazebo */
     ros::init(argc, argv, "camera_state");
     ros::NodeHandle n;
+    ros::NodeHandle nh;
+
+    //TODO try to do this without setting up a new publisher maybe? seems ineffecient since everything's happening in this program.
+    ros::Publisher tracked_device_pose_publisher = nh.advertise<openvr_ros::TrackedDevicePose>("tracked_device_pose", 300);
+
+
     ros::Rate r(180);
     ros::service::waitForService("/gazebo/spawn_urdf_model", -1);
     /* gazebo model state publisher and topic */
@@ -300,7 +295,7 @@ int main(int argc,char* argv[])
                 spawn_model.call(sm);
 
                 system("rosrun gazebo_ros spawn_model -file /home/conrad/catkin_ws/src/openvr_headset_ros/models/vr_view_vive/model.sdf -sdf -model vr_view_vive -y 0 -x 0 -z 1");
-}   else if (pnHeight==2368 && pnWidth==2628) {
+}   else if (pnHeight==2628 && pnWidth==2368) {
             //Use Vive Pro models
             camera.model_name = "vr_view_vive_pro";
             camera.reference_frame="world";
@@ -350,15 +345,15 @@ int main(int argc,char* argv[])
         while(ros::ok())
         {
             PollEvents(vr_pointer);
-            PollPoses(vr_pointer/*, tracked_device_pose_publisher*/);
+            PollPoses(vr_pointer, tracked_device_pose_publisher);
 
-            camera.pose.position.x = POSx;
-            camera.pose.position.y = POSy;
-            camera.pose.position.z = POSz;
+            camera.pose.position.x = POSz;
+            camera.pose.position.y = POSx;
+            camera.pose.position.z = POSy;
 
-            camera.pose.orientation.x = ORIz;
-            camera.pose.orientation.y = ORIx;
-            camera.pose.orientation.z = (-1)*ORIy;
+            camera.pose.orientation.x = -1*ORIz;
+            camera.pose.orientation.y = -1*ORIx;
+            camera.pose.orientation.z = ORIy;
             camera.pose.orientation.w = ORIw;
 
             gazebo_pub.publish(camera);
