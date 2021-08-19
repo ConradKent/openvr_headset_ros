@@ -34,6 +34,7 @@ public:
 	    {
             //copy image data to the image under the same class, which will be assign as a pointer. Use rba8 format as this is what OpenVR requires for rendering.
             cv_bridge::toCvShare(msg, "bgr8")->image.copyTo(image);
+            flip(image,image,0);
             }
 
 };
@@ -225,15 +226,15 @@ int main(int argc, char **argv)
 
 
                 glBindTexture(GL_TEXTURE_2D, tex_left);
-                glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,image_left.cols,image_left.rows,0,GL_BGR,GL_UNSIGNED_BYTE,image_left.data);
+                glTexSubImage2D(GL_TEXTURE_2D, 0,0,0,image_left.cols,image_left.rows,GL_BGR,GL_UNSIGNED_BYTE,image_left.data);
                 vr::Texture_t leftEyeTexture = {(void*)(uintptr_t)tex_left, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
                 vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture );
 
                 glBindTexture(GL_TEXTURE_2D, tex_right);
-                glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,image_right.cols,image_right.rows,0,GL_BGR,GL_UNSIGNED_BYTE,image_right.data);
+                glTexSubImage2D(GL_TEXTURE_2D, 0,0,0,image_right.cols,image_right.rows,GL_BGR,GL_UNSIGNED_BYTE,image_right.data);
                 vr::Texture_t rightEyeTexture = {(void*)(uintptr_t)tex_right, vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
                 vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture );
-
+//glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,image_right.cols,image_right.rows,0,GL_BGR,GL_UNSIGNED_BYTE,image_right.data);
                 glFinish();
 
             r.sleep();

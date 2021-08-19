@@ -452,8 +452,8 @@ int main(int argc,char* argv[])
 
 
 
-            camera.pose.position.x = POSz;
-            camera.pose.position.y = POSx;
+            camera.pose.position.x = -1*POSz;
+            camera.pose.position.y = -1*POSx;
             camera.pose.position.z = POSy;
 
             camera.pose.orientation.x = -1*ORIz;
@@ -464,8 +464,8 @@ int main(int argc,char* argv[])
 
             /* left controller */
             std::cout << POSlz << std::endl;
-            controller_left.pose.position.x = POSlz;
-            controller_left.pose.position.y = POSlx;
+            controller_left.pose.position.x = -1*POSlz;
+            controller_left.pose.position.y = -1*POSlx;
             controller_left.pose.position.z = POSly;
 
             controller_left.pose.orientation.x = -1*ORIlz;
@@ -481,8 +481,8 @@ int main(int argc,char* argv[])
 */
 
             /* right controller */
-            controller_right.pose.position.x = POSrz;
-            controller_right.pose.position.y = POSrx;
+            controller_right.pose.position.x = -1*POSrz;
+            controller_right.pose.position.y = -1*POSrx;
             controller_right.pose.position.z = POSry;
 
             controller_right.pose.orientation.x = -1*ORIrz;
