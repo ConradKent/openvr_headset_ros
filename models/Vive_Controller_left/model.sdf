@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <sdf version="1.6">
-  <model name="Vive_Controller">
+  <model name="Vive_Controller_left">
     <static>true</static>
     <link name="link">
       <collision name="collision">
@@ -8,7 +8,7 @@
         <geometry>
           <mesh>
             <scale>0.0010 0.0010 0.0010</scale>
-            <uri>model://Vive_Controller/meshes/HTC_Vive_controller.stl</uri>
+            <uri>model://Vive_Controller_left/meshes/HTC_Vive_controller.stl</uri>
           </mesh>
         </geometry>
       </collision>
@@ -17,12 +17,12 @@
         <geometry>
           <mesh>
             <scale>0.0010 0.0010 0.0010</scale>
-            <uri>model://Vive_Controller/meshes/HTC_Vive_controller.stl</uri>
+            <uri>model://Vive_Controller_left/meshes/HTC_Vive_controller.stl</uri>
           </mesh>
         </geometry>
          <material>
           <script>
-            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <uri>model://Vive_Controller_left/materials/gazebo.material</uri>
             <name>Gazebo/Grey</name>
           </script>
         </material>
