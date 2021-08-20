@@ -34,7 +34,7 @@ public:
 	    {
             //copy image data to the image under the same class, which will be assign as a pointer. Use rba8 format as this is what OpenVR requires for rendering.
             cv_bridge::toCvShare(msg, "bgr8")->image.copyTo(image);
-            flip(image,image,0);
+            flip(image,image,0); //flips the image upside down (the opencv and opengl formats read the pixel rows in a different order)
             }
 
 };
@@ -98,6 +98,8 @@ std::string GetTrackedDeviceClassString(vr::ETrackedDeviceClass td_class) {
 
         return str_td_class;
 }
+
+
 
 
 int main(int argc, char **argv)
@@ -214,6 +216,7 @@ int main(int argc, char **argv)
         }
 
 
+cv::VideoWriter video("/home/conrad/catkin_ws/src/openvr_headset_ros/out.avi",cv::VideoWriter::fourcc('M','J','P','G'),30, cv::Size(pnWidth,pnHeight),true);
 
     while(ros::ok())
     {
@@ -236,6 +239,8 @@ int main(int argc, char **argv)
                 vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture );
 //glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,image_right.cols,image_right.rows,0,GL_BGR,GL_UNSIGNED_BYTE,image_right.data);
                 glFinish();
+
+                video.write(image_right);
 
             r.sleep();
     }

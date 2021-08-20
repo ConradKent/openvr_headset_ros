@@ -31,6 +31,8 @@
 #include <math.h>
 #include<fstream>
 
+#include <openvr_headset_ros/Vive.h>
+
 /*TODO LIST
  * Controllers: Button tracking
  * Controllers: Waypoint pointing
@@ -70,6 +72,9 @@
         static float ORIrz;
         static float ORIrw;
 
+        int triggerpress;
+        int grippress;
+
         vr::TrackedDeviceIndex_t controller_Left_id;
         vr::TrackedDeviceIndex_t controller_Right_id;
 
@@ -99,6 +104,44 @@ inline void shutdown(vr::IVRSystem* vr_pointer)
         }
 }
 
+inline void ButtonPub(vr::VREvent_t event)
+{
+
+
+
+            switch( event.data.controller.button )
+            {
+                    case vr::k_EButton_Grip:  //If it is the grip button that was...
+                    switch(event.eventType)
+                    {
+                            case vr::VREvent_ButtonPress:   // ...pressed...
+                            grippress=1;
+                            ROS_WARN("Grip Press");
+                            break;
+
+                            case vr::VREvent_ButtonUnpress: // ...released...
+                            grippress=0;
+                            break;
+                    }
+                    break;
+
+                    case vr::k_EButton_SteamVR_Trigger:
+                    switch(event.eventType)
+                    {
+                            case vr::VREvent_ButtonPress:  //If the trigger was pressed...
+                            triggerpress=1;
+                            ROS_WARN("Trigger Press");
+                            break;
+
+                            case vr::VREvent_ButtonUnpress://If the trigger was released...
+                            triggerpress=0;
+                            break;
+                    }
+                    break;
+
+            }
+
+}
 
 inline void PollEvents(vr::IVRSystem* vr_pointer)
 {
@@ -134,8 +177,12 @@ inline void PollEvents(vr::IVRSystem* vr_pointer)
                 break;
 
             default:
+                if (event.eventType >= 200 && event.eventType <= 203) //Button events range from 200-203
+                    ButtonPub(event);
+
+
                 // printf("EVENT--(OpenVR) Event: %d\n", event.eventType);
-                break;
+                //break;
         }
         }
 }
@@ -282,6 +329,9 @@ inline void PollPoses(vr::IVRSystem* vr_pointer, const ros::Publisher &publisher
 
 }
 
+
+
+
 int main(int argc,char* argv[])
 {
     vr::IVRSystem* vr_pointer = NULL;
@@ -303,6 +353,9 @@ int main(int argc,char* argv[])
     ros::Publisher gazebo_pub = n.advertise<gazebo_msgs::ModelState>("gazebo/set_model_state", 10);
     gazebo_msgs::ModelState camera,controller_left,controller_right;
 
+    openvr_headset_ros::Vive vive;
+    vive.user_name = "vive";
+    ros::Publisher vive_state = n.advertise<openvr_headset_ros::Vive>("openvr_headset_ros/vive", 10);
 
     //Get the recommended resolution sizes
     uint32_t pnWidth;
@@ -489,13 +542,28 @@ int main(int argc,char* argv[])
             controller_right.pose.orientation.y = -1*ORIrx;
             controller_right.pose.orientation.z = ORIry;
             controller_right.pose.orientation.w = ORIrw;
-/*
-            controller_right.buttons.system = state.getButtonState(8);
-            controller_right.buttons.grip = state.getButtonState(9);
-            controller_right.buttons.menu = state.getButtonState(10);
-            controller_right.buttons.trigger = state.getButtonState(11);
-            controller_right.buttons.trackpad = state.getButtonState(12);
-*/
+
+            vive.ctrl_right.pose=controller_right.pose;
+            vive.ctrl_left.pose=controller_left.pose;
+            /*
+            vive.ctrl_right.pose.position.x = -1*pos_right[2] - bias_2 + getmodelstate.response.pose.position.x;
+            vive.ctrl_right.pose.position.y = -1*pos_right[0] - bias_0 + getmodelstate.response.pose.position.y;
+            vive.ctrl_right.pose.position.z = pos_right[1] + bias_1 + getmodelstate.response.pose.position.z;
+
+            vive.ctrl_right.pose.orientation.x = -1*quaternion_right[2];
+            vive.ctrl_right.pose.orientation.y = -1*quaternion_right[0];
+            vive.ctrl_right.pose.orientation.z = quaternion_right[1];
+            vive.ctrl_right.pose.orientation.w = quaternion_right[3];
+            */
+
+            vive.ctrl_right.buttons.trigger=triggerpress;
+            vive.ctrl_right.buttons.system=grippress;
+
+               vive_state.publish(vive);
+
+
+
+
             gazebo_pub.publish(camera);
             gazebo_pub.publish(controller_left);
             gazebo_pub.publish(controller_right);

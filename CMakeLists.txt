@@ -72,6 +72,9 @@ find_library(OPENVR_LIBRARY openvr_api HINTS /usr/local/lib/)
 add_message_files(DIRECTORY msg
   FILES
   Vive.msg
+  Vive_controller.msg
+  Vive_buttons.msg
+  Vive_trackpad.msg
   TrackedDeviceClass.msg
   TrackedDevicePose.msg
   TrackedDeviceResult.msg
@@ -217,6 +220,12 @@ target_include_directories(statictest PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
                            $<INSTALL_INTERFACE:include>)
 target_link_libraries (statictest OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
+
+add_executable(controllers src/controllers.cpp)
+target_include_directories(statictest PUBLIC
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+                           $<INSTALL_INTERFACE:include>)
+target_link_libraries (controllers OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
 
 
 #target_link_libraries(${Boost_LIBRARIES})
