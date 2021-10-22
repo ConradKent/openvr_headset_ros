@@ -15,9 +15,7 @@ Things to be added are:
 
 -Support for other steamvr headsets
 
--Controller tracking with button/joystick publishing.
-
--Simple Gazebo scenes with Quadrotors to control/direct via waypoints
+-Simple Gazebo scenes with robot models to control/direct via waypoints (currently the models are moved directly with your controller)
 
 -A statictest.cpp file which will operate independently of ROS to demonstrate/test a basic opengl to openvr display pipeline
 
