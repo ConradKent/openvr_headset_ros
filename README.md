@@ -78,6 +78,51 @@ Set up a Catkin Workspace (~/catkin_ws) using this tutorial: http://wiki.ros.org
 
 Once OpenCV, OpenGL, SteamVR, OpenVR, and ROS are installed:
 
+### Install Turtlebot 3:
+
+		$cd ~/catkin_ws/src
+		$git clone -b noetic-devel https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git
+		$cd ~/catkin_ws && catkin_make
+		
+### Install Hector Quadrotor:
+
+Hector is an old package and requires some work to install.
+
+First you'll need to make a new catkin_ws workspace in the same way as the original. If you don't have a separate workspace already, call this "catkin_ws_2".
+
+Next, install geographic_info into catkin_ws_2.
+
+		$cd ~/catkin_ws_2/src
+		$git clone https://github.com/ros-geographic-info/geographic_info
+		$cd ~/catkin_ws_2 && catkin_make
+		
+Next we'll follow clone hector_quadrotor into catkin_ws.
+
+First, source your ros setup.bash (for me, the command is "$source /opt/ros/noetic/setup.bash"). Then:
+
+		$sudo apt install ros-noetic-joystick-drivers ros-noetic-teleop-twist-keyboard
+		$cd ~/catkin_ws/src
+		$git clone https://github.com/AS4SR/hector_quadrotor
+		
+You can try running catkin_make at this point, but I had to make the following changes to obselete code to get it to run:
+
+-Remove "signals" from line 10 of of ~/catkin_ws/src/hector_slam/hector_mapping/CMakeLists.txt (signals is deprecated and what it provided has been rolled into elsewhere)
+
+-In ~/catkin_ws/src/hector_slam/hector_geotiff/CMakeLists.txt
+	-delete line 27
+	-in line 88 replace "${QT_LIBRARIES}" with Qt5::Widgets (the name here changed during a version switch)
+
+-On ~/catkin_ws/src/hector_slam/hector_geotiff/include/hector_geotiff/geotiff_writer.h
+	-Changed line 40 from "QtGui" to "QtWidgets" (change in Qt's naming system)
+	-Had to make this same change to line 34 of ~/catkin_ws/src/hector_slam/hector_geotiff/src/geotiff_writer/geotiff_writer.cpp
+	-As well as to line 37 of "geotiff_saver.cpp" and line 43 of "geotiff_node.cpp" in hector_slam/hector_geotiff
+
+After these changes you should be able to run
+
+		$cd ~/catkin_ws && catkin_make
+
+### Install openvr_headset_ros
+
 		$cd ~/catkin_ws/src
 		$git clone https://github.com/ConradKent/openvr_headset_ros
 		$cd ..
