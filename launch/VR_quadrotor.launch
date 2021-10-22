@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <arg name="world" default="worlds/empty.world"/>
+  <arg name="gui" default="true"/>
+  <arg name="args" default=""/>
+  
+  <param name="/use_sim_time" value="true" />
+
+  <node name="gazebo" pkg="gazebo_ros" type="gzserver" args="$(arg world) $(arg args)" respawn="false" output="screen"/>
+  
+
+  <group if="$(arg gui)">
+    <node name="gazebo_gui" pkg="gazebo_ros" type="gzclient" respawn="false" output="screen"/>
+  </group>
+
+
+
+
+  
+
+	 <!-- Spawn simulated quadrotor uav -->
+	 <include file="$(find hector_quadrotor_gazebo)/launch/spawn_quadrotor.launch" >
+	    <arg name="model" value="$(find hector_quadrotor_description)/urdf/quadrotor_hokuyo_utm30lx.gazebo.xacro"/>
+	    <arg name="controllers" value="
+		controller/attitude
+		controller/velocity
+		controller/position
+		"/>
+	 </include>
+  
+  
+  
+  
+  <!-- Fake laser -->
+  <node pkg="nodelet" type="nodelet" name="laserscan_nodelet_manager" args="manager"/>
+  <node pkg="nodelet" type="nodelet" name="depthimage_to_laserscan"
+        args="load depthimage_to_laserscan/DepthImageToLaserScanNodelet laserscan_nodelet_manager">
+    <param name="scan_height" value="10"/>
+    <param name="output_frame_id" value="/camera_depth_frame"/>
+    <param name="range_min" value="0.45"/>
+    <remap from="image" to="/camera/depth/image_raw"/>
+    <remap from="scan" to="/scan"/>
+  </node>
+
+	 <!-- talk to vrui server -->
+         <node name="opentracking" pkg="openvr_headset_ros" type="opentracking"/>
+
+         <!-- display for Vive HMD -->
+         <node name="imagesub" pkg="openvr_headset_ros" type="imagesub"/>
+
+         <!-- use right controller to control the robot -->
+         <node name="controllers_hector" pkg="openvr_headset_ros" type="controllers_hector"/>
+
+	 <!-- spawn model for controller.cpp -->
+	 <node name="spawn_model_liftcontroller" pkg="gazebo_ros" type="spawn_model"
+	 args="-file $(find openvr_headset_ros)/models/controller/model.sdf -sdf -model waypoint 
+	 -x 0 -y 0 -z 1" output="screen" />
+
+	 <!-- use left trigger to change standingpoint -->
+         <!--node name="standingpoint" pkg="vrui_mdf" type="standingpoint"/-->
+
+</launch>

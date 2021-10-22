@@ -8,7 +8,7 @@
 #include<fstream>
 
 #include <ros/ros.h>
-#include <vrui_mdf/Vive.h>
+#include <openvr_headset_ros/Vive.h>
 
 #include "std_msgs/String.h"
 #include <tf/transform_broadcaster.h>  // translation between Eular angle and Quaternion, unnecessary for tracking since Quaternion can be received directly
@@ -23,9 +23,9 @@
 class Vive_Listener
 {
 public:
-	  vrui_mdf::Vive vive;
+          openvr_headset_ros::Vive vive;
 
-	  void callback(const vrui_mdf::Vive& msg)
+          void callback(const openvr_headset_ros::Vive& msg)
 	    {
 		vive = msg;
 	    }
@@ -69,7 +69,7 @@ public:
 
 	  }
 
-	void controller(const vrui_mdf::Vive& vive)
+        void controller(const openvr_headset_ros::Vive& vive)
 	  {
 		if(trigger==0 & (int)vive.ctrl_right.buttons.trigger == 1)
 		  {
@@ -194,7 +194,7 @@ public:
 		
 	}
 
-	void waypoint_controller(const vrui_mdf::Vive& vive)
+        void waypoint_controller(const openvr_headset_ros::Vive& vive)
 	{
 
 		if(1)//trigger==0 & (int)vive.ctrl_right.buttons.trigger == 0)
@@ -219,7 +219,7 @@ public:
 	}
 
 
-	void controller(const vrui_mdf::Vive& vive)
+        void controller(const openvr_headset_ros::Vive& vive)
 	  {
 		if(trigger==0 & (int)vive.ctrl_right.buttons.trigger == 1)
 		  {
@@ -343,7 +343,7 @@ public:
 	  }
 */
 
-	void controller(const vrui_mdf::Vive& vive)
+        void controller(const openvr_headset_ros::Vive& vive)
 	  {
 		if(trigger==0 & (int)vive.ctrl_right.buttons.trigger == 1)
 		  {
@@ -415,7 +415,7 @@ int main(int argc, char **argv)
   ros::service::waitForService("/gazebo/spawn_urdf_model", -1);
   //define class for callback class and subscriber
   Vive_Listener vive_data;
-  ros::Subscriber sub_vive = nh.subscribe("vrui/vive", 1, &Vive_Listener::callback, &vive_data);
+  ros::Subscriber sub_vive = nh.subscribe("openvr_headset_ros/vive", 1, &Vive_Listener::callback, &vive_data);
 
 
 
@@ -434,7 +434,7 @@ int main(int argc, char **argv)
 
 
     /* previous value */
-    vrui_mdf::Vive vive_previ;
+    openvr_headset_ros::Vive vive_previ;
 
     /* controller 1 */
     velocitycontroller velocity_controller;
