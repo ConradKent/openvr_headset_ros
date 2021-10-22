@@ -2,12 +2,14 @@
 
 ## What is this?
 
-openvr_headset_ros is a package for ros based on vrui_mdf by Zenyu Shi(https://github.com/zhenyushi/vrui_mdf). The goal of this project is to provide an open source way to view a ros/gazebo simulation through a vr headset. This package will use openvr to get tracking info and send images to the headset for display.
+openvr_headset_ros is a package for ros based on vrui_mdf by Zenyu Shi(https://github.com/zhenyushi/vrui_mdf). The goal of this project is to provide an open source way to view a ros/gazebo simulation through a vr headset. This package will use openvr to get tracking info and send images to the headset for display. The package currently works with the original Vive headset and controllers or the Vive Pro headset and controllers, and with lighthouse version 1.0 or 2.0. Other SteamVR capable headsets should be relatively simple to add.
 
 
 ## Current Progress:
 
-openvr_headset_ros will display a stereoscopic view of a gazebo scene to an HTC vive. It will also track the vive's position and orientation to let you move around inside this scene.
+This software currently works on Ubuntu 20.04.3 LTS, with an AMD Ryzen 7 2700x CPU and AMD rx 5700xt GPU. We're running ROS noetic (roscpp version 1.15.11) and SteamVR Build ID: 7205650 (updated Aug 19, 2021).
+
+openvr_headset_ros will display a stereoscopic view of a gazebo scene to an HTC vive. It will also track the vive's position and orientation to let you move around inside this scene. There are two examples with a model of the turtlebot robot and a quadrotor. In these examples, the robot models can be moved with the controllers.
 
 Things to be added are:
 
@@ -86,9 +88,9 @@ Once OpenCV, OpenGL, SteamVR, OpenVR, and ROS are installed:
 		
 ### Install Hector Quadrotor:
 
-Hector is an old package and requires some work to install.
+Hector is an old package and requires some work to install. First, make sure Qt5 is installed (sudo apt-get install qt5-default).
 
-First you'll need to make a new catkin_ws workspace in the same way as the original. If you don't have a separate workspace already, call this "catkin_ws_2".
+You'll need to make a new catkin_ws workspace in the same way as the original. If you don't have a separate workspace already, follow this guide: http://wiki.ros.org/catkin/Tutorials/create_a_workspace and call the new ws "catkin_ws_2".
 
 Next, install geographic_info into catkin_ws_2.
 
@@ -96,7 +98,7 @@ Next, install geographic_info into catkin_ws_2.
 		$git clone https://github.com/ros-geographic-info/geographic_info
 		$cd ~/catkin_ws_2 && catkin_make
 		
-Next we'll follow clone hector_quadrotor into catkin_ws.
+Next we'll clone hector_quadrotor into catkin_ws.
 
 First, source your ros setup.bash (for me, the command is "$source /opt/ros/noetic/setup.bash"). Then:
 
@@ -120,6 +122,8 @@ You can try running catkin_make at this point, but I had to make the following c
 After these changes you should be able to run
 
 		$cd ~/catkin_ws && catkin_make
+		
+If you can't... Well you might have to figure that out on your own. This is running with Qt version 5.12.8 and should definitely be run with Qt5.
 
 ### Install openvr_headset_ros
 
@@ -128,9 +132,19 @@ After these changes you should be able to run
 		$cd ..
 		$catkin_make
 		
-To run the example code, open a new terminal and source ROS and your catkin workspace according to: http://wiki.ros.org/catkin/Tutorials/create_a_workspace. Then run:
+To run the example code, open a new terminal and source ROS and your catkin workspace according to: http://wiki.ros.org/catkin/Tutorials/create_a_workspace. Make sure SteamVR is running and that your VR headset and controllers are connected. Then run:
 
 		$roslaunch openvr_headset_ros VR_empty_test.launch
+		
+To run the turtlebot 3 example:
+
+		$roslaunch openvr_headset_ros VR_turtlebot.launch
+
+To run the hector_quadrotor example:
+
+		$roslaunch openvr_headset_ros VR_quadrotor.launch
+
+The turtlebot and quadrotor examples are currently very WIP. You should be able to move the robot models around by first clicking the grip button on the right controller, and then pressing and releasing the trigger button. The aim on the controllers is currently backwards, which should be fixed soon.
 
 ## Code Based On (updates to comments in code to show where different parts are from coming soon):
 
