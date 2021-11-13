@@ -6,10 +6,12 @@ openvr_headset_ros is a package for ros based on vrui_mdf by Zhenyu Shi(https://
 
 ## Some Gifs
 
-A demo of controlling a Turtlebot3, With perspective from inside the headset and outside. This demo uses the waypoint, throwto, and velocity controls.
+A demo of controlling a Turtlebot3, With perspective from inside the headset and outside. This demo uses the waypoint, throwto, and velocity controls:
+
 ![Uh oh, Something's gone wrong with this link.](https://github.com/ConradKent/conrad_media/blob/main/openvr_headset_ros/TurtlebotDemo1.gif)
 
 Sometimes they just don't navigate the way you want...
+
 ![Uh oh, Something's gone wrong with this link.](https://github.com/ConradKent/conrad_media/blob/main/openvr_headset_ros/QuadrotorHittingWall.gif)
 
 ## Current Progress:
@@ -147,9 +149,10 @@ To launch an empty scene with headset/controllers:
 		
 To run the turtlebot 3 example:
 
+		$export TURTLEBOT3_MODEL=burger
 		$roslaunch openvr_headset_ros VR_turtlebot.launch
 
-To run the hector_quadrotor example:
+To run the hector_quadrotor example (see note below this as well):
 
 		$roslaunch openvr_headset_ros VR_quadrotor.launch
 
