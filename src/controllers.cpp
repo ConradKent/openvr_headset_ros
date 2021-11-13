@@ -48,7 +48,7 @@ public:
 
 	std::string waypoint_name;//"waypoint"
 
-	std::string model_name; //"mobile_base"
+	std::string model_name; //"turtlebot3_burger"
 
 	bool once;
 
@@ -123,7 +123,7 @@ class Waypointcontroller
 public:
 	ros::ServiceClient client_get;//= n.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
 
-	ros::Publisher base_control;//= n.advertise<geometry_msgs::Twist>("mobile_base/commands/velocity", 1);
+	ros::Publisher base_control;//= n.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
 
 	gazebo_msgs::GetModelState get_state;
 
@@ -287,7 +287,7 @@ class velocitycontroller
 public:
 	ros::ServiceClient client_get;//= n.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
 
-	ros::Publisher base_control;//= n.advertise<geometry_msgs::Twist>("mobile_base/commands/velocity", 1);
+	ros::Publisher base_control;//= n.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
 
 	gazebo_msgs::GetModelState get_state;
 
@@ -414,7 +414,7 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "vive_controller");
   ros::NodeHandle nh;
 
-  ros::Rate r(90);
+  ros::Rate r(180);
   ros::service::waitForService("/gazebo/spawn_urdf_model", -1);
   //define class for callback class and subscriber
   Vive_Listener vive_data;
@@ -427,13 +427,13 @@ int main(int argc, char **argv)
 
 
     /* turtlebot twist command */
-    ros::Publisher base_control = nh.advertise<geometry_msgs::Twist>("/mobile_base/commands/velocity", 1);
+    ros::Publisher base_control = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
     geometry_msgs::Twist base_motion;
 
     /* get mobile base state*/
     ros::ServiceClient client_get = nh.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
     gazebo_msgs::GetModelState get_state;
-    get_state.request.model_name = "mobile_base";
+    get_state.request.model_name = "turtlebot3_burger";
 
 
     /* previous value */
@@ -443,8 +443,8 @@ int main(int argc, char **argv)
     velocitycontroller velocity_controller;
     velocity_controller.trigger = 0;
     velocity_controller.client_get = nh.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
-    velocity_controller.base_control = nh.advertise<geometry_msgs::Twist>("/mobile_base/commands/velocity", 1);
-    velocity_controller.get_state.request.model_name = "mobile_base";
+    velocity_controller.base_control = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
+    velocity_controller.get_state.request.model_name = "turtlebot3_burger";
     velocity_controller.kp_ang = 4;
     velocity_controller.kp_lin = 20;
 
@@ -458,8 +458,8 @@ int main(int argc, char **argv)
     Way_point_controller.spawn_model = nh.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_sdf_model");
     Way_point_controller.readmodel("/home/zhenyushi/.gazebo/models/controller/model.sdf");
     Way_point_controller.client_get = nh.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
-    Way_point_controller.base_control = nh.advertise<geometry_msgs::Twist>("/mobile_base/commands/velocity", 1);
-    Way_point_controller.get_state.request.model_name = "mobile_base";
+    Way_point_controller.base_control = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
+    Way_point_controller.get_state.request.model_name = "turtlebot3_burger";
     Way_point_controller.kp_ang = 4;
     Way_point_controller.kp_lin = 0.3;
 
@@ -467,7 +467,7 @@ int main(int argc, char **argv)
     ThrowMethod ThrowTo;
     ThrowTo.trigger = 0;
     ThrowTo.waypoint_name = "waypoint";
-    ThrowTo.model_name = "mobile_base";
+    ThrowTo.model_name = "turtlebot3_burger";
     ThrowTo.once = false;
     ThrowTo.delete_model = nh.serviceClient<gazebo_msgs::DeleteModel>("/gazebo/delete_model");
     ThrowTo.spawn_model = nh.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_sdf_model");

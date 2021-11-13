@@ -4,18 +4,23 @@
 
 openvr_headset_ros is a package for ros based on vrui_mdf by Zenyu Shi(https://github.com/zhenyushi/vrui_mdf). The goal of this project is to provide an open source way to view a ros/gazebo simulation through a vr headset. This package will use openvr to get tracking info and send images to the headset for display. The package currently works with the original Vive headset and controllers or the Vive Pro headset and controllers, and with lighthouse version 1.0 or 2.0. Other SteamVR capable headsets should be relatively simple to add.
 
+## Some Gifs
+
+A demo of controlling a Turtlebot3, With perspective from inside the headset and outside. This demo uses the waypoint, throwto, and velocity controls.
+![Uh oh, Something's gone wrong with this link.](https://github.com/ConradKent/conrad_media/blob/main/openvr_headset_ros/TurtlebotDemo1.gif)
+
+Sometimes they just don't navigate the way you want...
+![Uh oh, Something's gone wrong with this link.](https://github.com/ConradKent/conrad_media/blob/main/openvr_headset_ros/QuadrotorHittingWall.gif)
 
 ## Current Progress:
 
-This software currently works on Ubuntu 20.04.3 LTS, with an AMD Ryzen 7 2700x CPU and AMD rx 5700xt GPU. We're running ROS noetic (roscpp version 1.15.11) and SteamVR Build ID: 7205650 (updated Aug 19, 2021).
+This software currently works on Ubuntu 20.04.3 LTS, with an AMD Ryzen 7 2700x CPU and AMD rx 5700xt GPU. The graphics driver we're using is "amdgpu", amdgpu-pro has not been tested. To check your graphics driver run "$lsmod | grep amd" and look for amdgpu or amdgpu-pro. We're running ROS noetic (roscpp version 1.15.11) and SteamVR Build ID: 7205650 (updated Aug 19, 2021).
 
 openvr_headset_ros will display a stereoscopic view of a gazebo scene to an HTC vive. It will also track the vive's position and orientation to let you move around inside this scene. There are two examples with a model of the turtlebot robot and a quadrotor. In these examples, the robot models can be moved with the controllers.
 
 Things to be added are:
 
 -Support for other steamvr headsets
-
--Simple Gazebo scenes with robot models to control/direct via waypoints (currently the models are moved directly with your controller)
 
 -A statictest.cpp file which will operate independently of ROS to demonstrate/test a basic opengl to openvr display pipeline
 
@@ -129,8 +134,14 @@ If you can't... Well you might have to figure that out on your own. This is runn
 		$git clone https://github.com/ConradKent/openvr_headset_ros
 		$cd ..
 		$catkin_make
+
+### Running openvr_headset_ros example code
 		
-To run the example code, open a new terminal and source ROS and your catkin workspace according to: http://wiki.ros.org/catkin/Tutorials/create_a_workspace. Make sure SteamVR is running and that your VR headset and controllers are connected. Then run:
+To run any example code, open a new terminal and source ROS and your catkin workspace according to: http://wiki.ros.org/catkin/Tutorials/create_a_workspace. Make sure SteamVR is running and that your VR headset and controllers are connected. Then run:
+
+When launching, make sure that SteamVR is open and that the headset and controllers are active. I've also found it best to have your finger over the sensor inside the headset that wakes it up (The sensor that aims at your forehead to check if you have the headset on). 
+
+To launch an empty scene with headset/controllers:
 
 		$roslaunch openvr_headset_ros VR_empty_test.launch
 		
@@ -142,7 +153,13 @@ To run the hector_quadrotor example:
 
 		$roslaunch openvr_headset_ros VR_quadrotor.launch
 
-The turtlebot and quadrotor examples are currently very WIP. You should be able to move the robot models around by first clicking the grip button on the right controller, and then pressing and releasing the trigger button. The aim on the controllers is currently backwards, which should be fixed soon.
+After launching the quadrotor, wait a few seconds for everything to set up. Then, open a new terminal, source your catkin_ws, and type
+
+		$rosservice call /enable_motors "enable: true"
+		
+The quadrotor needs to fully load in to enable the motors, I'll add something better to the code eventually but this works for now.
+
+The turtlebot and quadrotor examples have three control methods. Throwto, Velocity, and Waypoint. To switch between each control method, hit the grip button (on Vive/Vive Pro controllers. Not sure if grip is mapped the same for other controllers). To aim the Throwto point or Waypoint, hold down the trigger and move the flat cylinder around. Throwto will teleport the robot there, Waypoint will have the robot navigate to there. To use Velocity, hold the trigger down and move the controller to directly control the robot's motors. This will be changed to using the joystick of the controller soon. 
 
 ## Code Based On (updates to comments in code to show where different parts are from coming soon):
 
@@ -152,5 +169,5 @@ Much of this code was copied from or inspired by the code from vrui_mdf.
 See the repository commit history, and/or: https://github.com/zhenyushi/vrui_mdf
 
 ### OpenVR_ros
-The tracking code is heavily inspired by/adopted from OpenVR_ros
+The tracking code is heavily inspired by/adopted from OpenVR_ros.
 

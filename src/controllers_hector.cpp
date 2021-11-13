@@ -411,7 +411,7 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "vive_controller");
   ros::NodeHandle nh;
 
-  ros::Rate r(90);
+  ros::Rate r(180);
   ros::service::waitForService("/gazebo/spawn_urdf_model", -1);
   //define class for callback class and subscriber
   Vive_Listener vive_data;
@@ -424,13 +424,13 @@ int main(int argc, char **argv)
 
 
     /* turtlebot twist command */
-    ros::Publisher base_control = nh.advertise<geometry_msgs::Twist>("/mobile_base/commands/velocity", 1);
+    ros::Publisher base_control = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
     geometry_msgs::Twist base_motion;
 
     /* get mobile base state*/
     ros::ServiceClient client_get = nh.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
     gazebo_msgs::GetModelState get_state;
-    get_state.request.model_name = "mobile_base";
+    get_state.request.model_name = "quadrotor";
 
 
     /* previous value */
@@ -452,7 +452,7 @@ int main(int argc, char **argv)
     Way_point_controller.once = false;
     Way_point_controller.delete_model = nh.serviceClient<gazebo_msgs::DeleteModel>("/gazebo/delete_model");
     Way_point_controller.spawn_model = nh.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_sdf_model");
-    Way_point_controller.readmodel("/home/zhenyushi/.gazebo/models/controller/model.sdf");
+    Way_point_controller.readmodel("/home/conrad/.gazebo/models/controller/model.sdf");
     Way_point_controller.client_get = nh.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
     Way_point_controller.base_control = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
     Way_point_controller.get_state.request.model_name = "quadrotor";
@@ -471,7 +471,7 @@ int main(int argc, char **argv)
     ThrowTo.once = false;
     ThrowTo.delete_model = nh.serviceClient<gazebo_msgs::DeleteModel>("/gazebo/delete_model");
     ThrowTo.spawn_model = nh.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_sdf_model");
-    ThrowTo.readmodel("/home/zhenyushi/.gazebo/models/controller/model.sdf");
+    ThrowTo.readmodel("/home/conrad/.gazebo/models/controller/model.sdf");
 
 
 
@@ -481,9 +481,9 @@ int main(int argc, char **argv)
     msg.data = first_controller ;
     ToDisplay.publish(msg);
 
+  ros::spinOnce(); 
 
-
-    system("rosservice call /enable_motors true");
+    system("rosservice call /enable_motors 'enable: true'");
 
 
   while(ros::ok())
