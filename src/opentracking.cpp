@@ -469,16 +469,16 @@ int main(int argc,char* argv[])
     gazebo_msgs::SpawnModel sm;
     ros::ServiceClient spawn_model;
     std::ifstream ifs1,ifs2;
-    ifs1.open("/home/conrad/catkin_ws/src/openvr_headset_ros/models/cube_black/model.sdf"); //TODO generalize.
+    ifs1.open("/home/conrad/catkin_ws/src/openvr_headset_ros/models/Gazebo_Vive_Wand/SDF_Editing/model.sdf"); //TODO generalize.
     std::stringstream stringstream1;
     stringstream1 << ifs1.rdbuf();
-    sm.request.model_name = "cube_black";
+    sm.request.model_name = "Gazebo_Vive_Wand";
     sm.request.model_xml = stringstream1.str();
     sm.request.robot_namespace = ros::this_node::getNamespace();
     sm.request.reference_frame = "world";
     spawn_model.call(sm);
 
-        system("rosrun gazebo_ros spawn_model -file /home/conrad/catkin_ws/src/openvr_headset_ros/models/cube_black/model.sdf -sdf -model Vive_Controller_left -y 0 -x 0 -z 1");
+        system("rosrun gazebo_ros spawn_model -file /home/conrad/catkin_ws/src/openvr_headset_ros/models/Gazebo_Vive_Wand/SDF_Editing/model.sdf -sdf -model Vive_Controller_left -y 0 -x 0 -z 1");
 
 
     controller_right.model_name = "Vive_Controller_right";
@@ -486,16 +486,16 @@ int main(int argc,char* argv[])
 
 
 
-    ifs2.open("/home/conrad/catkin_ws/src/openvr_headset_ros/models/cube_black/model.sdf"); //TODO generalize.
+    ifs2.open("/home/conrad/catkin_ws/src/openvr_headset_ros/models/Gazebo_Vive_Wand/SDF_Editing/model.sdf"); //TODO generalize.
     std::stringstream stringstream2;
     stringstream2 << ifs1.rdbuf();
-    sm.request.model_name = "cube_black";
+    sm.request.model_name = "Gazebo_Vive_Wand";
     sm.request.model_xml = stringstream2.str();
     sm.request.robot_namespace = ros::this_node::getNamespace();
     sm.request.reference_frame = "world";
     spawn_model.call(sm);
 
-    system("rosrun gazebo_ros spawn_model -file /home/conrad/catkin_ws/src/openvr_headset_ros/models/cube_black/model.sdf -sdf -model Vive_Controller_right -y 0 -x 0 -z 1");
+    system("rosrun gazebo_ros spawn_model -file /home/conrad/catkin_ws/src/openvr_headset_ros/models/Gazebo_Vive_Wand/SDF_Editing/model.sdf -sdf -model Vive_Controller_right -y 0 -x 0 -z 1");
 
 
         while(ros::ok())

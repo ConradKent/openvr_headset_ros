@@ -87,8 +87,8 @@ public:
 			waypoint.model_name = waypoint_name;
 			waypoint.reference_frame="world";
 
-			waypoint.pose.position.x = vive.ctrl_right.pose.position.x - 2*(m[0][0]*vive.ctrl_right.pose.position.z);
-			waypoint.pose.position.y = vive.ctrl_right.pose.position.y - 2*(m[1][0]*vive.ctrl_right.pose.position.z);
+			waypoint.pose.position.x = vive.ctrl_right.pose.position.x + 2*(m[0][0]*vive.ctrl_right.pose.position.z);
+			waypoint.pose.position.y = vive.ctrl_right.pose.position.y + 2*(m[1][0]*vive.ctrl_right.pose.position.z);
 			waypoint.pose.position.z = 0;
 
 			waypoint.pose.orientation.x = 0;
@@ -248,8 +248,8 @@ public:
 			waypoint.model_name = waypoint_name;
 			waypoint.reference_frame="world";
 
-			waypoint.pose.position.x = vive.ctrl_right.pose.position.x - 2*(m[0][0]*vive.ctrl_right.pose.position.z);
-			waypoint.pose.position.y = vive.ctrl_right.pose.position.y - 2*(m[1][0]*vive.ctrl_right.pose.position.z);
+			waypoint.pose.position.x = vive.ctrl_right.pose.position.x + 2*(m[0][0]*vive.ctrl_right.pose.position.z);
+			waypoint.pose.position.y = vive.ctrl_right.pose.position.y + 2*(m[1][0]*vive.ctrl_right.pose.position.z);
 			waypoint.pose.position.z = 0;
 
 			waypoint.pose.orientation.x = 0;
