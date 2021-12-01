@@ -114,7 +114,7 @@ inline void ButtonPub(vr::VREvent_t event, vr::ETrackedControllerRole deviceRole
                     {
                             case vr::VREvent_ButtonPress:   // If the grip was pressed...
                             grippress_right=1;
-                            ROS_WARN("Grip Press");
+                            ROS_WARN("Right Grip Press");
                             break;
 
                             case vr::VREvent_ButtonUnpress: // If the grip was released...
@@ -128,7 +128,7 @@ inline void ButtonPub(vr::VREvent_t event, vr::ETrackedControllerRole deviceRole
                     {
                             case vr::VREvent_ButtonPress:  //If the trigger was pressed...
                             triggerpress_right=1;
-                            ROS_WARN("Trigger Press");
+                            ROS_WARN("Right Trigger Press");
                             break;
 
                             case vr::VREvent_ButtonUnpress://If the trigger was released...
@@ -152,7 +152,7 @@ inline void ButtonPub(vr::VREvent_t event, vr::ETrackedControllerRole deviceRole
                     {
                             case vr::VREvent_ButtonPress:   // If the grip was pressed...
                             grippress_left=1;
-                            ROS_WARN("Grip Press");
+                            ROS_WARN("Left Grip Press");
                             break;
 
                             case vr::VREvent_ButtonUnpress: // If the grip was released...
@@ -166,7 +166,7 @@ inline void ButtonPub(vr::VREvent_t event, vr::ETrackedControllerRole deviceRole
                     {
                             case vr::VREvent_ButtonPress:  //If the trigger was pressed...
                             triggerpress_left=1;
-                            ROS_WARN("Trigger Press");
+                            ROS_WARN("Left Trigger Press");
                             break;
 
                             case vr::VREvent_ButtonUnpress://If the trigger was released...
@@ -270,7 +270,7 @@ inline void PublishTrackedDevicePose(vr::IVRSystem* vr_pointer,
     vr::ETrackedControllerRole trackedDeviceRole = vr_pointer->GetControllerRoleForTrackedDeviceIndex(id);
 
 
-    /* NEW SETUP
+    /* NEW SETUP <-NO ITS NOT, this is a weird setup because the left and right identifiers are arbitrary. Instead of controller_X_id I'm just using the vr::TrackedControllerRole now because it's defined by openvr and will be consistent. Hopefully.
      * if (id=0) set the HMD globals equal to the position of this tracked device's ID
      * if (id=controller_Right_id) set the right controller globals equal to the position of this tracked device's ID
      * if (id=controller_Left_id) set the left controller globals equal to the position of this tracked device's ID
@@ -290,7 +290,8 @@ inline void PublishTrackedDevicePose(vr::IVRSystem* vr_pointer,
     ORIz = quaternion.z;
     ORIw = quaternion.w;
     }
-    else if (id==controller_Right_id)
+    //TODO, revisit this NEW CHANGE, TRYING TO STANDARDIZE IDing, controller_Left_id and controller_Right_id might be unnecessary with this (Dec 1 2021)
+    else if (trackedDeviceRole == vr::TrackedControllerRole_RightHand)
     {
         vr::HmdVector3_t position;
         position = GetPosition(trackedDevicePose.mDeviceToAbsoluteTracking);
@@ -305,7 +306,7 @@ inline void PublishTrackedDevicePose(vr::IVRSystem* vr_pointer,
         ORIrz = quaternion.z;
         ORIrw = quaternion.w;
     }
-    else if (id==controller_Left_id)
+    else if (trackedDeviceRole == vr::TrackedControllerRole_LeftHand)
     {
         vr::HmdVector3_t position;
         position = GetPosition(trackedDevicePose.mDeviceToAbsoluteTracking);
@@ -563,8 +564,8 @@ int main(int argc,char* argv[])
             controller_left.pose.orientation.z = ORIly;
             controller_left.pose.orientation.w = ORIlw;
             
-            vive.ctrl_right.buttons.trigger=triggerpress_left;	//from "ButtonPub" function
-            vive.ctrl_right.buttons.system=grippress_left;
+            vive.ctrl_left.buttons.trigger=triggerpress_left;	//from "ButtonPub" function
+            vive.ctrl_left.buttons.system=grippress_left;
             
 /*
             controller_left.buttons.system = state.getButtonState(2);

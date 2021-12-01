@@ -24,8 +24,9 @@
   </include>
 <!--left turtle-->
   <group ns="left_turtle" clear_params="true">
-    <param name="robot_description_left" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
-    <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf_left" args="-urdf -model turtlebot3_left_$(arg model) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description_left" />
+	 <param name="tf_prefix" value="left_turtle" />
+    <param name="/left_turtle/robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
+    <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf_left" args="-urdf -model turtlebot3_left_$(arg model) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param /left_turtle/robot_description" />
     
     
     <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher_left">
@@ -35,9 +36,10 @@
   </group>
   
   <!--right turtle-->
+  <param name="tf_prefix" value="right_turtle" />
   <group ns="right_turtle" clear_params="true">
-    <param name="robot_description_right" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
-    <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf_right" args="-urdf -model turtlebot3_right_$(arg model) -x -1 -y $(arg y_pos) -z $(arg z_pos) -param robot_description_right" />
+    <param name="/right_turtle/robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
+    <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf_right" args="-urdf -model turtlebot3_right_$(arg model) -x -1 -y $(arg y_pos) -z $(arg z_pos) -param /right_turtle/robot_description" />
     
     
     <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher_right">
@@ -64,15 +66,17 @@
          <!-- display for Vive HMD -->
          <node name="imagesub" pkg="openvr_headset_ros" type="imagesub"/>
 
-         <!-- use right controller to control the robot -->
-         <node name="controllers" pkg="openvr_headset_ros" type="controllers"/>
-
+         <!-- left and right controllers -->
+         <node name="controllers_turtlebot_left" pkg="openvr_headset_ros" type="controllers_turtlebot_left"/>
+         <node name="controllers_turtlebot_right" pkg="openvr_headset_ros" type="controllers_turtlebot_right"/>
+         
 	 <!-- spawn model for controller.cpp -->
-	 <node name="spawn_model_liftcontroller" pkg="gazebo_ros" type="spawn_model"
-	 args="-file $(find openvr_headset_ros)/models/controller/model.sdf -sdf -model waypoint 
+	 <node name="spawn_model_liftcontroller_left" pkg="gazebo_ros" type="spawn_model"
+	 args="-file $(find openvr_headset_ros)/models/controller/left/model.sdf -sdf -model waypoint_left 
 	 -x 0 -y 0 -z 1" output="screen" />
-
-	 <!-- use left trigger to change standingpoint -->
-         <!--node name="standingpoint" pkg="vrui_mdf" type="standingpoint"/-->
+	 
+	 	 <node name="spawn_model_liftcontroller_right" pkg="gazebo_ros" type="spawn_model"
+	 args="-file $(find openvr_headset_ros)/models/controller/right/model.sdf -sdf -model waypoint_right 
+	 -x 0 -y 0 -z 1" output="screen" />
 
 </launch>

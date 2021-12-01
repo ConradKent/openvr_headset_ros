@@ -48,7 +48,7 @@ public:
 
 	std::string waypoint_name;//"waypoint"
 
-	std::string model_name; //"turtlebot3_burger"
+	std::string model_name; //"turtlebot3_left_burger"
 
 	bool once;
 
@@ -123,7 +123,7 @@ class Waypointcontroller
 public:
 	ros::ServiceClient client_get;//= n.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
 
-	ros::Publisher base_control;//= n.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
+	ros::Publisher base_control;//= n.advertise<geometry_msgs::Twist>("/left_turtle/cmd_vel", 1);
 
 	gazebo_msgs::GetModelState get_state;
 
@@ -287,7 +287,7 @@ class velocitycontroller
 public:
 	ros::ServiceClient client_get;//= n.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
 
-	ros::Publisher base_control;//= n.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
+	ros::Publisher base_control;//= n.advertise<geometry_msgs::Twist>("/left_turtle/cmd_vel", 1);
 
 	gazebo_msgs::GetModelState get_state;
 
@@ -411,29 +411,29 @@ std::string third_controller = "Throw";
 int main(int argc, char **argv)
 {
   // setup ros node
-  ros::init(argc, argv, "vive_controller");
-  ros::NodeHandle nh;
+  ros::init(argc, argv, "vive_controller_left");
+  ros::NodeHandle nl;
 
   ros::Rate r(180);
   ros::service::waitForService("/gazebo/spawn_urdf_model", -1);
   //define class for callback class and subscriber
   Vive_Listener vive_data;
-  ros::Subscriber sub_vive = nh.subscribe("openvr_headset_ros/vive", 1, &Vive_Listener::callback, &vive_data);
+  ros::Subscriber sub_vive = nl.subscribe("openvr_headset_ros/vive", 1, &Vive_Listener::callback, &vive_data);
 
 
 
-    ros::Publisher gazebo_pub = nh.advertise<gazebo_msgs::ModelState>("gazebo/set_model_state", 10);
+    ros::Publisher gazebo_pub = nl.advertise<gazebo_msgs::ModelState>("gazebo/set_model_state", 10);
     gazebo_msgs::ModelState controller_throw,controller_line;
 
 
     /* turtlebot twist command */
-    ros::Publisher base_control = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
+    ros::Publisher base_control = nl.advertise<geometry_msgs::Twist>("/left_turtle/cmd_vel", 1);
     geometry_msgs::Twist base_motion;
 
     /* get mobile base state*/
-    ros::ServiceClient client_get = nh.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
+    ros::ServiceClient client_get = nl.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
     gazebo_msgs::GetModelState get_state;
-    get_state.request.model_name = "turtlebot3_burger";
+    get_state.request.model_name = "turtlebot3_left_burger";
 
 
     /* previous value */
@@ -442,9 +442,9 @@ int main(int argc, char **argv)
     /* controller 1 */
     velocitycontroller velocity_controller;
     velocity_controller.trigger = 0;
-    velocity_controller.client_get = nh.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
-    velocity_controller.base_control = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
-    velocity_controller.get_state.request.model_name = "turtlebot3_burger";
+    velocity_controller.client_get = nl.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
+    velocity_controller.base_control = nl.advertise<geometry_msgs::Twist>("/left_turtle/cmd_vel", 1);
+    velocity_controller.get_state.request.model_name = "turtlebot3_left_burger";
     velocity_controller.kp_ang = 4;
     velocity_controller.kp_lin = 20;
 
@@ -452,34 +452,34 @@ int main(int argc, char **argv)
     /* controller 2 */
     Waypointcontroller Way_point_controller;
     Way_point_controller.trigger = 0;
-    Way_point_controller.waypoint_name = "waypoint";
+    Way_point_controller.waypoint_name = "waypoint_left";
     Way_point_controller.once = false;
-    Way_point_controller.delete_model = nh.serviceClient<gazebo_msgs::DeleteModel>("/gazebo/delete_model");
-    Way_point_controller.spawn_model = nh.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_sdf_model");
-    Way_point_controller.readmodel("/home/zhenyushi/.gazebo/models/controller/model.sdf");
-    Way_point_controller.client_get = nh.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
-    Way_point_controller.base_control = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
-    Way_point_controller.get_state.request.model_name = "turtlebot3_burger";
+    Way_point_controller.delete_model = nl.serviceClient<gazebo_msgs::DeleteModel>("/gazebo/delete_model");
+    Way_point_controller.spawn_model = nl.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_sdf_model");
+    Way_point_controller.readmodel("/home/zhenyushi/.gazebo/models/controller/left/model.sdf");
+    Way_point_controller.client_get = nl.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
+    Way_point_controller.base_control = nl.advertise<geometry_msgs::Twist>("/left_turtle/cmd_vel", 1);
+    Way_point_controller.get_state.request.model_name = "turtlebot3_left_burger";
     Way_point_controller.kp_ang = 4;
     Way_point_controller.kp_lin = 0.3;
 
     /* controller 3 */
     ThrowMethod ThrowTo;
     ThrowTo.trigger = 0;
-    ThrowTo.waypoint_name = "waypoint";
-    ThrowTo.model_name = "turtlebot3_burger";
+    ThrowTo.waypoint_name = "waypoint_left";
+    ThrowTo.model_name = "turtlebot3_left_burger";
     ThrowTo.once = false;
-    ThrowTo.delete_model = nh.serviceClient<gazebo_msgs::DeleteModel>("/gazebo/delete_model");
-    ThrowTo.spawn_model = nh.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_sdf_model");
-    ThrowTo.readmodel("/home/zhenyushi/.gazebo/models/controller/model.sdf");
+    ThrowTo.delete_model = nl.serviceClient<gazebo_msgs::DeleteModel>("/gazebo/delete_model");
+    ThrowTo.spawn_model = nl.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_sdf_model");
+    ThrowTo.readmodel("/home/zhenyushi/.gazebo/models/controller/left/model.sdf");
 
 
 
     /* for display */
-    ros::Publisher ToDisplay = nh.advertise<std_msgs::String>("display_message", 10);
+    ros::Publisher ToDisplay = nl.advertise<std_msgs::String>("display_message", 10);
     std_msgs::String msg;
     msg.data = first_controller ;
-    ToDisplay.publish(msg);
+    //ToDisplay.publish(msg);
 
 
 
@@ -520,7 +520,7 @@ int main(int argc, char **argv)
 	}
 
 
-  ToDisplay.publish(msg);
+ // ToDisplay.publish(msg);
 
 
   switch(controller_switch) {
