@@ -4,8 +4,8 @@
 
 */
 #include <stdlib.h>
-#include<iostream>
-#include<fstream>
+#include <iostream>
+#include <fstream>
 
 #include <ros/ros.h>
 #include <openvr_headset_ros/Vive.h>
@@ -476,7 +476,7 @@ int main(int argc, char **argv)
 
 
     /* for display */
-    ros::Publisher ToDisplay = nh.advertise<std_msgs::String>("control_method", 10);
+    ros::Publisher ToDisplay = nh.advertise<std_msgs::String>("display_message", 10);
     std_msgs::String msg;
     msg.data = first_controller ;
     ToDisplay.publish(msg);

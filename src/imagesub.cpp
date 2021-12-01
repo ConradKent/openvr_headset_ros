@@ -34,11 +34,21 @@ public:
 	    {
             //copy image data to the image under the same class, which will be assign as a pointer. Use rba8 format as this is what OpenVR requires for rendering.
             cv_bridge::toCvShare(msg, "bgr8")->image.copyTo(image);
-            flip(image,image,0); //flips the image upside down (the opencv and opengl formats read the pixel rows in a different order)
+            //flip(image,image,0); //flips the image upside down (the opencv and opengl formats read the pixel rows in a different order) MOVED TO MAIN LOOP DUE TO MESSAGE ADDITION
             }
 
 };
-
+// listen for text to display on the headset screen
+class Listener_message
+{
+public:
+		
+		std::string display_message;
+		void chatterCallback(const std_msgs::String::ConstPtr& msg)
+		{
+			display_message = msg->data.c_str();
+		}
+};
 
 
 //from https://github.com/matinas/openvrsimplexamples/blob/master/openvrsimplexamples/src/main.cpp
@@ -147,6 +157,18 @@ int main(int argc, char **argv)
     image_transport::Subscriber sub_left = it.subscribe("/camera/rgb/left_eye", 1, &Listener_image::callback, &listener_left);
     image_transport::Subscriber sub_right = it.subscribe("/camera/rgb/right_eye", 1, &Listener_image::callback, &listener_right);
   
+	//message class and subscriber
+	Listener_message listener_message;
+	listener_message.display_message = "Velocity";
+	ros::Subscriber message_sub = nh.subscribe("display_message", 10, &Listener_message::chatterCallback, &listener_message);
+  
+	//message info
+	cv::Point message_coords;
+	message_coords.x = 2*pnWidth/3;
+	message_coords.y = 2*pnHeight/3;
+	double textsize =0.8;
+	int thickness = 2;
+  
     //putting the image info from our listeners onto the opencv mats
     cv::Mat image_left(pnHeight,pnWidth, CV_8UC3,cv::Scalar(0,255,255));
     cv::Mat image_right(pnHeight,pnWidth, CV_8UC3,cv::Scalar(0,255,255));
@@ -223,7 +245,14 @@ cv::VideoWriter video("/home/conrad/catkin_ws/src/openvr_headset_ros/out.avi",cv
         ros::spinOnce();
         // ros::spin() works too, but extra code can run outside the callback function between each spinning if spinOnce() is used
 
+				//Put in the text
+				cv::putText(image_right, listener_message.display_message, message_coords, 0, textsize, cv::Scalar(0,0,255), thickness, 8);
+				
+				//flip the images upside down (the opencv and opengl formats read the pixel rows in a different order)
+				flip(image_left,image_left,0);
+				flip(image_right,image_right,0);
 
+				//Update vr, put images into OpenGL mats, send OpenGL mats to headset
                 vr::TrackedDevicePose_t pose[vr::k_unMaxTrackedDeviceCount];
                 vr::VRCompositor()->WaitGetPoses(pose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
 
