@@ -71,24 +71,24 @@ public:
 
         void controller(const openvr_headset_ros::Vive& vive)
 	  {
-		if(trigger==0 & (int)vive.ctrl_right.buttons.trigger == 1)
+		if(trigger==0 & (int)vive.ctrl_left.buttons.trigger == 1)
 		  {
 			spawn_model.call(sm);
 			trigger = 1;
 		  }
 		
-		if((int)vive.ctrl_right.buttons.trigger == 1)
+		if((int)vive.ctrl_left.buttons.trigger == 1)
 		  {
 			double roll, pitch, yaw;
-                        tf::Quaternion Qua(vive.ctrl_right.pose.orientation.x,vive.ctrl_right.pose.orientation.y,vive.ctrl_right.pose.orientation.z,vive.ctrl_right.pose.orientation.w);
+                        tf::Quaternion Qua(vive.ctrl_left.pose.orientation.x,vive.ctrl_left.pose.orientation.y,vive.ctrl_left.pose.orientation.z,vive.ctrl_left.pose.orientation.w);
 			tf::Matrix3x3 m(Qua); //rotation matrix from Quaternion
 			m.getRPY(roll, pitch, yaw); //eular angle form rotation matrix
 
 			waypoint.model_name = waypoint_name;
 			waypoint.reference_frame="world";
 
-			waypoint.pose.position.x = vive.ctrl_right.pose.position.x + 2*(m[0][0]*vive.ctrl_right.pose.position.z);
-			waypoint.pose.position.y = vive.ctrl_right.pose.position.y + 2*(m[1][0]*vive.ctrl_right.pose.position.z);
+			waypoint.pose.position.x = vive.ctrl_left.pose.position.x + 2*(m[0][0]*vive.ctrl_left.pose.position.z);
+			waypoint.pose.position.y = vive.ctrl_left.pose.position.y + 2*(m[1][0]*vive.ctrl_left.pose.position.z);
 			waypoint.pose.position.z = 0;
 
 			waypoint.pose.orientation.x = 0;
@@ -97,7 +97,7 @@ public:
 			waypoint.pose.orientation.w = 1;
 		  }
 
-		if(trigger==1 & (int)vive.ctrl_right.buttons.trigger == 0)
+		if(trigger==1 & (int)vive.ctrl_left.buttons.trigger == 0)
 		  {
 			throw_state = waypoint;
 			throw_state.pose.position.z = 0.3;
@@ -181,7 +181,7 @@ public:
         void waypoint_controller(const openvr_headset_ros::Vive& vive)
 	{
 
-		if(trigger==0 & (int)vive.ctrl_right.buttons.trigger == 0)
+		if(trigger==0 & (int)vive.ctrl_left.buttons.trigger == 0)
 		{
 			std::cout<< "here" <<std::endl;
 			client_get.call(get_state);
@@ -227,7 +227,7 @@ public:
 
         void controller(const openvr_headset_ros::Vive& vive)
 	  {
-		if(trigger==0 & (int)vive.ctrl_right.buttons.trigger == 1)
+		if(trigger==0 & (int)vive.ctrl_left.buttons.trigger == 1)
 		  {
 			spawn_model.call(sm);
 			trigger = 1;
@@ -238,18 +238,18 @@ public:
                         base_control.publish(base_motion);
 		  }
 		
-		if((int)vive.ctrl_right.buttons.trigger == 1)
+		if((int)vive.ctrl_left.buttons.trigger == 1)
 		  {
 			double roll, pitch, yaw;
-                        tf::Quaternion Qua(vive.ctrl_right.pose.orientation.x,vive.ctrl_right.pose.orientation.y,vive.ctrl_right.pose.orientation.z,vive.ctrl_right.pose.orientation.w);
+                        tf::Quaternion Qua(vive.ctrl_left.pose.orientation.x,vive.ctrl_left.pose.orientation.y,vive.ctrl_left.pose.orientation.z,vive.ctrl_left.pose.orientation.w);
 			tf::Matrix3x3 m(Qua); //rotation matrix from Quaternion
 			m.getRPY(roll, pitch, yaw); //eular angle form rotation matrix
 
 			waypoint.model_name = waypoint_name;
 			waypoint.reference_frame="world";
 
-			waypoint.pose.position.x = vive.ctrl_right.pose.position.x + 2*(m[0][0]*vive.ctrl_right.pose.position.z);
-			waypoint.pose.position.y = vive.ctrl_right.pose.position.y + 2*(m[1][0]*vive.ctrl_right.pose.position.z);
+			waypoint.pose.position.x = vive.ctrl_left.pose.position.x + 2*(m[0][0]*vive.ctrl_left.pose.position.z);
+			waypoint.pose.position.y = vive.ctrl_left.pose.position.y + 2*(m[1][0]*vive.ctrl_left.pose.position.z);
 			waypoint.pose.position.z = 0;
 
 			waypoint.pose.orientation.x = 0;
@@ -258,7 +258,7 @@ public:
 			waypoint.pose.orientation.w = 1;
 		  }
 
-		if(trigger==1 & (int)vive.ctrl_right.buttons.trigger == 0)
+		if(trigger==1 & (int)vive.ctrl_left.buttons.trigger == 0)
 		  {
 
 			x_tar = waypoint.pose.position.x;
@@ -333,22 +333,22 @@ public:
 
         void controller(const openvr_headset_ros::Vive& vive)
 	  {
-		if(trigger==0 & (int)vive.ctrl_right.buttons.trigger == 1)
+		if(trigger==0 & (int)vive.ctrl_left.buttons.trigger == 1)
 		  {
 			//spawn_model.call(sm);
 			trigger = 1;
 
-			x_ori = vive.ctrl_right.pose.position.x;
-			y_ori = vive.ctrl_right.pose.position.y;
+			x_ori = vive.ctrl_left.pose.position.x;
+			y_ori = vive.ctrl_left.pose.position.y;
 
 		  }
 		
-		if((int)vive.ctrl_right.buttons.trigger == 1)
+		if((int)vive.ctrl_left.buttons.trigger == 1)
 		  {
 
 
-			float x_diff = vive.ctrl_right.pose.position.x - x_ori;
-			float y_diff = vive.ctrl_right.pose.position.y - y_ori;
+			float x_diff = vive.ctrl_left.pose.position.x - x_ori;
+			float y_diff = vive.ctrl_left.pose.position.y - y_ori;
 			float yaw_tar = atan2(y_diff, x_diff);
 
 
@@ -375,7 +375,7 @@ public:
 
 		  }
 
-		if(trigger==1 & (int)vive.ctrl_right.buttons.trigger == 0)
+		if(trigger==1 & (int)vive.ctrl_left.buttons.trigger == 0)
 		  {
 			
 			once = true;
@@ -492,7 +492,7 @@ int main(int argc, char **argv)
   // ros::spin() works too, but extra code can run outside the callback function between each spinning if spinOnce() is used
 
 
-  if(vive_previ.ctrl_right.buttons.system == 0 & vive_data.vive.ctrl_right.buttons.system == 1)
+  if(vive_previ.ctrl_left.buttons.system == 0 & vive_data.vive.ctrl_left.buttons.system == 1)
 	{
 		if(controller_switch<3)
 			controller_switch++;

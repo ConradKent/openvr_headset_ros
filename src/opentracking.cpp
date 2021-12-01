@@ -1,9 +1,4 @@
-﻿/* This is empty for now. The old tracking.cpp node was built using
- * a python code called "cod_edi.py". The new opentracking node will
- * not do this and will be included in the src folder as a cpp file.
- * This code will be written from scratch but use a similar structure
- * to the tracking node built by cod_edi.py */
-#include <stdlib.h>
+﻿#include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
 #include <iomanip>
@@ -34,9 +29,6 @@
 #include <openvr_headset_ros/Vive.h>
 
 /*TODO LIST
- * Controllers: Button tracking
- * Controllers: Waypoint pointing
- * Controllers: Have procedural controller spawning (spawn 0, 1, or 2 controllers)
  * Controllers: Trackpad
  * Take more stuff out of main and add it to functions for better organization
  * Make a header file so this file isn't a jillion lines long
@@ -72,8 +64,10 @@
         static float ORIrz;
         static float ORIrw;
 
-        int triggerpress;
-        int grippress;
+        int triggerpress_right;
+        int triggerpress_left;
+        int grippress_right;
+        int grippress_left;
 
         vr::TrackedDeviceIndex_t controller_Left_id;
         vr::TrackedDeviceIndex_t controller_Right_id;
@@ -104,43 +98,86 @@ inline void shutdown(vr::IVRSystem* vr_pointer)
         }
 }
 
-inline void ButtonPub(vr::VREvent_t event)
+inline void ButtonPub(vr::VREvent_t event, vr::ETrackedControllerRole deviceRole)
 {
 
 
-
+	switch(deviceRole) //test for which controller (left or right) was pressed
+	{	
+		case vr::TrackedControllerRole_Invalid: //The controller isn't visible to base stations, or something of that sort
+			break;
+		case vr::TrackedControllerRole_RightHand: // case Right Controller
             switch( event.data.controller.button )
             {
-                    case vr::k_EButton_Grip:  //If it is the grip button that was...
+                    case vr::k_EButton_Grip:  //case grip
                     switch(event.eventType)
                     {
-                            case vr::VREvent_ButtonPress:   // ...pressed...
-                            grippress=1;
+                            case vr::VREvent_ButtonPress:   // If the grip was pressed...
+                            grippress_right=1;
                             ROS_WARN("Grip Press");
                             break;
 
-                            case vr::VREvent_ButtonUnpress: // ...released...
-                            grippress=0;
+                            case vr::VREvent_ButtonUnpress: // If the grip was released...
+                            grippress_right=0;
                             break;
                     }
-                    break;
+                    break; //break grip
 
-                    case vr::k_EButton_SteamVR_Trigger:
+                    case vr::k_EButton_SteamVR_Trigger: //case trigger
                     switch(event.eventType)
                     {
                             case vr::VREvent_ButtonPress:  //If the trigger was pressed...
-                            triggerpress=1;
+                            triggerpress_right=1;
                             ROS_WARN("Trigger Press");
                             break;
 
                             case vr::VREvent_ButtonUnpress://If the trigger was released...
-                            triggerpress=0;
+                            triggerpress_right=0;
                             break;
                     }
-                    break;
+                    break; //break trigger
 
-            }
+            } 
+        break; //break Right Controller
+        
+        
+        
+        
+        
+        		case vr::TrackedControllerRole_LeftHand: // case Left Controller
+            switch( event.data.controller.button )
+            {
+                    case vr::k_EButton_Grip:  //case grip
+                    switch(event.eventType)
+                    {
+                            case vr::VREvent_ButtonPress:   // If the grip was pressed...
+                            grippress_left=1;
+                            ROS_WARN("Grip Press");
+                            break;
 
+                            case vr::VREvent_ButtonUnpress: // If the grip was released...
+                            grippress_left=0;
+                            break;
+                    }
+                    break; //break grip
+
+                    case vr::k_EButton_SteamVR_Trigger: //case trigger
+                    switch(event.eventType)
+                    {
+                            case vr::VREvent_ButtonPress:  //If the trigger was pressed...
+                            triggerpress_left=1;
+                            ROS_WARN("Trigger Press");
+                            break;
+
+                            case vr::VREvent_ButtonUnpress://If the trigger was released...
+                            triggerpress_left=0;
+                            break;
+                    }
+                    break; //break trigger
+
+            } //switch(event.data...
+        break; //break Left Controller
+	} //switch(deviceRole)
 }
 
 inline void PollEvents(vr::IVRSystem* vr_pointer)
@@ -178,7 +215,7 @@ inline void PollEvents(vr::IVRSystem* vr_pointer)
 
             default:
                 if (event.eventType >= 200 && event.eventType <= 203) //Button events range from 200-203
-                    ButtonPub(event);
+                    ButtonPub(event, deviceRole);
 
 
                 // printf("EVENT--(OpenVR) Event: %d\n", event.eventType);
@@ -469,7 +506,7 @@ int main(int argc,char* argv[])
     gazebo_msgs::SpawnModel sm;
     ros::ServiceClient spawn_model;
     std::ifstream ifs1,ifs2;
-    ifs1.open("/home/conrad/catkin_ws/src/openvr_headset_ros/models/Gazebo_Vive_Wand/SDF_Editing/model.sdf"); //TODO generalize.
+    ifs1.open("/home/conrad/catkin_ws/src/openvr_headset_ros/models/Gazebo_Vive_Wand/left/model.sdf"); //TODO generalize.
     std::stringstream stringstream1;
     stringstream1 << ifs1.rdbuf();
     sm.request.model_name = "Gazebo_Vive_Wand";
@@ -478,7 +515,7 @@ int main(int argc,char* argv[])
     sm.request.reference_frame = "world";
     spawn_model.call(sm);
 
-        system("rosrun gazebo_ros spawn_model -file /home/conrad/catkin_ws/src/openvr_headset_ros/models/Gazebo_Vive_Wand/SDF_Editing/model.sdf -sdf -model Vive_Controller_left -y 0 -x 0 -z 1");
+        system("rosrun gazebo_ros spawn_model -file /home/conrad/catkin_ws/src/openvr_headset_ros/models/Gazebo_Vive_Wand/left/model.sdf -sdf -model Vive_Controller_left -y 0 -x 0 -z 1");
 
 
     controller_right.model_name = "Vive_Controller_right";
@@ -486,7 +523,7 @@ int main(int argc,char* argv[])
 
 
 
-    ifs2.open("/home/conrad/catkin_ws/src/openvr_headset_ros/models/Gazebo_Vive_Wand/SDF_Editing/model.sdf"); //TODO generalize.
+    ifs2.open("/home/conrad/catkin_ws/src/openvr_headset_ros/models/Gazebo_Vive_Wand/right/model.sdf"); //TODO generalize.
     std::stringstream stringstream2;
     stringstream2 << ifs1.rdbuf();
     sm.request.model_name = "Gazebo_Vive_Wand";
@@ -495,7 +532,7 @@ int main(int argc,char* argv[])
     sm.request.reference_frame = "world";
     spawn_model.call(sm);
 
-    system("rosrun gazebo_ros spawn_model -file /home/conrad/catkin_ws/src/openvr_headset_ros/models/Gazebo_Vive_Wand/SDF_Editing/model.sdf -sdf -model Vive_Controller_right -y 0 -x 0 -z 1");
+    system("rosrun gazebo_ros spawn_model -file /home/conrad/catkin_ws/src/openvr_headset_ros/models/Gazebo_Vive_Wand/right/model.sdf -sdf -model Vive_Controller_right -y 0 -x 0 -z 1");
 
 
         while(ros::ok())
@@ -525,6 +562,10 @@ int main(int argc,char* argv[])
             controller_left.pose.orientation.y = -1*ORIlx;
             controller_left.pose.orientation.z = ORIly;
             controller_left.pose.orientation.w = ORIlw;
+            
+            vive.ctrl_right.buttons.trigger=triggerpress_left;	//from "ButtonPub" function
+            vive.ctrl_right.buttons.system=grippress_left;
+            
 /*
             controller_left.buttons.system = state.getButtonState(2);
             controller_left.buttons.grip = state.getButtonState(3);
@@ -543,6 +584,9 @@ int main(int argc,char* argv[])
             controller_right.pose.orientation.z = ORIry;
             controller_right.pose.orientation.w = ORIrw;
 
+            vive.ctrl_right.buttons.trigger=triggerpress_right;	//from "ButtonPub" function
+            vive.ctrl_right.buttons.system=grippress_right;
+
             vive.ctrl_right.pose=controller_right.pose;
             vive.ctrl_left.pose=controller_left.pose;
             /*
@@ -556,13 +600,7 @@ int main(int argc,char* argv[])
             vive.ctrl_right.pose.orientation.w = quaternion_right[3];
             */
 
-            vive.ctrl_right.buttons.trigger=triggerpress;
-            vive.ctrl_right.buttons.system=grippress;
-
                vive_state.publish(vive);
-
-
-
 
             gazebo_pub.publish(camera);
             gazebo_pub.publish(controller_left);
