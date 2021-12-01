@@ -22,20 +22,28 @@
     <arg name="headless" value="false"/>
     <arg name="debug" value="false"/>
   </include>
-
-  <group ns="left_turtle">
-    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
-    <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf_left" args="-urdf -model turtlebot3_$(arg model) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />
+<!--left turtle-->
+  <group ns="left_turtle" clear_params="true">
+    <param name="robot_description_left" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
+    <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf_left" args="-urdf -model turtlebot3_left_$(arg model) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description_left" />
+    
+    
     <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher_left">
+	  <param name ="tf_prefix" value="left_turtle"/>
       <param name="publish_frequency" type="double" value="30.0" />
     </node>
   </group>
   
-  <group ns="right_turtle">
-    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
-    <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf_right" args="-urdf -model turtlebot3_$(arg model) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />
+  <!--right turtle-->
+  <group ns="right_turtle" clear_params="true">
+    <param name="robot_description_right" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
+    <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf_right" args="-urdf -model turtlebot3_right_$(arg model) -x -1 -y $(arg y_pos) -z $(arg z_pos) -param robot_description_right" />
+    
+    
     <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher_right">
+	  <param name ="tf_prefix" value="right_turtle"/>
       <param name="publish_frequency" type="double" value="30.0" />
+    
     </node>
   </group> 
   

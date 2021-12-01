@@ -233,6 +233,18 @@ target_include_directories(statictest PUBLIC
                            $<INSTALL_INTERFACE:include>)
 target_link_libraries (controllers_hector OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
 
+add_executable(controllers_turtlebot_left src/controllers_turtlebot_left.cpp)
+target_include_directories(statictest PUBLIC
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+                           $<INSTALL_INTERFACE:include>)
+target_link_libraries (controllers_turtlebot_left OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
+
+add_executable(controllers_turtlebot_right src/controllers_turtlebot_right.cpp)
+target_include_directories(statictest PUBLIC
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+                           $<INSTALL_INTERFACE:include>)
+target_link_libraries (controllers_turtlebot_right OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
+
 #target_link_libraries(${Boost_LIBRARIES})
 
 ## Add cmake target dependencies of the library

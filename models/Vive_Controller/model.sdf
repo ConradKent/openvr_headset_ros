@@ -17,7 +17,7 @@
         <geometry>
           <mesh>
             <scale>0.0010 0.0010 0.0010</scale>
-            <uri>model://Vive_Controller/meshes/HTC_Vive_controller.stl</uri>
+            <uri>model://media/materials/scripts/gazebo.material</uri>
           </mesh>
         </geometry>
          <material>
