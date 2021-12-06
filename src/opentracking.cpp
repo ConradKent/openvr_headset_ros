@@ -36,7 +36,8 @@
  *
  */
 
-//--globals--
+//--globals-- I know this is an atrocity, I need to go through and rework things into classes and pointers and whatnot
+// TODO; Switch these over to classes. POS/ORI class, and buttons/touchpad class
         static float POSx;
         static float POSy;
         static float POSz;
@@ -68,6 +69,23 @@
         int triggerpress_left;
         int grippress_right;
         int grippress_left;
+        int touchpadpress_right;
+        int touchpadpress_left;
+        int menupress_right;
+        int menupress_left;
+
+		int idtrigger_right;
+		int idtrigger_left;
+		int idpad_right;
+		int idpad_left;
+		
+		int triggeraxis_right;
+		int triggeraxis_left;
+		
+		int touchpadaxis_x_right;
+		int touchpadaxis_y_right;
+		int touchpadaxis_x_left;
+		int touchpadaxis_y_left;
 
         vr::TrackedDeviceIndex_t controller_Left_id;
         vr::TrackedDeviceIndex_t controller_Right_id;
@@ -136,6 +154,35 @@ inline void ButtonPub(vr::VREvent_t event, vr::ETrackedControllerRole deviceRole
                             break;
                     }
                     break; //break trigger
+                    
+					case vr::k_EButton_ApplicationMenu:  //case menu
+                    switch(event.eventType)
+                    {
+                            case vr::VREvent_ButtonPress:
+                            menupress_right=1;
+                            ROS_WARN("Right Menu Press");
+                            break;
+
+                            case vr::VREvent_ButtonUnpress:
+                            menupress_right=0;
+                            break;
+                    }
+                    break; //break menu
+
+					case vr::k_EButton_SteamVR_Touchpad:  //case touchpad
+                    switch(event.eventType)
+                    {
+                            case vr::VREvent_ButtonPress:
+                            touchpadpress_right=1;
+                            ROS_WARN("Right Touchpad Press");
+                            break;
+
+                            case vr::VREvent_ButtonUnpress:
+                            touchpadpress_right=0;
+                            break;
+                    }
+                    break; //break touchpad
+
 
             } 
         break; //break Right Controller
@@ -174,6 +221,34 @@ inline void ButtonPub(vr::VREvent_t event, vr::ETrackedControllerRole deviceRole
                             break;
                     }
                     break; //break trigger
+                    
+ 					case vr::k_EButton_ApplicationMenu:  //case menu
+                    switch(event.eventType)
+                    {
+                            case vr::VREvent_ButtonPress:
+                            menupress_left=1;
+                            ROS_WARN("Left Menu Press");
+                            break;
+
+                            case vr::VREvent_ButtonUnpress:
+                            menupress_left=0;
+                            break;
+                    }
+                    break; //break menu
+
+					case vr::k_EButton_SteamVR_Touchpad:  //case touchpad
+                    switch(event.eventType)
+                    {
+                            case vr::VREvent_ButtonPress:
+                            touchpadpress_left=1;
+                            ROS_WARN("Left Touchpad Press");
+                            break;
+
+                            case vr::VREvent_ButtonUnpress:
+                            touchpadpress_left=0;
+                            break;
+                    }
+                    break; //break touchpad
 
             } //switch(event.data...
         break; //break Left Controller
@@ -339,6 +414,8 @@ inline void PollPoses(vr::IVRSystem* vr_pointer, const ros::Publisher &publisher
         vr::TrackedDevicePose_t trackedDevicePose;
 
         vr::VRControllerState_t controllerState;
+        
+         vr::ETrackedControllerRole deviceRole = vr_pointer->GetControllerRoleForTrackedDeviceIndex(id);
 
         switch (trackedDeviceClass)
         {
@@ -352,6 +429,20 @@ inline void PollPoses(vr::IVRSystem* vr_pointer, const ros::Publisher &publisher
             case vr::ETrackedDeviceClass::TrackedDeviceClass_Controller:
                 // printf("Controller: %d\n", id);
                 vr_pointer->GetControllerStateWithPose(vr::TrackingUniverseStanding, id, &controllerState, sizeof(controllerState), &trackedDevicePose);
+                switch(deviceRole) //test for which controller (left or right) was pressed
+				{	
+					case vr::TrackedControllerRole_Invalid: //The controller isn't visible to base stations, or something of that sort
+						break;
+					case vr::TrackedControllerRole_RightHand: // case Right Controller
+						triggeraxis_right = controllerState.rAxis[idtrigger_right].x;
+						touchpadaxis_x_right = controllerState.rAxis[idpad_right].x;
+						touchpadaxis_y_right = controllerState.rAxis[idpad_right].y;	
+					case vr::TrackedControllerRole_LeftHand: // case Left Controller
+						triggeraxis_left = controllerState.rAxis[idtrigger_left].x;
+						touchpadaxis_x_left = controllerState.rAxis[idpad_left].x;
+						touchpadaxis_y_left = controllerState.rAxis[idpad_left].y;	
+				} //switch(deviceRole)
+                
                 PublishTrackedDevicePose(vr_pointer, publisher, id, trackedDevicePose);
                 break;
             case vr::ETrackedDeviceClass::TrackedDeviceClass_GenericTracker:
@@ -403,7 +494,7 @@ int main(int argc,char* argv[])
     std::cout << "Width: " << pnWidth << std::endl;
     std::cout << "Height: " << pnHeight << std::endl;
     //TODO clean this up, this is just proof of concept with code that I know works for now. I'll generalize the path to the sdf and get the vr_view tags as variables later.
-    if (pnHeight==2056 && pnWidth==1852) {
+    /*if (pnHeight==2056 && pnWidth==1852) { //The recommended sizes changed during some update for some reason. TODO is to generalize this and have it build the camera model programmatically.
             //Use Vive models
             camera.model_name = "vr_view_vive";
             camera.reference_frame="world";
@@ -425,8 +516,9 @@ int main(int argc,char* argv[])
                 spawn_model.call(sm);
 
                 system("rosrun gazebo_ros spawn_model -file /home/conrad/catkin_ws/src/openvr_headset_ros/models/vr_view_vive/model.sdf -sdf -model vr_view_vive -y 0 -x 0 -z 1");
-}   else if (pnHeight==2628 && pnWidth==2368) {
+}   else if (pnHeight==2628 && pnWidth==2368) {*/
             //Use Vive Pro models
+             if (0==0) {   
             camera.model_name = "vr_view_vive_pro";
             camera.reference_frame="world";
 
@@ -434,6 +526,7 @@ int main(int argc,char* argv[])
 
             //{
                 //CHECK this and make sure we're spawning correctly. Gazebo recommends spawning via roslaunch so we might switch to that.
+
                 gazebo_msgs::SpawnModel sm;
                 ros::ServiceClient spawn_model;
                 std::ifstream ifs;
@@ -447,7 +540,8 @@ int main(int argc,char* argv[])
                 spawn_model.call(sm);
 
                 system("rosrun gazebo_ros spawn_model -file /home/conrad/catkin_ws/src/openvr_headset_ros/models/vr_view_vive_pro/model.sdf -sdf -model vr_view_vive_pro -y 0 -x 0 -z 1");
-}   else {std::cout << "no camera model found for this headset" << std::endl;}
+			}
+/*}   else {std::cout << "no camera model found for this headset" << std::endl;}*/
 
 
 
@@ -455,18 +549,20 @@ int main(int argc,char* argv[])
     //Get number of controllers and set an identifier for the left and right (Left and right aren't actually the controllers set as left and right, this is just to keep track of them)
     //----------------------------------------------------------
 
-    int controller_count = 0;
+    //int controller_count = 0;
     for (vr::TrackedDeviceIndex_t id = 0; id < vr::k_unMaxTrackedDeviceCount; id++)
     {
-        if (controller_count < 3){
-        if (!vr_pointer->IsTrackedDeviceConnected(id))
-            continue;
+        //if (controller_count < 3){
+        //if (!vr_pointer->IsTrackedDeviceConnected(id))
+        //    continue;
 
         vr::ETrackedDeviceClass trackedDeviceClass = vr_pointer->GetTrackedDeviceClass(id);
 
         vr::TrackedDevicePose_t trackedDevicePose;
 
         vr::VRControllerState_t controllerState;
+        
+        vr::ETrackedControllerRole deviceRole = vr_pointer->GetControllerRoleForTrackedDeviceIndex(id);
 
         switch (trackedDeviceClass)
         {
@@ -475,6 +571,39 @@ int main(int argc,char* argv[])
                 break;
 
             case vr::ETrackedDeviceClass::TrackedDeviceClass_Controller:
+                switch(deviceRole) //test for which controller (left or right) was pressed
+				{	
+					case vr::TrackedControllerRole_Invalid: //The controller isn't visible to base stations, or something of that sort
+						break;
+					case vr::TrackedControllerRole_RightHand: // case Right Controller
+						for(int x=0; x<vr::k_unControllerStateAxisCount; x++ ) //figure out the id's for the trigger and touchpad axis on the right controller
+						{
+							int prop = vr_pointer->GetInt32TrackedDeviceProperty(id, (vr::ETrackedDeviceProperty)(vr::Prop_Axis0Type_Int32 + x));
+
+							if( prop==vr::k_eControllerAxis_Trigger )
+								idtrigger_right = x;
+							else if( prop==vr::k_eControllerAxis_TrackPad )
+								idpad_left = x;
+						}	
+					case vr::TrackedControllerRole_LeftHand: // case Left Controller
+                		for(int x=0; x<vr::k_unControllerStateAxisCount; x++ ) //figure out the id's for the trigger and touchpad axis on the left controller
+						{
+							int prop = vr_pointer->GetInt32TrackedDeviceProperty(id, (vr::ETrackedDeviceProperty)(vr::Prop_Axis0Type_Int32 + x));
+
+							if( prop==vr::k_eControllerAxis_Trigger )
+								idtrigger_right = x;
+							else if( prop==vr::k_eControllerAxis_TrackPad )
+								idpad_left = x;
+						}
+					} //switch(deviceRole)
+			} //switch(trackedDeviceClass)
+		} //for(vr::TrackedDeviceIndex_t...
+                
+                
+                
+                
+                
+ /* THIS WAS KIND OF POINTLESS, AND DIDN'T ACTUALLY TEST FOR THE CORRECT IDs. TODO: DELETE IF NOTHING BREAKS
                 if (controller_count==0){
                     controller_Right_id=id;
                     controller_count=controller_count+1;
@@ -498,6 +627,7 @@ int main(int argc,char* argv[])
             shutdown(vr_pointer);
         }
         }
+*/
 
     //---------Spawn Controllers------------
 
@@ -565,15 +695,11 @@ int main(int argc,char* argv[])
             controller_left.pose.orientation.w = ORIlw;
             
             vive.ctrl_left.buttons.trigger=triggerpress_left;	//from "ButtonPub" function
-            vive.ctrl_left.buttons.system=grippress_left;
-            
-/*
-            controller_left.buttons.system = state.getButtonState(2);
-            controller_left.buttons.grip = state.getButtonState(3);
-            controller_left.buttons.menu = state.getButtonState(4);
-            controller_left.buttons.trigger = state.getButtonState(5);
-            controller_left.buttons.trackpad = state.getButtonState(6);
-*/
+            vive.ctrl_left.buttons.system=grippress_left;		//TODO, change this to grip here/in the controllers function so we can match up what we're pressing to the messages
+            vive.ctrl_left.buttons.menu=menupress_left;
+            vive.ctrl_left.buttons.trackpad=touchpadpress_left;
+			vive.ctrl_left.trackpad.x=touchpadaxis_x_left;
+			vive.ctrl_left.trackpad.y=touchpadaxis_y_left;
 
             /* right controller */
             controller_right.pose.position.x = -1*POSrz;
@@ -587,22 +713,17 @@ int main(int argc,char* argv[])
 
             vive.ctrl_right.buttons.trigger=triggerpress_right;	//from "ButtonPub" function
             vive.ctrl_right.buttons.system=grippress_right;
+			vive.ctrl_right.buttons.menu=menupress_right;
+            vive.ctrl_right.buttons.trackpad=touchpadpress_right;
+			vive.ctrl_right.trackpad.x=touchpadaxis_x_right;
+			vive.ctrl_right.trackpad.y=touchpadaxis_y_right;            
 
             vive.ctrl_right.pose=controller_right.pose;
             vive.ctrl_left.pose=controller_left.pose;
-            /*
-            vive.ctrl_right.pose.position.x = -1*pos_right[2] - bias_2 + getmodelstate.response.pose.position.x;
-            vive.ctrl_right.pose.position.y = -1*pos_right[0] - bias_0 + getmodelstate.response.pose.position.y;
-            vive.ctrl_right.pose.position.z = pos_right[1] + bias_1 + getmodelstate.response.pose.position.z;
 
-            vive.ctrl_right.pose.orientation.x = -1*quaternion_right[2];
-            vive.ctrl_right.pose.orientation.y = -1*quaternion_right[0];
-            vive.ctrl_right.pose.orientation.z = quaternion_right[1];
-            vive.ctrl_right.pose.orientation.w = quaternion_right[3];
-            */
 
                vive_state.publish(vive);
-
+//TODO Figure out where controller_left and controller_right are used, deprecate those publishers, switch everything over to the singe "vive" message and work off ctrl_right/ctrl_left since they're the same
             gazebo_pub.publish(camera);
             gazebo_pub.publish(controller_left);
             gazebo_pub.publish(controller_right);

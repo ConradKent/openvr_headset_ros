@@ -1,5 +1,7 @@
 # openvr_headset_ros
 
+NOTE: The multi-headset functionality broke on my machine and thus lines in "imagesub.cpp" that relate to switching between vive and vive pro have been removed and the resolutions specified in the vive-pro's camera model have been changed. A programmatic way to generate a camera model to use would fix these issues and is being investigated.
+
 ## What is this?
 
 openvr_headset_ros is a package for ros based on vrui_mdf by Zhenyu Shi(https://github.com/zhenyushi/vrui_mdf). The goal of this project is to provide an open source way to view a ros/gazebo simulation through a vr headset. This package will use openvr to get tracking info and send images to the headset for display. The package currently works with the original Vive headset and controllers or the Vive Pro headset and controllers, and with lighthouse version 1.0 or 2.0. Other SteamVR capable headsets should be relatively simple to add.

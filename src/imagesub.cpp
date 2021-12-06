@@ -38,15 +38,26 @@ public:
             }
 
 };
-// listen for text to display on the headset screen
-class Listener_message
+// I'm going to just split this into distinct channels for now, probably a more elegant way of doing this
+class Listener_message_ch0
 {
 public:
 		
-		std::string display_message;
+		std::string display_message_ch0;
 		void chatterCallback(const std_msgs::String::ConstPtr& msg)
 		{
-			display_message = msg->data.c_str();
+			display_message_ch0 = msg->data.c_str();
+		}
+};
+
+class Listener_message_ch1
+{
+public:
+		
+		std::string display_message_ch1;
+		void chatterCallback(const std_msgs::String::ConstPtr& msg)
+		{
+			display_message_ch1 = msg->data.c_str();
 		}
 };
 
@@ -158,14 +169,39 @@ int main(int argc, char **argv)
     image_transport::Subscriber sub_right = it.subscribe("/camera/rgb/right_eye", 1, &Listener_image::callback, &listener_right);
   
 	//message class and subscriber
-	Listener_message listener_message;
-	listener_message.display_message = "Velocity";
-	ros::Subscriber message_sub = nh.subscribe("display_message", 10, &Listener_message::chatterCallback, &listener_message);
+	Listener_message_ch0 listener_message0; //these do not need to be separate classes but they are because I'm lazy
+	Listener_message_ch1 listener_message1;
+	std::string display_message0 = "";
+	std::string display_message1 = "---";
+	std::string display_message2 = "---";
+	std::string display_message3 = "---";
+	ros::Subscriber message_sub0 = nh.subscribe("display_message_ch0", 10, &Listener_message_ch0::chatterCallback, &listener_message0);
+	ros::Subscriber message_sub1 = nh.subscribe("display_message_ch1", 10, &Listener_message_ch1::chatterCallback, &listener_message1);
   
-	//message info
-	cv::Point message_coords;
-	message_coords.x = 2*pnWidth/3;
-	message_coords.y = 2*pnHeight/3;
+	//message log info
+	cv::Point message_coords0;
+	cv::Point message_coords1;
+	cv::Point message_coords2;
+	cv::Point message_coords3;
+	cv::Point message_coordsheader;
+	double spacing = 30;
+	std::string display_header = "Message Log";
+	
+	message_coords0.x = .55*pnWidth;
+	message_coords0.y = .66*pnHeight;
+	
+	message_coords1.x = message_coords0.x;
+	message_coords1.y = message_coords0.y-spacing;
+	
+	message_coords2.x = message_coords0.x;
+	message_coords2.y = message_coords1.y-spacing;
+	
+	message_coords3.x = message_coords0.x;
+	message_coords3.y = message_coords2.y-spacing;
+	
+	message_coordsheader.x = message_coords0.x;
+	message_coordsheader.y = message_coords3.y-spacing;
+	
 	double textsize =0.8;
 	int thickness = 2;
   
@@ -244,9 +280,34 @@ cv::VideoWriter video("/home/conrad/catkin_ws/src/openvr_headset_ros/out.avi",cv
     {
         ros::spinOnce();
         // ros::spin() works too, but extra code can run outside the callback function between each spinning if spinOnce() is used
-
+				
+				
+				if (listener_message0.display_message_ch0 != display_message0 && listener_message1.display_message_ch1 != display_message0)
+				{
+					if (listener_message0.display_message_ch0 != display_message0)
+						{
+							display_message3=display_message2;
+							display_message2=display_message1;
+							display_message1=display_message0;
+							display_message0=listener_message0.display_message_ch0;
+						}
+					if (listener_message1.display_message_ch1 != display_message0)
+						{
+							display_message3=display_message2;
+							display_message2=display_message1;
+							display_message1=display_message0;
+							display_message0=listener_message1.display_message_ch1;
+						}
+				}
+				
 				//Put in the text
-				cv::putText(image_right, listener_message.display_message, message_coords, 0, textsize, cv::Scalar(0,0,255), thickness, 8);
+				cv::putText(image_right, display_message0, message_coords0, 0, textsize, cv::Scalar(0,0,255), thickness, 8);
+				cv::putText(image_right, display_message1, message_coords1, 0, textsize, cv::Scalar(0,0,255), thickness, 8);
+				cv::putText(image_right, display_message2, message_coords2, 0, textsize, cv::Scalar(0,0,255), thickness, 8);
+				cv::putText(image_right, display_message3, message_coords3, 0, textsize, cv::Scalar(0,0,255), thickness, 8);
+				cv::putText(image_right, display_header, message_coordsheader, 0, textsize, cv::Scalar(0,0,255), thickness, 8);
+				
+				
 				
 				//flip the images upside down (the opencv and opengl formats read the pixel rows in a different order)
 				flip(image_left,image_left,0);

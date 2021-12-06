@@ -1,0 +1,13 @@
+Apr 28 2021:
+Ubuntu Version 20.04.2
+SteamVR version 1615513459
+AMD amdgpu version 21.10-1247438
+Proton 6.3-2
+Using Lighthouse 1.0 and Vive (regular) got stable performance and was consistently able to open SteamVR without errors.
+
+December 5 2021:
+Ubuntu 20.04.3
+Steamvr version "linux_v1.14" (App ID 250820, Build ID 5565291)
+AMD amdgpu version amdgpu-install_21.40.1.40501-1_all.deb
+Proton 6.3-2
+Good performance with lighthouse 1.0 and Vive pro, presumably good performance with other equipment but haven't tested.

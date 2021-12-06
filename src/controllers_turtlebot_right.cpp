@@ -401,9 +401,9 @@ int controller_switch = 1;
 
 
 
-std::string first_controller = "Velocity";
-std::string second_controller = "Waypoint";
-std::string third_controller = "Throw";
+std::string first_controller = "Right Turtle: Velocity Control";
+std::string second_controller = "Right Turtle: Waypoint Control";
+std::string third_controller = "Right Turtle: Throw To Control";
 
 
 
@@ -476,10 +476,10 @@ int main(int argc, char **argv)
 
 
      /* for display */
-    ros::Publisher ToDisplay = nr.advertise<std_msgs::String>("display_message", 10);
+    ros::Publisher ToDisplay = nr.advertise<std_msgs::String>("display_message_ch0", 10);
     std_msgs::String msg;
     msg.data = first_controller ;
-    //ToDisplay.publish(msg);
+    ToDisplay.publish(msg);
 
 
 
@@ -520,7 +520,7 @@ int main(int argc, char **argv)
 	}
 
 
- // ToDisplay.publish(msg);
+ ToDisplay.publish(msg);
 
 
   switch(controller_switch) {

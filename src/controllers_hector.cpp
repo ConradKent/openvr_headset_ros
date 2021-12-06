@@ -398,9 +398,9 @@ int controller_switch = 1;
 
 
 
-std::string first_controller = "Velocity";
-std::string second_controller = "Waypoint";
-std::string third_controller = "Throw";
+std::string first_controller = "Velocity Control";
+std::string second_controller = "Waypoint Control";
+std::string third_controller = "Throw To Control";
 
 
 
