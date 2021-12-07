@@ -233,6 +233,8 @@ target_include_directories(statictest PUBLIC
                            $<INSTALL_INTERFACE:include>)
 target_link_libraries (controllers_hector OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
 
+##-------------------LeftRight--------------------
+
 add_executable(controllers_turtlebot_left src/controllers_turtlebot_left.cpp)
 target_include_directories(statictest PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
@@ -244,6 +246,68 @@ target_include_directories(statictest PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
                            $<INSTALL_INTERFACE:include>)
 target_link_libraries (controllers_turtlebot_right OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
+
+##-------------------SwitchTest--------------------
+
+add_executable(imagesub_switchtest src/switchtest/imagesub_switchtest.cpp)
+target_include_directories(imagesub_switchtest PUBLIC
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+                           $<INSTALL_INTERFACE:include>)
+target_link_libraries (imagesub_switchtest OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
+
+add_executable(opentracking_switchtest src/switchtest/opentracking_switchtest.cpp)
+target_link_libraries (opentracking_switchtest LINK_PUBLIC
+	${catkin_LIBRARIES}
+	${Boost_LIBRARIES}
+	${OPENVR_LIBRARY}
+	${CMAKE_DL_LIBS}
+)
+
+add_executable(controllers_turtlebot_1 src/switchtest/controllers_turtlebot_1.cpp)
+target_include_directories(controllers_turtlebot_1 PUBLIC
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+                           $<INSTALL_INTERFACE:include>)
+target_link_libraries (controllers_turtlebot_1 OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
+
+add_executable(controllers_turtlebot_0 src/switchtest/controllers_turtlebot_0.cpp)
+target_include_directories(controllers_turtlebot_0 PUBLIC
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+                           $<INSTALL_INTERFACE:include>)
+target_link_libraries (controllers_turtlebot_0 OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
+
+##-------------------ThreeRoverTest--------------------
+
+add_executable(imagesub_threerover src/threerovertest/imagesub_threerover.cpp)
+target_include_directories(imagesub_threerover PUBLIC
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+                           $<INSTALL_INTERFACE:include>)
+target_link_libraries (imagesub_threerover OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
+
+add_executable(opentracking_threerover src/threerovertest/opentracking_threerover.cpp)
+target_link_libraries (opentracking_threerover LINK_PUBLIC
+	${catkin_LIBRARIES}
+	${Boost_LIBRARIES}
+	${OPENVR_LIBRARY}
+	${CMAKE_DL_LIBS}
+)
+
+add_executable(controllers_turtlebot_surv src/threerovertest/controllers_turtlebot_surv.cpp)
+target_include_directories(controllers_turtlebot_surv PUBLIC
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+                           $<INSTALL_INTERFACE:include>)
+target_link_libraries (controllers_turtlebot_surv OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
+
+add_executable(controllers_turtlebot_tool src/threerovertest/controllers_turtlebot_tool.cpp)
+target_include_directories(controllers_turtlebot_tool PUBLIC
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+                           $<INSTALL_INTERFACE:include>)
+target_link_libraries (controllers_turtlebot_tool OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
+
+add_executable(controllers_turtlebot_samp src/threerovertest/controllers_turtlebot_samp.cpp)
+target_include_directories(controllers_turtlebot_samp PUBLIC
+                           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+                           $<INSTALL_INTERFACE:include>)
+target_link_libraries (controllers_turtlebot_samp OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
 
 #target_link_libraries(${Boost_LIBRARIES})
 

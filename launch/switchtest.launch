@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <arg name="world" default="worlds/empty.world"/>
+  <arg name="gui" default="true"/>
+  <arg name="args" default=""/>
+  
+  <param name="/use_sim_time" value="true" />
+
+  <!--From turtlebot3_empty_world.launch-->
+     <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
+  <arg name="x_pos" default="0.0"/>
+  <arg name="y_pos" default="0.0"/>
+  <arg name="z_pos" default="0.0"/>
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find turtlebot3_gazebo)/worlds/empty.world"/>
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="true"/>
+    <arg name="headless" value="false"/>
+    <arg name="debug" value="false"/>
+  </include>
+  
+<!--turtle0-->
+  <group ns="turtle0" clear_params="true">
+	 <param name="tf_prefix" value="turtle0" />
+    <param name="/turtle0/robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
+    <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf_0" args="-urdf -model turtlebot3_0_$(arg model) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param /turtle0/robot_description" />
+    
+    
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher_0">
+	  <param name ="tf_prefix" value="turtle0"/>
+      <param name="publish_frequency" type="double" value="30.0" />
+    </node>
+  </group>
+  
+<!--turtle1-->
+  <group ns="turtle1" clear_params="true">
+	 <param name="tf_prefix" value="turtle1" />
+    <param name="/turtle1/robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
+    <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf_1" args="-urdf -model turtlebot3_1_$(arg model) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param /turtle1/robot_description" />
+    
+    
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher_1">
+	  <param name ="tf_prefix" value="turtle1"/>
+      <param name="publish_frequency" type="double" value="30.0" />
+    </node>
+  </group>
+  
+
+   <!-- Fake laser -->
+  <node pkg="nodelet" type="nodelet" name="laserscan_nodelet_manager" args="manager"/>
+  <node pkg="nodelet" type="nodelet" name="depthimage_to_laserscan"
+        args="load depthimage_to_laserscan/DepthImageToLaserScanNodelet laserscan_nodelet_manager">
+    <param name="scan_height" value="10"/>
+    <param name="output_frame_id" value="/camera_depth_frame"/>
+    <param name="range_min" value="0.45"/>
+    <remap from="image" to="/camera/depth/image_raw"/>
+    <remap from="scan" to="/scan"/>
+  </node>
+
+
+
+	  <!-- talk to tracking server -->
+          <node name="opentracking_switchtest" pkg="openvr_headset_ros" type="opentracking_switchtest"/>
+
+          <!-- display for HMD -->
+          <node name="imagesub_switchtest" pkg="openvr_headset_ros" type="imagesub_switchtest"/>
+	  
+	           <!-- left and right controllers -->
+	           <node name="controllers_turtlebot_0" pkg="openvr_headset_ros" type="controllers_turtlebot_0"/>
+         <node name="controllers_turtlebot_1" pkg="openvr_headset_ros" type="controllers_turtlebot_1"/>
+	  
+	 <!-- spawn model for controller.cpp -->
+	 <node name="spawn_model_liftcontroller_0" pkg="gazebo_ros" type="spawn_model"
+	 args="-file $(find openvr_headset_ros)/models/controller/0/model.sdf -sdf -model waypoint_0 
+	 -x 0 -y 0 -z 1" output="screen" />
+	 
+	 	 <node name="spawn_model_liftcontroller_1" pkg="gazebo_ros" type="spawn_model"
+	 args="-file $(find openvr_headset_ros)/models/controller/1/model.sdf -sdf -model waypoint_1 
+	 -x 0 -y 0 -z 1" output="screen" />
+
+</launch>

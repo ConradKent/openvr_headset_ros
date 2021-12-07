@@ -4,8 +4,8 @@
 
 */
 #include <stdlib.h>
-#include <iostream>
-#include <fstream>
+#include<iostream>
+#include<fstream>
 
 #include <ros/ros.h>
 #include <openvr_headset_ros/Vive.h>
@@ -48,7 +48,7 @@ public:
 
 	std::string waypoint_name;//"waypoint"
 
-	std::string model_name; //"turtlebot3_left_burger"
+	std::string model_name; //"turtlebot3_burger"
 
 	bool once;
 
@@ -71,24 +71,24 @@ public:
 
         void controller(const openvr_headset_ros::Vive& vive)
 	  {
-		if(trigger==0 & (int)vive.ctrl_left.buttons.trigger == 1)
+		if(trigger==0 & (int)vive.ctrl_right.buttons.trigger == 1)
 		  {
 			spawn_model.call(sm);
 			trigger = 1;
 		  }
 		
-		if((int)vive.ctrl_left.buttons.trigger == 1)
+		if((int)vive.ctrl_right.buttons.trigger == 1)
 		  {
 			double roll, pitch, yaw;
-                        tf::Quaternion Qua(vive.ctrl_left.pose.orientation.x,vive.ctrl_left.pose.orientation.y,vive.ctrl_left.pose.orientation.z,vive.ctrl_left.pose.orientation.w);
+                        tf::Quaternion Qua(vive.ctrl_right.pose.orientation.x,vive.ctrl_right.pose.orientation.y,vive.ctrl_right.pose.orientation.z,vive.ctrl_right.pose.orientation.w);
 			tf::Matrix3x3 m(Qua); //rotation matrix from Quaternion
 			m.getRPY(roll, pitch, yaw); //eular angle form rotation matrix
 
 			waypoint.model_name = waypoint_name;
 			waypoint.reference_frame="world";
 
-			waypoint.pose.position.x = vive.ctrl_left.pose.position.x + 2*(m[0][0]*vive.ctrl_left.pose.position.z);
-			waypoint.pose.position.y = vive.ctrl_left.pose.position.y + 2*(m[1][0]*vive.ctrl_left.pose.position.z);
+			waypoint.pose.position.x = vive.ctrl_right.pose.position.x + 2*(m[0][0]*vive.ctrl_right.pose.position.z);
+			waypoint.pose.position.y = vive.ctrl_right.pose.position.y + 2*(m[1][0]*vive.ctrl_right.pose.position.z);
 			waypoint.pose.position.z = 0;
 
 			waypoint.pose.orientation.x = 0;
@@ -97,7 +97,7 @@ public:
 			waypoint.pose.orientation.w = 1;
 		  }
 
-		if(trigger==1 & (int)vive.ctrl_left.buttons.trigger == 0)
+		if(trigger==1 & (int)vive.ctrl_right.buttons.trigger == 0)
 		  {
 			throw_state = waypoint;
 			throw_state.pose.position.z = 0.3;
@@ -123,7 +123,7 @@ class Waypointcontroller
 public:
 	ros::ServiceClient client_get;//= n.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
 
-	ros::Publisher base_control;//= n.advertise<geometry_msgs::Twist>("/left_turtle/cmd_vel", 1);
+	ros::Publisher base_control;//= n.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
 
 	gazebo_msgs::GetModelState get_state;
 
@@ -181,7 +181,7 @@ public:
         void waypoint_controller(const openvr_headset_ros::Vive& vive)
 	{
 
-		if(trigger==0 & (int)vive.ctrl_left.buttons.trigger == 0)
+		if(trigger==0 & (int)vive.ctrl_right.buttons.trigger == 0)
 		{
 			std::cout<< "here" <<std::endl;
 			client_get.call(get_state);
@@ -227,7 +227,7 @@ public:
 
         void controller(const openvr_headset_ros::Vive& vive)
 	  {
-		if(trigger==0 & (int)vive.ctrl_left.buttons.trigger == 1)
+		if(trigger==0 & (int)vive.ctrl_right.buttons.trigger == 1)
 		  {
 			spawn_model.call(sm);
 			trigger = 1;
@@ -238,18 +238,18 @@ public:
                         base_control.publish(base_motion);
 		  }
 		
-		if((int)vive.ctrl_left.buttons.trigger == 1)
+		if((int)vive.ctrl_right.buttons.trigger == 1)
 		  {
 			double roll, pitch, yaw;
-                        tf::Quaternion Qua(vive.ctrl_left.pose.orientation.x,vive.ctrl_left.pose.orientation.y,vive.ctrl_left.pose.orientation.z,vive.ctrl_left.pose.orientation.w);
+                        tf::Quaternion Qua(vive.ctrl_right.pose.orientation.x,vive.ctrl_right.pose.orientation.y,vive.ctrl_right.pose.orientation.z,vive.ctrl_right.pose.orientation.w);
 			tf::Matrix3x3 m(Qua); //rotation matrix from Quaternion
 			m.getRPY(roll, pitch, yaw); //eular angle form rotation matrix
 
 			waypoint.model_name = waypoint_name;
 			waypoint.reference_frame="world";
 
-			waypoint.pose.position.x = vive.ctrl_left.pose.position.x + 2*(m[0][0]*vive.ctrl_left.pose.position.z);
-			waypoint.pose.position.y = vive.ctrl_left.pose.position.y + 2*(m[1][0]*vive.ctrl_left.pose.position.z);
+			waypoint.pose.position.x = vive.ctrl_right.pose.position.x + 2*(m[0][0]*vive.ctrl_right.pose.position.z);
+			waypoint.pose.position.y = vive.ctrl_right.pose.position.y + 2*(m[1][0]*vive.ctrl_right.pose.position.z);
 			waypoint.pose.position.z = 0;
 
 			waypoint.pose.orientation.x = 0;
@@ -258,7 +258,7 @@ public:
 			waypoint.pose.orientation.w = 1;
 		  }
 
-		if(trigger==1 & (int)vive.ctrl_left.buttons.trigger == 0)
+		if(trigger==1 & (int)vive.ctrl_right.buttons.trigger == 0)
 		  {
 
 			x_tar = waypoint.pose.position.x;
@@ -287,7 +287,7 @@ class velocitycontroller
 public:
 	ros::ServiceClient client_get;//= n.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
 
-	ros::Publisher base_control;//= n.advertise<geometry_msgs::Twist>("/left_turtle/cmd_vel", 1);
+	ros::Publisher base_control;//= n.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
 
 	gazebo_msgs::GetModelState get_state;
 
@@ -315,10 +315,8 @@ public:
 	gazebo_msgs::ModelState waypoint;
 	
 	std::string waypoint_name;//"waypoint"
-
    	void readmodel(const char* path)
 	  {
-
 		std::ifstream ifs;
 		ifs.open(path);
 		std::stringstream stringstream;
@@ -327,28 +325,27 @@ public:
   		sm.request.model_xml = stringstream.str();
     		sm.request.robot_namespace = ros::this_node::getNamespace();
     		sm.request.reference_frame = "world";
-
 	  }
 */
 
         void controller(const openvr_headset_ros::Vive& vive)
 	  {
-		if(trigger==0 & (int)vive.ctrl_left.buttons.trigger == 1)
+		if(trigger==0 & (int)vive.ctrl_right.buttons.trigger == 1)
 		  {
 			//spawn_model.call(sm);
 			trigger = 1;
 
-			x_ori = vive.ctrl_left.pose.position.x;
-			y_ori = vive.ctrl_left.pose.position.y;
+			x_ori = vive.ctrl_right.pose.position.x;
+			y_ori = vive.ctrl_right.pose.position.y;
 
 		  }
 		
-		if((int)vive.ctrl_left.buttons.trigger == 1)
+		if((int)vive.ctrl_right.buttons.trigger == 1)
 		  {
 
 
-			float x_diff = vive.ctrl_left.pose.position.x - x_ori;
-			float y_diff = vive.ctrl_left.pose.position.y - y_ori;
+			float x_diff = vive.ctrl_right.pose.position.x - x_ori;
+			float y_diff = vive.ctrl_right.pose.position.y - y_ori;
 			float yaw_tar = atan2(y_diff, x_diff);
 
 
@@ -375,7 +372,7 @@ public:
 
 		  }
 
-		if(trigger==1 & (int)vive.ctrl_left.buttons.trigger == 0)
+		if(trigger==1 & (int)vive.ctrl_right.buttons.trigger == 0)
 		  {
 			
 			once = true;
@@ -394,16 +391,17 @@ public:
 
 };
 	
+	
 
 
-int num_controllers = 3;
-int controller_switch = 1;
+//int num_controllers = 3;
+//int controller_switch = 1;
 
 
 
-std::string first_controller = "Left Turtle: Velocity Control";
-std::string second_controller = "Left Turtle: Waypoint Control";
-std::string third_controller = "Left Turtle: Throw To Control";
+std::string first_controller = "Velocity";
+std::string second_controller = "Waypoint";
+std::string third_controller = "Throw";
 
 
 
@@ -411,29 +409,29 @@ std::string third_controller = "Left Turtle: Throw To Control";
 int main(int argc, char **argv)
 {
   // setup ros node
-  ros::init(argc, argv, "vive_controller_left");
-  ros::NodeHandle nl;
+  ros::init(argc, argv, "vive_controller_1");
+  ros::NodeHandle nh;
 
   ros::Rate r(180);
   ros::service::waitForService("/gazebo/spawn_urdf_model", -1);
   //define class for callback class and subscriber
   Vive_Listener vive_data;
-  ros::Subscriber sub_vive = nl.subscribe("openvr_headset_ros/vive", 1, &Vive_Listener::callback, &vive_data);
+  ros::Subscriber sub_vive = nh.subscribe("openvr_headset_ros/vive", 1, &Vive_Listener::callback, &vive_data);
 
 
 
-    ros::Publisher gazebo_pub = nl.advertise<gazebo_msgs::ModelState>("gazebo/set_model_state", 10);
+    ros::Publisher gazebo_pub = nh.advertise<gazebo_msgs::ModelState>("gazebo/set_model_state", 10);
     gazebo_msgs::ModelState controller_throw,controller_line;
 
 
     /* turtlebot twist command */
-    ros::Publisher base_control = nl.advertise<geometry_msgs::Twist>("/left_turtle/cmd_vel", 1);
+    ros::Publisher base_control = nh.advertise<geometry_msgs::Twist>("/turtle1/commands/velocity", 1);
     geometry_msgs::Twist base_motion;
 
     /* get mobile base state*/
-    ros::ServiceClient client_get = nl.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
+    ros::ServiceClient client_get = nh.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
     gazebo_msgs::GetModelState get_state;
-    get_state.request.model_name = "turtlebot3_left_burger";
+    get_state.request.model_name = "turtlebot3_1_burger";
 
 
     /* previous value */
@@ -442,9 +440,9 @@ int main(int argc, char **argv)
     /* controller 1 */
     velocitycontroller velocity_controller;
     velocity_controller.trigger = 0;
-    velocity_controller.client_get = nl.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
-    velocity_controller.base_control = nl.advertise<geometry_msgs::Twist>("/left_turtle/cmd_vel", 1);
-    velocity_controller.get_state.request.model_name = "turtlebot3_left_burger";
+    velocity_controller.client_get = nh.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
+    velocity_controller.base_control = nh.advertise<geometry_msgs::Twist>("/turtle1/cmd_vel", 1);
+    velocity_controller.get_state.request.model_name = "turtlebot3_1_burger";
     velocity_controller.kp_ang = 4;
     velocity_controller.kp_lin = 20;
 
@@ -452,38 +450,34 @@ int main(int argc, char **argv)
     /* controller 2 */
     Waypointcontroller Way_point_controller;
     Way_point_controller.trigger = 0;
-    Way_point_controller.waypoint_name = "waypoint_left";
+    Way_point_controller.waypoint_name = "waypoint_1";
     Way_point_controller.once = false;
-    Way_point_controller.delete_model = nl.serviceClient<gazebo_msgs::DeleteModel>("/gazebo/delete_model");
-    Way_point_controller.spawn_model = nl.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_sdf_model");
-    Way_point_controller.readmodel("/home/conrad/.gazebo/models/controller/left/model.sdf");
-    Way_point_controller.client_get = nl.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
-    Way_point_controller.base_control = nl.advertise<geometry_msgs::Twist>("/left_turtle/cmd_vel", 1);
-    Way_point_controller.get_state.request.model_name = "turtlebot3_left_burger";
+    Way_point_controller.delete_model = nh.serviceClient<gazebo_msgs::DeleteModel>("/gazebo/delete_model");
+    Way_point_controller.spawn_model = nh.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_sdf_model");
+    Way_point_controller.readmodel("/home/conrad/catkin_ws/src/openvr_headset_ros/models/controller/1/model.sdf");
+    Way_point_controller.client_get = nh.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
+    Way_point_controller.base_control = nh.advertise<geometry_msgs::Twist>("/turtle1/cmd_vel", 1);
+    Way_point_controller.get_state.request.model_name = "turtlebot3_1_burger";
     Way_point_controller.kp_ang = 4;
     Way_point_controller.kp_lin = 0.3;
 
     /* controller 3 */
     ThrowMethod ThrowTo;
     ThrowTo.trigger = 0;
-    ThrowTo.waypoint_name = "waypoint_left";
-    ThrowTo.model_name = "turtlebot3_left_burger";
+    ThrowTo.waypoint_name = "waypoint_1";
+    ThrowTo.model_name = "turtlebot3_1_burger";
     ThrowTo.once = false;
-    ThrowTo.delete_model = nl.serviceClient<gazebo_msgs::DeleteModel>("/gazebo/delete_model");
-    ThrowTo.spawn_model = nl.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_sdf_model");
-    ThrowTo.readmodel("/home/conrad/.gazebo/models/controller/left/model.sdf");
+    ThrowTo.delete_model = nh.serviceClient<gazebo_msgs::DeleteModel>("/gazebo/delete_model");
+    ThrowTo.spawn_model = nh.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_sdf_model");
+    ThrowTo.readmodel("/home/conrad/catkin_ws/src/openvr_headset_ros/models/controller/1/model.sdf");
 
 
 
     /* for display */
-    ros::Publisher ToDisplay = nl.advertise<std_msgs::String>("display_message_ch1", 10);
+    ros::Publisher ToDisplay = nh.advertise<std_msgs::String>("control_method", 10);
     std_msgs::String msg;
     msg.data = first_controller ;
     ToDisplay.publish(msg);
-
-
-
-
 
 
   while(ros::ok())
@@ -491,8 +485,8 @@ int main(int argc, char **argv)
   ros::spinOnce(); 
   // ros::spin() works too, but extra code can run outside the callback function between each spinning if spinOnce() is used
 
-
-  if(vive_previ.ctrl_left.buttons.system == 0 & vive_data.vive.ctrl_left.buttons.system == 1)
+/*
+  if(vive_previ.ctrl_right.buttons.system == 0 & vive_data.vive.ctrl_right.buttons.system == 1)
 	{
 		if(controller_switch<3)
 			controller_switch++;
@@ -521,10 +515,10 @@ int main(int argc, char **argv)
 
 
   ToDisplay.publish(msg);
+*/
 
-
-  switch(controller_switch) {
-   case 1  : //"Velocity"
+  switch(vive_data.vive.controller_channel) {
+   case 11  : //"Velocity"
 
         velocity_controller.controller(vive_data.vive);
 
@@ -534,7 +528,7 @@ int main(int argc, char **argv)
 	  }
 
 	break;
-   case 2  : //"Waypoint"
+   case 12  : //"Waypoint"
 
         Way_point_controller.waypoint_controller(vive_data.vive);
         Way_point_controller.controller(vive_data.vive);
@@ -545,7 +539,7 @@ int main(int argc, char **argv)
 		Way_point_controller.once = false;
 	  }
 	break;
-   case 3  : //"Throw"
+   case 13  : //"Throw"
 	ThrowTo.controller(vive_data.vive);
 	if(ThrowTo.trigger){gazebo_pub.publish(ThrowTo.waypoint);}
 	if(ThrowTo.once)
@@ -557,12 +551,12 @@ int main(int argc, char **argv)
 	break;
   }
 
-/*
+
 if(vive_data.vive.ctrl_left.buttons.system == 1)
 {
 	std::cout<<"left"<<std::endl;
 }
-*/
+
 
 
 

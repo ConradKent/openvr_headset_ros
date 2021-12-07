@@ -26,8 +26,8 @@
         <camera>
           <horizontal_fov>1.347</horizontal_fov>
           <image>
-            <width>2280</width>
-            <height>2532</height>
+            <width>2016</width>
+            <height>2240</height>
           </image>
           <clip>
             <near>0.1</near>
@@ -92,8 +92,8 @@
         <camera>
           <horizontal_fov>1.347</horizontal_fov>
           <image>
-            <width>2280</width>
-            <height>2532</height>
+            <width>2016</width>
+            <height>2240</height>
           </image>
           <clip>
             <near>0.1</near>
