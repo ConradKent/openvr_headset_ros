@@ -4,7 +4,9 @@
 
 */
 #include <stdlib.h>
-#include<iostream>
+#include <string>
+#include <sstream>
+#include <iostream>
 #include<fstream>
 
 #include <ros/ros.h>
@@ -31,92 +33,46 @@ public:
 	    }
 };
 
-
-
-class ThrowMethod
+class Surveycontroller
 {
-public:
-	gazebo_msgs::ModelState throw_state;
-
-	gazebo_msgs::ModelState waypoint;
-
-        gazebo_msgs::SpawnModel sm;
-
-	gazebo_msgs::DeleteModel deletemodel;
-
-	int trigger;// 0
-
-	std::string waypoint_name;//"waypoint"
-
-	std::string model_name; //"turtlebot3_burger"
-
-	bool once;
-
-	ros::ServiceClient delete_model;
-        ros::ServiceClient spawn_model;
-
-   	void readmodel(const char* path)
-	  {
-
-		std::ifstream ifs;
-		ifs.open(path);
-		std::stringstream stringstream;
-    		stringstream << ifs.rdbuf();
-  		sm.request.model_name = waypoint_name;
-  		sm.request.model_xml = stringstream.str();
-    		sm.request.robot_namespace = ros::this_node::getNamespace();
-    		sm.request.reference_frame = "world";
-
-	  }
-
-        void controller(const openvr_headset_ros::Vive& vive)
-	  {
-		if(trigger==0 & (int)vive.ctrl_right.buttons.trigger == 1)
-		  {
-			spawn_model.call(sm);
-			trigger = 1;
-		  }
-		
-		if((int)vive.ctrl_right.buttons.trigger == 1)
-		  {
-			double roll, pitch, yaw;
-                        tf::Quaternion Qua(vive.ctrl_right.pose.orientation.x,vive.ctrl_right.pose.orientation.y,vive.ctrl_right.pose.orientation.z,vive.ctrl_right.pose.orientation.w);
-			tf::Matrix3x3 m(Qua); //rotation matrix from Quaternion
-			m.getRPY(roll, pitch, yaw); //eular angle form rotation matrix
-
-			waypoint.model_name = waypoint_name;
-			waypoint.reference_frame="world";
-
-			waypoint.pose.position.x = vive.ctrl_right.pose.position.x + 2*(m[0][0]*vive.ctrl_right.pose.position.z);
-			waypoint.pose.position.y = vive.ctrl_right.pose.position.y + 2*(m[1][0]*vive.ctrl_right.pose.position.z);
-			waypoint.pose.position.z = 0;
-
-			waypoint.pose.orientation.x = 0;
-			waypoint.pose.orientation.y = 0;
-			waypoint.pose.orientation.z = 0;
-			waypoint.pose.orientation.w = 1;
-		  }
-
-		if(trigger==1 & (int)vive.ctrl_right.buttons.trigger == 0)
-		  {
-			throw_state = waypoint;
-			throw_state.pose.position.z = 0.3;
-			throw_state.model_name = model_name;
-
-			once = true;
-                        trigger=0;
-
-			//deletemodel.request.model_name = waypoint_name;
-
-			//delete_model.call(deletemodel);
-
-
-		  }
-	  }
+	public:
+		std::string current_status;
+		std::string idle;
+		std::string start;
+		ros::Time start_time;
+		std::string progress;
+		std::string results;
+		bool surveying;
+		void DoSurvey(int s_trigger);
 
 };
 
-
+void Surveycontroller::DoSurvey(int s_trigger)
+{
+		if(surveying == true) {
+			ros::Duration survey_time = ros::Time::now() - start_time;
+			ros::Duration two(2.0);
+			ros::Duration five(5.0);
+			ros::Duration eight(8.0);
+			if(survey_time < two){
+					current_status=start;
+			}else if(survey_time < five){
+					double survey_time_sec=survey_time.toSec();
+					int percentage = (survey_time_sec-2)*(100/3);
+					std::stringstream progress_append;
+					progress_append << progress << percentage << "%";
+					current_status=progress_append.str();
+			}else if(survey_time < eight){
+					current_status=results;
+			}else{
+					surveying=false;
+		}
+		} else if(s_trigger==1) {
+			current_status=start;
+			start_time=ros::Time::now();
+			surveying = true;
+		}
+}
 
 class Waypointcontroller
 {
@@ -280,130 +236,13 @@ public:
 };
 
 
-
-
-class velocitycontroller
-{
-public:
-	ros::ServiceClient client_get;//= n.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
-
-	ros::Publisher base_control;//= n.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
-
-	gazebo_msgs::GetModelState get_state;
-
-	geometry_msgs::Twist base_motion;
-
-	float x_ori;
-	float y_ori;
-
-	float kp_ang;
-	float kp_lin;
-
-	float psidot;
-	float v;
-
-	int trigger;// 0
-	bool once;
-
-	ros::ServiceClient delete_model;
-        ros::ServiceClient spawn_model;
-
-        gazebo_msgs::SpawnModel sm;
-	gazebo_msgs::DeleteModel deletemodel;
-
 /*
-	gazebo_msgs::ModelState waypoint;
-	
-	std::string waypoint_name;//"waypoint"
-   	void readmodel(const char* path)
-	  {
-		std::ifstream ifs;
-		ifs.open(path);
-		std::stringstream stringstream;
-    		stringstream << ifs.rdbuf();
-  		sm.request.model_name = waypoint_name;
-  		sm.request.model_xml = stringstream.str();
-    		sm.request.robot_namespace = ros::this_node::getNamespace();
-    		sm.request.reference_frame = "world";
-	  }
-*/
-
-        void controller(const openvr_headset_ros::Vive& vive)
-	  {
-		if(trigger==0 & (int)vive.ctrl_right.buttons.trigger == 1)
-		  {
-			//spawn_model.call(sm);
-			trigger = 1;
-
-			x_ori = vive.ctrl_right.pose.position.x;
-			y_ori = vive.ctrl_right.pose.position.y;
-
-		  }
-		
-		if((int)vive.ctrl_right.buttons.trigger == 1)
-		  {
-
-
-			float x_diff = vive.ctrl_right.pose.position.x - x_ori;
-			float y_diff = vive.ctrl_right.pose.position.y - y_ori;
-			float yaw_tar = atan2(y_diff, x_diff);
-
-
-    			client_get.call(get_state);
-			double roll, pitch, yaw;
-                        tf::Quaternion Qua(get_state.response.pose.orientation.x, get_state.response.pose.orientation.y, get_state.response.pose.orientation.z, get_state.response.pose.orientation.w);
-			tf::Matrix3x3 m(Qua); //rotation matrix from Quaternion
-			m.getRPY(roll, pitch, yaw); //eular angle form rotation matrix
-
-			float yaw_diff = yaw_tar - yaw;
-			float scale =  pow( (pow((y_diff), 2) + pow((x_diff), 2)), 1);			
-
-			psidot = kp_ang*(yaw_diff);
-			v = kp_lin*scale;
-
-			if (v>0.5){v = 0.5;}
-			if (psidot>0.8){psidot = 0.8;}
-      			if( abs(get_state.response.twist.angular.z)>0.8){psidot = 0;}
-
-			base_motion.linear.x = v;
-                        base_motion.angular.z = psidot;
-
-                        base_control.publish(base_motion);
-
-		  }
-
-		if(trigger==1 & (int)vive.ctrl_right.buttons.trigger == 0)
-		  {
-			
-			once = true;
-                        trigger=0;
-
-			//deletemodel.request.model_name = waypoint_name;
-
-			//delete_model.call(deletemodel);
-
-
-		  }
-
-	  }
-
-
-
-};
-	
-	
-
-
-//int num_controllers = 3;
-//int controller_switch = 1;
-
-
-
 std::string first_controller = "Velocity";
 std::string second_controller = "Waypoint";
 std::string third_controller = "Throw";
+*/
 
-
+std::string message_surv = "Survey Messages";
 
 
 int main(int argc, char **argv)
@@ -437,17 +276,17 @@ int main(int argc, char **argv)
     /* previous value */
     openvr_headset_ros::Vive vive_previ;
 
-    /* controller 1 */
-    velocitycontroller velocity_controller;
-    velocity_controller.trigger = 0;
-    velocity_controller.client_get = nh.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
-    velocity_controller.base_control = nh.advertise<geometry_msgs::Twist>("/turtlesurv/cmd_vel", 1);
-    velocity_controller.get_state.request.model_name = "turtlebot3_surv_burger";
-    velocity_controller.kp_ang = 4;
-    velocity_controller.kp_lin = 20;
+	/* Survey */
+	Surveycontroller Survey_controller;
+	Survey_controller.idle="Survey Equipment Idling";
+	Survey_controller.start="Beginning Survey";
+	//Survey_controller.start_time;
+	Survey_controller.progress="Survey in progress: ";
+	Survey_controller.results="Survey Complete: Cool Rocks found!";
+	Survey_controller.surveying=false;
+	Survey_controller.current_status=Survey_controller.idle;
 
-
-    /* controller 2 */
+    /* Waypoint */
     Waypointcontroller Way_point_controller;
     Way_point_controller.trigger = 0;
     Way_point_controller.waypoint_name = "waypoint_surv";
@@ -461,22 +300,11 @@ int main(int argc, char **argv)
     Way_point_controller.kp_ang = 4;
     Way_point_controller.kp_lin = 0.3;
 
-    /* controller 3 */
-    ThrowMethod ThrowTo;
-    ThrowTo.trigger = 0;
-    ThrowTo.waypoint_name = "waypoint_surv";
-    ThrowTo.model_name = "turtlebot3_surv_burger";
-    ThrowTo.once = false;
-    ThrowTo.delete_model = nh.serviceClient<gazebo_msgs::DeleteModel>("/gazebo/delete_model");
-    ThrowTo.spawn_model = nh.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_sdf_model");
-    ThrowTo.readmodel("home/conrad/catkin_ws/src/openvr_headset_ros/models/controller/surv/model.sdf");
-
-
 
     /* for display */
-    ros::Publisher ToDisplay = nh.advertise<std_msgs::String>("control_method", 10);
+    ros::Publisher ToDisplay = nh.advertise<std_msgs::String>("message_survey", 10);
     std_msgs::String msg;
-    msg.data = first_controller ;
+    msg.data = Survey_controller.current_status;
     ToDisplay.publish(msg);
 
 
@@ -489,50 +317,13 @@ int main(int argc, char **argv)
   ros::spinOnce(); 
   // ros::spin() works too, but extra code can run outside the callback function between each spinning if spinOnce() is used
 
-/*
-  if(vive_previ.ctrl_right.buttons.system == 0 & vive_data.vive.ctrl_right.buttons.system == 1)
-	{
-		if(controller_switch<3)
-			controller_switch++;
-		else
-			controller_switch = 1;
+   msg.data = Survey_controller.current_status;
+    ToDisplay.publish(msg);
 
 
-		switch(controller_switch) {
-		   case 1  :
-			std::cout<<first_controller<<std::endl;
-    			msg.data = first_controller ;
-			break;
-		   case 2  :
-			Way_point_controller.init();
-			std::cout<<second_controller<<std::endl;
-	    		msg.data = second_controller ;
-			break;
-		   case 3  :
-			std::cout<<third_controller<<std::endl;
-	    		msg.data = third_controller ;
-			break;
-		  }
-
-
-	}
-
-
-
-  ToDisplay.publish(msg);
-*/
 
   switch(vive_data.vive.controller_channel) {
-   case 63  : //"Velocity"
 
-        velocity_controller.controller(vive_data.vive);
-
-	if(velocity_controller.once)
-	  {
-		velocity_controller.once = false;
-	  }
-
-	break;
    case 01  : //"Waypoint"
 
         Way_point_controller.waypoint_controller(vive_data.vive);
@@ -544,15 +335,8 @@ int main(int argc, char **argv)
 		Way_point_controller.once = false;
 	  }
 	break;
-   case 62  : //"Throw"
-	ThrowTo.controller(vive_data.vive);
-	if(ThrowTo.trigger){gazebo_pub.publish(ThrowTo.waypoint);}
-	if(ThrowTo.once)
-	  {
-		gazebo_pub.publish(ThrowTo.throw_state);
-		ThrowTo.once = false;
-	  }
-	
+   case 02  : //"TakeSurvey"
+		Survey_controller.DoSurvey(vive_data.vive.ctrl_right.buttons.trigger);
 	break;
   }
 

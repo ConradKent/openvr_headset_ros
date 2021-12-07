@@ -39,29 +39,6 @@ public:
 
 };
 
-/* MESSAGE PURGE (replaced with menu display)
-class Listener_message_ch0
-{
-public:
-		
-		std::string display_message_ch0;
-		void chatterCallback(const std_msgs::String::ConstPtr& msg)
-		{
-			display_message_ch0 = msg->data.c_str();
-		}
-};
-
-class Listener_message_ch1
-{
-public:
-		
-		std::string display_message_ch1;
-		void chatterCallback(const std_msgs::String::ConstPtr& msg)
-		{
-			display_message_ch1 = msg->data.c_str();
-		}
-};
-*/
 
 class Vive_Listener
 {
@@ -74,7 +51,16 @@ public:
 	    }
 };
 
+class Data_Listener
+{
+public:
+           std::string data;
 
+          void chatterCallback(const std_msgs::String::ConstPtr& msg)
+	    {
+		data = msg->data.c_str();
+	    }
+};
 
 //from https://github.com/matinas/openvrsimplexamples/blob/master/openvrsimplexamples/src/main.cpp
 
@@ -310,13 +296,20 @@ int main(int argc, char **argv)
 	ros::Subscriber message_sub1 = nh.subscribe("display_message_ch1", 10, &Listener_message_ch1::chatterCallback, &listener_message1);
   */
   
+	//Survey Data
+	
+	Data_Listener listener_message_survey; //these do not need to be separate classes but they are because I'm lazy
+	ros::Subscriber survey_data = nh.subscribe("message_survey", 10, &Data_Listener::chatterCallback, &listener_message_survey);
+  
 	//message log info
 	cv::Point message_coords0;
 	cv::Point message_coords1;
 	cv::Point message_coords2;
 	cv::Point message_coords3;
 	cv::Point message_coordsheader;
+	cv::Point message_coordssurvey;
 	double spacing = 30;
+	std::string display_survey = "";
 	std::string display_header = "";
 	std::string display_message0 = "";
 	std::string display_message1 = "";
@@ -337,6 +330,9 @@ int main(int argc, char **argv)
 	
 	message_coordsheader.x = message_coords0.x;
 	message_coordsheader.y = message_coords3.y-spacing;
+	
+	message_coordssurvey.x = message_coords0.x;
+	message_coordssurvey.y = message_coordsheader.y-2*spacing;
 	
 	double textsize =0.8;
 	int thickness = 2;
@@ -421,25 +417,6 @@ Menu disp_menu( "Press Menu for Controllers", "","","","","");
         ros::spinOnce();
         // ros::spin() works too, but extra code can run outside the callback function between each spinning if spinOnce() is used
 				
-		/*		MESSAGE PURGE (replaced with menu display)
-				if (listener_message0.display_message_ch0 != display_message0 && listener_message1.display_message_ch1 != display_message0)
-				{
-					if (listener_message0.display_message_ch0 != display_message0)
-						{
-							display_message3=display_message2;
-							display_message2=display_message1;
-							display_message1=display_message0;
-							display_message0=listener_message0.display_message_ch0;
-						}
-					if (listener_message1.display_message_ch1 != display_message0)
-						{
-							display_message3=display_message2;
-							display_message2=display_message1;
-							display_message1=display_message0;
-							display_message0=listener_message1.display_message_ch1;
-						}
-				}
-				*/
 				//Menu Display Handler
 				disp_menu.handler(vive_data.vive.controller_channel, vive_data.vive.controller_channel_sel);
 				
@@ -449,13 +426,16 @@ Menu disp_menu( "Press Menu for Controllers", "","","","","");
 				display_message1=disp_menu.line2;
 				display_message0=disp_menu.line3;
 				
+				//Add survey/sampling results
+				display_survey=listener_message_survey.data;
+				
 				//Put in the text
 				cv::putText(image_right, display_message0, message_coords0, 0, textsize, cv::Scalar(0,0,255), thickness, 8);
 				cv::putText(image_right, display_message1, message_coords1, 0, textsize, cv::Scalar(0,0,255), thickness, 8);
 				cv::putText(image_right, display_message2, message_coords2, 0, textsize, cv::Scalar(0,0,255), thickness, 8);
 				cv::putText(image_right, display_message3, message_coords3, 0, textsize, cv::Scalar(0,0,255), thickness, 8);
 				cv::putText(image_right, display_header, message_coordsheader, 0, textsize, cv::Scalar(0,0,255), thickness, 8);
-				
+				cv::putText(image_right, display_survey, message_coordssurvey, 0, textsize, cv::Scalar(0,0,255), thickness, 8);
 				
 				
 				//flip the images upside down (the opencv and opengl formats read the pixel rows in a different order)
