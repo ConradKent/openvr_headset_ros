@@ -788,7 +788,7 @@ int grippress_last_right = 0;
             controller_left.pose.orientation.w = ORIlw;
             
             vive.ctrl_left.buttons.trigger=triggerpress_left;	//from "ButtonPub" function
-            vive.ctrl_left.buttons.system=grippress_left;		//TODO, change this to grip here/in the controllers function so we can match up what we're pressing to the messages
+            vive.ctrl_left.buttons.grip=grippress_left;		
             vive.ctrl_left.buttons.menu=menupress_left;
             vive.ctrl_left.buttons.trackpad=touchpadpress_left;
 			vive.ctrl_left.trackpad.x=touchpadaxis_x_left;
@@ -805,7 +805,7 @@ int grippress_last_right = 0;
             controller_right.pose.orientation.w = ORIrw;
 
             vive.ctrl_right.buttons.trigger=triggerpress_right;	//from "ButtonPub" function
-            vive.ctrl_right.buttons.system=grippress_right;
+            vive.ctrl_right.buttons.system=grippress_right;  //TODO, change this to grip here/in the controllers function so we can match up what we're pressing to the messages
 			vive.ctrl_right.buttons.menu=menupress_right;
             vive.ctrl_right.buttons.trackpad=touchpadpress_right;
 			vive.ctrl_right.trackpad.x=touchpadaxis_x_right;

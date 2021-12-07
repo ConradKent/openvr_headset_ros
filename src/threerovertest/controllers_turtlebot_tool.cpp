@@ -32,91 +32,46 @@ public:
 };
 
 
-
-class ThrowMethod
+class Toolcontroller
 {
-public:
-	gazebo_msgs::ModelState throw_state;
-
-	gazebo_msgs::ModelState waypoint;
-
-        gazebo_msgs::SpawnModel sm;
-
-	gazebo_msgs::DeleteModel deletemodel;
-
-	int trigger;// 0
-
-	std::string waypoint_name;//"waypoint"
-
-	std::string model_name; //"turtlebot3_burger"
-
-	bool once;
-
-	ros::ServiceClient delete_model;
-        ros::ServiceClient spawn_model;
-
-   	void readmodel(const char* path)
-	  {
-
-		std::ifstream ifs;
-		ifs.open(path);
-		std::stringstream stringstream;
-    		stringstream << ifs.rdbuf();
-  		sm.request.model_name = waypoint_name;
-  		sm.request.model_xml = stringstream.str();
-    		sm.request.robot_namespace = ros::this_node::getNamespace();
-    		sm.request.reference_frame = "world";
-
-	  }
-
-        void controller(const openvr_headset_ros::Vive& vive)
-	  {
-		if(trigger==0 & (int)vive.ctrl_right.buttons.trigger == 1)
-		  {
-			spawn_model.call(sm);
-			trigger = 1;
-		  }
-		
-		if((int)vive.ctrl_right.buttons.trigger == 1)
-		  {
-			double roll, pitch, yaw;
-                        tf::Quaternion Qua(vive.ctrl_right.pose.orientation.x,vive.ctrl_right.pose.orientation.y,vive.ctrl_right.pose.orientation.z,vive.ctrl_right.pose.orientation.w);
-			tf::Matrix3x3 m(Qua); //rotation matrix from Quaternion
-			m.getRPY(roll, pitch, yaw); //eular angle form rotation matrix
-
-			waypoint.model_name = waypoint_name;
-			waypoint.reference_frame="world";
-
-			waypoint.pose.position.x = vive.ctrl_right.pose.position.x + 2*(m[0][0]*vive.ctrl_right.pose.position.z);
-			waypoint.pose.position.y = vive.ctrl_right.pose.position.y + 2*(m[1][0]*vive.ctrl_right.pose.position.z);
-			waypoint.pose.position.z = 0;
-
-			waypoint.pose.orientation.x = 0;
-			waypoint.pose.orientation.y = 0;
-			waypoint.pose.orientation.z = 0;
-			waypoint.pose.orientation.w = 1;
-		  }
-
-		if(trigger==1 & (int)vive.ctrl_right.buttons.trigger == 0)
-		  {
-			throw_state = waypoint;
-			throw_state.pose.position.z = 0.3;
-			throw_state.model_name = model_name;
-
-			once = true;
-                        trigger=0;
-
-			//deletemodel.request.model_name = waypoint_name;
-
-			//delete_model.call(deletemodel);
-
-
-		  }
-	  }
-
+	public:
+	int pos;
+	int last_grippress;
+	float carr_pos_x;
+	float carr_pos_y;
+	float carr_pos_z;
+	float carr_ori_x;
+	float carr_ori_y;
+	float carr_ori_z;
+	float carr_ori_w;
+	ros::ServiceClient client_get;
+	gazebo_msgs::GetModelState get_state;
+	void checkpos(int t_grippress);
 };
 
-
+void Toolcontroller::checkpos(int t_grippress)
+{
+	client_get.call(get_state);
+	carr_pos_x=get_state.response.pose.position.x;
+	carr_pos_y=get_state.response.pose.position.y;
+	carr_pos_z=get_state.response.pose.position.z;
+	
+	carr_ori_x=get_state.response.pose.orientation.x;
+	carr_ori_y=get_state.response.pose.orientation.y;
+	carr_ori_z=get_state.response.pose.orientation.z;
+	carr_ori_w=get_state.response.pose.orientation.w;
+	
+	if(last_grippress==0 && t_grippress==1) {
+		if(pos==1) {
+			pos=0;
+			 ROS_WARN("Tool in Hand");
+		}else {
+			pos=1;
+			ROS_WARN("Tool on Carrier");
+			}
+		}
+		last_grippress=t_grippress;
+}
 
 class Waypointcontroller
 {
@@ -421,8 +376,26 @@ int main(int argc, char **argv)
 
 
     ros::Publisher gazebo_pub = nh.advertise<gazebo_msgs::ModelState>("gazebo/set_model_state", 10);
-    gazebo_msgs::ModelState controller_throw,controller_line;
+    gazebo_msgs::ModelState controller_throw,controller_line,tool;
 
+	/* Spawn Tool*/
+
+    tool.model_name = "Tool";
+    tool.reference_frame="world";
+
+    gazebo_msgs::SpawnModel sm;
+    ros::ServiceClient spawn_model;
+    std::ifstream ifs;
+    ifs.open("/home/conrad/catkin_ws/src/openvr_headset_ros/models/tool/model.sdf"); //TODO generalize.
+    std::stringstream stringstream;
+    stringstream << ifs.rdbuf();
+    sm.request.model_name = "Tool";
+    sm.request.model_xml = stringstream.str();
+    sm.request.robot_namespace = ros::this_node::getNamespace();
+    sm.request.reference_frame = "world";
+    spawn_model.call(sm);
+
+    system("rosrun gazebo_ros spawn_model -file /home/conrad/catkin_ws/src/openvr_headset_ros/models/tool/model.sdf -sdf -model Tool -y 0 -x 0 -z 1");
 
     /* turtlebot twist command */
     ros::Publisher base_control = nh.advertise<geometry_msgs::Twist>("/turtletool/commands/velocity", 1);
@@ -432,7 +405,6 @@ int main(int argc, char **argv)
     ros::ServiceClient client_get = nh.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
     gazebo_msgs::GetModelState get_state;
     get_state.request.model_name = "turtlebot3_tool_burger";
-
 
     /* previous value */
     openvr_headset_ros::Vive vive_previ;
@@ -461,17 +433,12 @@ int main(int argc, char **argv)
     Way_point_controller.kp_ang = 4;
     Way_point_controller.kp_lin = 0.3;
 
-    /* controller 3 */
-    ThrowMethod ThrowTo;
-    ThrowTo.trigger = 0;
-    ThrowTo.waypoint_name = "waypoint_tool";
-    ThrowTo.model_name = "turtlebot3_tool_burger";
-    ThrowTo.once = false;
-    ThrowTo.delete_model = nh.serviceClient<gazebo_msgs::DeleteModel>("/gazebo/delete_model");
-    ThrowTo.spawn_model = nh.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_sdf_model");
-    ThrowTo.readmodel("home/conrad/catkin_ws/src/openvr_headset_ros/models/controller/tool/model.sdf");
-
-
+    /* Tool */
+	Toolcontroller tool_state;
+	tool_state.pos=0;
+    tool_state.client_get = nh.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
+    tool_state.get_state.request.model_name = "turtlebot3_tool_burger";
+	tool_state.last_grippress=0;
 
     /* for display */
     ros::Publisher ToDisplay = nh.advertise<std_msgs::String>("control_method", 10);
@@ -487,40 +454,11 @@ int main(int argc, char **argv)
   while(ros::ok())
   {
   ros::spinOnce(); 
-  // ros::spin() works too, but extra code can run outside the callback function between each spinning if spinOnce() is used
 
-/*
-  if(vive_previ.ctrl_right.buttons.system == 0 & vive_data.vive.ctrl_right.buttons.system == 1)
-	{
-		if(controller_switch<3)
-			controller_switch++;
-		else
-			controller_switch = 1;
-
-
-		switch(controller_switch) {
-		   case 1  :
-			std::cout<<first_controller<<std::endl;
-    			msg.data = first_controller ;
-			break;
-		   case 2  :
-			Way_point_controller.init();
-			std::cout<<second_controller<<std::endl;
-	    		msg.data = second_controller ;
-			break;
-		   case 3  :
-			std::cout<<third_controller<<std::endl;
-	    		msg.data = third_controller ;
-			break;
-		  }
-
-
-	}
-
-
+tool_state.checkpos(vive_data.vive.ctrl_left.buttons.grip);
 
   ToDisplay.publish(msg);
-*/
+
 
   switch(vive_data.vive.controller_channel) {
    case 12  : //"Velocity"
@@ -544,16 +482,6 @@ int main(int argc, char **argv)
 		Way_point_controller.once = false;
 	  }
 	break;
-   case 62  : //"Throw"
-	ThrowTo.controller(vive_data.vive);
-	if(ThrowTo.trigger){gazebo_pub.publish(ThrowTo.waypoint);}
-	if(ThrowTo.once)
-	  {
-		gazebo_pub.publish(ThrowTo.throw_state);
-		ThrowTo.once = false;
-	  }
-	
-	break;
   }
 
 
@@ -562,9 +490,30 @@ if(vive_data.vive.ctrl_left.buttons.system == 1)
 	std::cout<<"left"<<std::endl;
 }
 
+if(tool_state.pos==0)
+{
+            tool.pose.position.x=vive_data.vive.ctrl_left.pose.position.x;
+            tool.pose.position.y=vive_data.vive.ctrl_left.pose.position.y;
+            tool.pose.position.z=vive_data.vive.ctrl_left.pose.position.z;
 
+            tool.pose.orientation.x = vive_data.vive.ctrl_left.pose.orientation.x;
+            tool.pose.orientation.y = vive_data.vive.ctrl_left.pose.orientation.y;
+            tool.pose.orientation.z = vive_data.vive.ctrl_left.pose.orientation.z;
+            tool.pose.orientation.w = vive_data.vive.ctrl_left.pose.orientation.w;
+}
+else
+{
+			tool.pose.position.x=tool_state.carr_pos_x;
+			tool.pose.position.x=tool_state.carr_pos_y;
+			tool.pose.position.x=tool_state.carr_pos_z+1;
+			
+			tool.pose.orientation.x=tool_state.carr_ori_x;
+			tool.pose.orientation.y=tool_state.carr_ori_y;
+			tool.pose.orientation.z=tool_state.carr_ori_z;
+			tool.pose.orientation.w=tool_state.carr_ori_w;
+}
 
-
+            gazebo_pub.publish(tool);
 
   /* over write previous value  */
   vive_previ = vive_data.vive;
