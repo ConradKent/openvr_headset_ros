@@ -409,7 +409,7 @@ std::string third_controller = "Throw";
 int main(int argc, char **argv)
 {
   // setup ros node
-  ros::init(argc, argv, "vive_controller_0");
+  ros::init(argc, argv, "vive_controller_surv");
   ros::NodeHandle nh;
 
   ros::Rate r(180);
@@ -425,13 +425,13 @@ int main(int argc, char **argv)
 
 
     /* turtlebot twist command */
-    ros::Publisher base_control = nh.advertise<geometry_msgs::Twist>("/turtle0/commands/velocity", 1);
+    ros::Publisher base_control = nh.advertise<geometry_msgs::Twist>("/turtlesurv/commands/velocity", 1);
     geometry_msgs::Twist base_motion;
 
     /* get mobile base state*/
     ros::ServiceClient client_get = nh.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
     gazebo_msgs::GetModelState get_state;
-    get_state.request.model_name = "turtlebot3_0_burger";
+    get_state.request.model_name = "turtlebot3_surv_burger";
 
 
     /* previous value */
@@ -441,8 +441,8 @@ int main(int argc, char **argv)
     velocitycontroller velocity_controller;
     velocity_controller.trigger = 0;
     velocity_controller.client_get = nh.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
-    velocity_controller.base_control = nh.advertise<geometry_msgs::Twist>("/turtle0/cmd_vel", 1);
-    velocity_controller.get_state.request.model_name = "turtlebot3_0_burger";
+    velocity_controller.base_control = nh.advertise<geometry_msgs::Twist>("/turtlesurv/cmd_vel", 1);
+    velocity_controller.get_state.request.model_name = "turtlebot3_surv_burger";
     velocity_controller.kp_ang = 4;
     velocity_controller.kp_lin = 20;
 
@@ -450,26 +450,26 @@ int main(int argc, char **argv)
     /* controller 2 */
     Waypointcontroller Way_point_controller;
     Way_point_controller.trigger = 0;
-    Way_point_controller.waypoint_name = "waypoint_0";
+    Way_point_controller.waypoint_name = "waypoint_surv";
     Way_point_controller.once = false;
     Way_point_controller.delete_model = nh.serviceClient<gazebo_msgs::DeleteModel>("/gazebo/delete_model");
     Way_point_controller.spawn_model = nh.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_sdf_model");
-    Way_point_controller.readmodel("/home/conrad/catkin_ws/src/openvr_headset_ros/models/controller/0/model.sdf");
+    Way_point_controller.readmodel("/home/conrad/catkin_ws/src/openvr_headset_ros/models/controller/surv/model.sdf");
     Way_point_controller.client_get = nh.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
-    Way_point_controller.base_control = nh.advertise<geometry_msgs::Twist>("/turtle0/cmd_vel", 1);
-    Way_point_controller.get_state.request.model_name = "turtlebot3_0_burger";
+    Way_point_controller.base_control = nh.advertise<geometry_msgs::Twist>("/turtlesurv/cmd_vel", 1);
+    Way_point_controller.get_state.request.model_name = "turtlebot3_surv_burger";
     Way_point_controller.kp_ang = 4;
     Way_point_controller.kp_lin = 0.3;
 
     /* controller 3 */
     ThrowMethod ThrowTo;
     ThrowTo.trigger = 0;
-    ThrowTo.waypoint_name = "waypoint_0";
-    ThrowTo.model_name = "turtlebot3_0_burger";
+    ThrowTo.waypoint_name = "waypoint_surv";
+    ThrowTo.model_name = "turtlebot3_surv_burger";
     ThrowTo.once = false;
     ThrowTo.delete_model = nh.serviceClient<gazebo_msgs::DeleteModel>("/gazebo/delete_model");
     ThrowTo.spawn_model = nh.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_sdf_model");
-    ThrowTo.readmodel("home/conrad/catkin_ws/src/openvr_headset_ros/models/controller/0/model.sdf");
+    ThrowTo.readmodel("home/conrad/catkin_ws/src/openvr_headset_ros/models/controller/surv/model.sdf");
 
 
 
@@ -523,7 +523,7 @@ int main(int argc, char **argv)
 */
 
   switch(vive_data.vive.controller_channel) {
-   case 01  : //"Velocity"
+   case 63  : //"Velocity"
 
         velocity_controller.controller(vive_data.vive);
 
@@ -533,7 +533,7 @@ int main(int argc, char **argv)
 	  }
 
 	break;
-   case 02  : //"Waypoint"
+   case 01  : //"Waypoint"
 
         Way_point_controller.waypoint_controller(vive_data.vive);
         Way_point_controller.controller(vive_data.vive);
@@ -544,7 +544,7 @@ int main(int argc, char **argv)
 		Way_point_controller.once = false;
 	  }
 	break;
-   case 03  : //"Throw"
+   case 62  : //"Throw"
 	ThrowTo.controller(vive_data.vive);
 	if(ThrowTo.trigger){gazebo_pub.publish(ThrowTo.waypoint);}
 	if(ThrowTo.once)
