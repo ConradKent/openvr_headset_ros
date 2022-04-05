@@ -19,6 +19,7 @@
 #include "gazebo_msgs/DeleteModel.h"
 #include "gazebo_msgs/SpawnModel.h"
 
+#include <string>
 #include <ros/package.h> // for ros::package::getPath() to not have to hardcode the paths for this
 
 // define callback function in a class so that data running inside the class can be used globally
@@ -411,7 +412,7 @@ std::string third_controller = "Throw";
 int main(int argc, char **argv)
 {
   std::string pkglocalpath = ros::package::getPath("openvr_headset_ros"); // to not have to hardcode the paths for this
-  // should give back "/home/USERNAME/catkin_ws/src/openvr_headset_ros/"
+  // should give back "/home/USERNAME/catkin_ws/src/openvr_headset_ros"
 
   // setup ros node
   ros::init(argc, argv, "vive_controller_samp");

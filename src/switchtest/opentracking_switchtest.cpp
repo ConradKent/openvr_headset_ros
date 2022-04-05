@@ -564,7 +564,7 @@ m_controller_channel=c_c;
 int main(int argc,char* argv[])
 {
     std::string pkglocalpath = ros::package::getPath("openvr_headset_ros"); // to not have to hardcode the paths for this
-    // should give back "/home/USERNAME/catkin_ws/src/openvr_headset_ros/"
+    // should give back "/home/USERNAME/catkin_ws/src/openvr_headset_ros"
 
     vr::IVRSystem* vr_pointer = NULL;
     vr_pointer = initialize();

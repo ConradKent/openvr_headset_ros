@@ -251,7 +251,7 @@ std::string GetTrackedDeviceClassString(vr::ETrackedDeviceClass td_class) {
 int main(int argc, char **argv)
 {
     std::string pkglocalpath = ros::package::getPath("openvr_headset_ros"); // to not have to hardcode the paths for this
-    // should give back "/home/USERNAME/catkin_ws/src/openvr_headset_ros/"
+    // should give back "/home/USERNAME/catkin_ws/src/openvr_headset_ros"
 
     //initialize glut and glew (opengl stuff)
     glutInit(&argc, argv);

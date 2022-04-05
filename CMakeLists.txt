@@ -32,7 +32,7 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(gazebo REQUIRED)
 
 
-link_directories(${catkin_LIBRARY_RIRS})
+link_directories(${catkin_LIBRARY_DIRS}) # ...typo before as catkin_LIBRARY_RIRS ??
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
