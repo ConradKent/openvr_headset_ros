@@ -23,6 +23,7 @@ eye of a VR headset using OpenVR.
 #include <opencv2/highgui.hpp>
 #include <openvr/openvr.h>
 
+#include <ros/package.h> // for ros::package::getPath() to not have to hardcode the paths for this
 
 // define callback function in a class so that data running inside the class can be used globally
 class Listener_image
@@ -125,6 +126,8 @@ std::string GetTrackedDeviceClassString(vr::ETrackedDeviceClass td_class) {
 
 int main(int argc, char **argv)
 {
+    std::string pkglocalpath = ros::package::getPath("openvr_headset_ros"); // to not have to hardcode the paths for this
+    // should give back "/home/USERNAME/catkin_ws/src/openvr_headset_ros/"
 
     //initialize glut and glew (opengl stuff)
     glutInit(&argc, argv);
@@ -274,7 +277,7 @@ int main(int argc, char **argv)
         }
 
 
-cv::VideoWriter video("/home/conrad/catkin_ws/src/openvr_headset_ros/out.avi",cv::VideoWriter::fourcc('M','J','P','G'),30, cv::Size(pnWidth,pnHeight),true);
+cv::VideoWriter video(pkglocalpath + "/out.avi",cv::VideoWriter::fourcc('M','J','P','G'),30, cv::Size(pnWidth,pnHeight),true); // "/home/USERNAME/catkin_ws/src/openvr_headset_ros/out.avi"
 
     while(ros::ok())
     {

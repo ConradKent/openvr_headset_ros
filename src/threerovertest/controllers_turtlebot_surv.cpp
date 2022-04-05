@@ -21,6 +21,8 @@
 #include "gazebo_msgs/DeleteModel.h"
 #include "gazebo_msgs/SpawnModel.h"
 
+#include <ros/package.h> // for ros::package::getPath() to not have to hardcode the paths for this
+
 // define callback function in a class so that data running inside the class can be used globally
 class Vive_Listener
 {
@@ -247,6 +249,9 @@ std::string message_surv = "Survey Messages";
 
 int main(int argc, char **argv)
 {
+  std::string pkglocalpath = ros::package::getPath("openvr_headset_ros"); // to not have to hardcode the paths for this
+  // should give back "/home/USERNAME/catkin_ws/src/openvr_headset_ros/"
+
   // setup ros node
   ros::init(argc, argv, "vive_controller_surv");
   ros::NodeHandle nh;
@@ -293,7 +298,7 @@ int main(int argc, char **argv)
     Way_point_controller.once = false;
     Way_point_controller.delete_model = nh.serviceClient<gazebo_msgs::DeleteModel>("/gazebo/delete_model");
     Way_point_controller.spawn_model = nh.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_sdf_model");
-    Way_point_controller.readmodel("/home/conrad/catkin_ws/src/openvr_headset_ros/models/controller/surv/model.sdf");
+    Way_point_controller.readmodel(pkglocalpath + "/models/controller/surv/model.sdf"); // "/home/USERNAME/catkin_ws/src/openvr_headset_ros/models/controller/surv/model.sdf"
     Way_point_controller.client_get = nh.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
     Way_point_controller.base_control = nh.advertise<geometry_msgs::Twist>("/turtlesurv/cmd_vel", 1);
     Way_point_controller.get_state.request.model_name = "turtlebot3_surv_burger";

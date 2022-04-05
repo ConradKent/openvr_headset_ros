@@ -19,6 +19,8 @@
 #include "gazebo_msgs/DeleteModel.h"
 #include "gazebo_msgs/SpawnModel.h"
 
+#include <ros/package.h> // for ros::package::getPath() to not have to hardcode the paths for this
+
 // define callback function in a class so that data running inside the class can be used globally
 class Vive_Listener
 {
@@ -408,6 +410,9 @@ std::string third_controller = "Throw";
 
 int main(int argc, char **argv)
 {
+  std::string pkglocalpath = ros::package::getPath("openvr_headset_ros"); // to not have to hardcode the paths for this
+  // should give back "/home/USERNAME/catkin_ws/src/openvr_headset_ros/"
+
   // setup ros node
   ros::init(argc, argv, "vive_controller_samp");
   ros::NodeHandle nh;
@@ -454,7 +459,7 @@ int main(int argc, char **argv)
     Way_point_controller.once = false;
     Way_point_controller.delete_model = nh.serviceClient<gazebo_msgs::DeleteModel>("/gazebo/delete_model");
     Way_point_controller.spawn_model = nh.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_sdf_model");
-    Way_point_controller.readmodel("/home/conrad/catkin_ws/src/openvr_headset_ros/models/controller/samp/model.sdf");
+    Way_point_controller.readmodel(pkglocalpath + "/models/controller/samp/model.sdf"); // "/home/USERNAME/catkin_ws/src/openvr_headset_ros/models/controller/samp/model.sdf"
     Way_point_controller.client_get = nh.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
     Way_point_controller.base_control = nh.advertise<geometry_msgs::Twist>("/turtlesamp/cmd_vel", 1);
     Way_point_controller.get_state.request.model_name = "turtlebot3_samp_burger";
@@ -469,7 +474,7 @@ int main(int argc, char **argv)
     ThrowTo.once = false;
     ThrowTo.delete_model = nh.serviceClient<gazebo_msgs::DeleteModel>("/gazebo/delete_model");
     ThrowTo.spawn_model = nh.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_sdf_model");
-    ThrowTo.readmodel("home/conrad/catkin_ws/src/openvr_headset_ros/models/controller/samp/model.sdf");
+    ThrowTo.readmodel(pkglocalpath + "/models/controller/samp/model.sdf"); // "/home/USERNAME/catkin_ws/src/openvr_headset_ros/models/controller/samp/model.sdf"
 
 
 

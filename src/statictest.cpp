@@ -16,6 +16,7 @@
 #include <opencv2/highgui.hpp>
 #include <openvr/openvr.h>
 
+#include <ros/package.h> // for ros::package::getPath() to not have to hardcode the paths for this
 
 //----------------------------------------------------------------
 // Declarations
@@ -43,6 +44,8 @@ CMainApplication::CMainApplication( int argc, char *argv[] ){};//Should add init
 
 int main(int argc,char* argv[])
 {
+    std::string pkglocalpath = ros::package::getPath("openvr_headset_ros"); // to not have to hardcode the paths for this
+    // should give back "/home/USERNAME/catkin_ws/src/openvr_headset_ros/"
 
     CMainApplication *pMainApplication = new CMainApplication( argc, argv );
 
@@ -67,8 +70,8 @@ int main(int argc,char* argv[])
     GLuint tex_right;
 
     //LoadPNG
-    cv::Mat image_left = cv::imread("/home/conrad/catkin_ws/src/openvr_headset_ros/src/statictest.png");
-    cv::Mat image_right = cv::imread("/home/conrad/catkin_ws/src/openvr_headset_ros/src/statictest.png");
+    cv::Mat image_left = cv::imread(pkglocalpath + "/src/statictest.png"); // "/home/USERNAME/catkin_ws/src/openvr_headset_ros/src/statictest.png"
+    cv::Mat image_right = cv::imread(pkglocalpath + "/src/statictest.png"); // "/home/USERNAME/catkin_ws/src/openvr_headset_ros/src/statictest.png"
     if(image_left.empty())
         {
         std::cout << "image empty"<< std::endl;
@@ -144,7 +147,7 @@ int main(int argc,char* argv[])
     cv::moveWindow("view",0,0);      // move the window to the VIVE monitor, which is the second moniter on the right side of main monitor, and main monitor has a width of 1920
     cv::setWindowProperty("view",0,1);  // setWindowProperty(window name, type of window property(full screen = 0), value of window property(full screen = 1))
     cv::startWindowThread();
-    cv::Mat image_test = cv::imread("/home/conrad/catkin_ws/src/openvr_headset_ros/src/statictest.png");
+    cv::Mat image_test = cv::imread(pkglocalpath + "/src/statictest.png"); // "/home/USERNAME/catkin_ws/src/openvr_headset_ros/src/statictest.png"
 */
 
     //Ros Init

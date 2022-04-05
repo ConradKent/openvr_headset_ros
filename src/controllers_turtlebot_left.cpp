@@ -19,6 +19,8 @@
 #include "gazebo_msgs/DeleteModel.h"
 #include "gazebo_msgs/SpawnModel.h"
 
+#include <ros/package.h> // for ros::package::getPath() to not have to hardcode the paths for this
+
 // define callback function in a class so that data running inside the class can be used globally
 class Vive_Listener
 {
@@ -410,6 +412,9 @@ std::string third_controller = "Left Turtle: Throw To Control";
 
 int main(int argc, char **argv)
 {
+  std::string pkglocalpath = ros::package::getPath("openvr_headset_ros"); // to not have to hardcode the paths for this
+  // should give back "/home/USERNAME/catkin_ws/src/openvr_headset_ros/"
+
   // setup ros node
   ros::init(argc, argv, "vive_controller_left");
   ros::NodeHandle nl;
@@ -456,7 +461,7 @@ int main(int argc, char **argv)
     Way_point_controller.once = false;
     Way_point_controller.delete_model = nl.serviceClient<gazebo_msgs::DeleteModel>("/gazebo/delete_model");
     Way_point_controller.spawn_model = nl.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_sdf_model");
-    Way_point_controller.readmodel("/home/conrad/.gazebo/models/controller/left/model.sdf");
+    Way_point_controller.readmodel(pkglocalpath + "/../../../.gazebo/models/controller/left/model.sdf"); // "/home/USERNAME/.gazebo/models/controller/left/model.sdf"
     Way_point_controller.client_get = nl.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
     Way_point_controller.base_control = nl.advertise<geometry_msgs::Twist>("/left_turtle/cmd_vel", 1);
     Way_point_controller.get_state.request.model_name = "turtlebot3_left_burger";
@@ -471,7 +476,7 @@ int main(int argc, char **argv)
     ThrowTo.once = false;
     ThrowTo.delete_model = nl.serviceClient<gazebo_msgs::DeleteModel>("/gazebo/delete_model");
     ThrowTo.spawn_model = nl.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_sdf_model");
-    ThrowTo.readmodel("/home/conrad/.gazebo/models/controller/left/model.sdf");
+    ThrowTo.readmodel(pkglocalpath + "/../../../.gazebo/models/controller/left/model.sdf"); // "/home/USERNAME/.gazebo/models/controller/left/model.sdf"
 
 
 

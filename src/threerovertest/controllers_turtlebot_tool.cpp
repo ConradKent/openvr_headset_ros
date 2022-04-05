@@ -19,6 +19,8 @@
 #include "gazebo_msgs/DeleteModel.h"
 #include "gazebo_msgs/SpawnModel.h"
 
+#include <ros/package.h> // for ros::package::getPath() to not have to hardcode the paths for this
+
 // define callback function in a class so that data running inside the class can be used globally
 class Vive_Listener
 {
@@ -363,6 +365,9 @@ std::string third_controller = "Throw";
 
 int main(int argc, char **argv)
 {
+  std::string pkglocalpath = ros::package::getPath("openvr_headset_ros"); // to not have to hardcode the paths for this
+  // should give back "/home/USERNAME/catkin_ws/src/openvr_headset_ros/"
+
   // setup ros node
   ros::init(argc, argv, "vive_controller_tool");
   ros::NodeHandle nh;
@@ -386,7 +391,7 @@ int main(int argc, char **argv)
     gazebo_msgs::SpawnModel sm;
     ros::ServiceClient spawn_model;
     std::ifstream ifs;
-    ifs.open("/home/conrad/catkin_ws/src/openvr_headset_ros/models/tool/model.sdf"); //TODO generalize.
+    ifs.open(pkglocalpath + "/models/tool/model.sdf"); //TODO generalize. // "/home/USERNAME/catkin_ws/src/openvr_headset_ros/models/tool/model.sdf"
     std::stringstream stringstream;
     stringstream << ifs.rdbuf();
     sm.request.model_name = "Tool";
@@ -395,7 +400,7 @@ int main(int argc, char **argv)
     sm.request.reference_frame = "world";
     spawn_model.call(sm);
 
-    system("rosrun gazebo_ros spawn_model -file /home/conrad/catkin_ws/src/openvr_headset_ros/models/tool/model.sdf -sdf -model Tool -y 0 -x 0 -z 1");
+    system("rosrun gazebo_ros spawn_model -file " + pkglocalpath + "/models/tool/model.sdf -sdf -model Tool -y 0 -x 0 -z 1"); // "rosrun gazebo_ros spawn_model -file /home/USERNAME/catkin_ws/src/openvr_headset_ros/models/tool/model.sdf -sdf -model Tool -y 0 -x 0 -z 1"
 
     /* turtlebot twist command */
     ros::Publisher base_control = nh.advertise<geometry_msgs::Twist>("/turtletool/commands/velocity", 1);
@@ -426,7 +431,7 @@ int main(int argc, char **argv)
     Way_point_controller.once = false;
     Way_point_controller.delete_model = nh.serviceClient<gazebo_msgs::DeleteModel>("/gazebo/delete_model");
     Way_point_controller.spawn_model = nh.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_sdf_model");
-    Way_point_controller.readmodel("/home/conrad/catkin_ws/src/openvr_headset_ros/models/controller/tool/model.sdf");
+    Way_point_controller.readmodel(pkglocalpath + "/models/controller/tool/model.sdf"); // "/home/USERNAME/catkin_ws/src/openvr_headset_ros/models/controller/tool/model.sdf"
     Way_point_controller.client_get = nh.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
     Way_point_controller.base_control = nh.advertise<geometry_msgs::Twist>("/turtletool/cmd_vel", 1);
     Way_point_controller.get_state.request.model_name = "turtlebot3_tool_burger";

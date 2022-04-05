@@ -28,6 +28,8 @@
 
 #include <openvr_headset_ros/Vive.h>
 
+#include <ros/package.h> // for ros::package::getPath() to not have to hardcode the paths for this
+
 /*TODO LIST
  * Controllers: Trackpad
  * Take more stuff out of main and add it to functions for better organization
@@ -463,6 +465,9 @@ inline void PollPoses(vr::IVRSystem* vr_pointer, const ros::Publisher &publisher
 
 int main(int argc,char* argv[])
 {
+    std::string pkglocalpath = ros::package::getPath("openvr_headset_ros"); // to not have to hardcode the paths for this
+    // should give back "/home/USERNAME/catkin_ws/src/openvr_headset_ros/"
+
     vr::IVRSystem* vr_pointer = NULL;
     vr_pointer = initialize();
 
@@ -506,7 +511,7 @@ int main(int argc,char* argv[])
                 gazebo_msgs::SpawnModel sm;
                 ros::ServiceClient spawn_model;
                 std::ifstream ifs;
-                ifs.open("/home/conrad/catkin_ws/src/openvr_headset_ros/models/vr_view_vive/model.sdf"); //TODO generalize.
+                ifs.open(pkglocalpath + "/models/vr_view_vive/model.sdf"); //TODO generalize. // "/home/USERNAME/catkin_ws/src/openvr_headset_ros/models/vr_view_vive/model.sdf"
                 std::stringstream stringstream;
                 stringstream << ifs.rdbuf();
                 sm.request.model_name = "vr_view_vive";
@@ -515,7 +520,7 @@ int main(int argc,char* argv[])
                 sm.request.reference_frame = "world";
                 spawn_model.call(sm);
 
-                system("rosrun gazebo_ros spawn_model -file /home/conrad/catkin_ws/src/openvr_headset_ros/models/vr_view_vive/model.sdf -sdf -model vr_view_vive -y 0 -x 0 -z 1");
+                system("rosrun gazebo_ros spawn_model -file " + pkglocalpath + "/models/vr_view_vive/model.sdf -sdf -model vr_view_vive -y 0 -x 0 -z 1"); // "rosrun gazebo_ros spawn_model -file /home/USERNAME/catkin_ws/src/openvr_headset_ros/models/vr_view_vive/model.sdf -sdf -model vr_view_vive -y 0 -x 0 -z 1"
 }   else if (pnHeight==2628 && pnWidth==2368) {*/
             //Use Vive Pro models
              if (0==0) {   
@@ -530,7 +535,7 @@ int main(int argc,char* argv[])
                 gazebo_msgs::SpawnModel sm;
                 ros::ServiceClient spawn_model;
                 std::ifstream ifs;
-                ifs.open("/home/conrad/catkin_ws/src/openvr_headset_ros/models/vr_view_vive_pro/model.sdf"); //TODO generalize.
+                ifs.open(pkglocalpath + "/models/vr_view_vive_pro/model.sdf"); //TODO generalize. // "/home/USERNAME/catkin_ws/src/openvr_headset_ros/models/vr_view_vive_pro/model.sdf"
                 std::stringstream stringstream;
                 stringstream << ifs.rdbuf();
                 sm.request.model_name = "vr_view_vive_pro";
@@ -539,7 +544,7 @@ int main(int argc,char* argv[])
                 sm.request.reference_frame = "world";
                 spawn_model.call(sm);
 
-                system("rosrun gazebo_ros spawn_model -file /home/conrad/catkin_ws/src/openvr_headset_ros/models/vr_view_vive_pro/model.sdf -sdf -model vr_view_vive_pro -y 0 -x 0 -z 1");
+                system("rosrun gazebo_ros spawn_model -file " + pkglocalpath + "/models/vr_view_vive_pro/model.sdf -sdf -model vr_view_vive_pro -y 0 -x 0 -z 1"); // "rosrun gazebo_ros spawn_model -file /home/USERNAME/catkin_ws/src/openvr_headset_ros/models/vr_view_vive_pro/model.sdf -sdf -model vr_view_vive_pro -y 0 -x 0 -z 1"
 			}
 /*}   else {std::cout << "no camera model found for this headset" << std::endl;}*/
 
@@ -637,7 +642,7 @@ int main(int argc,char* argv[])
     gazebo_msgs::SpawnModel sm;
     ros::ServiceClient spawn_model;
     std::ifstream ifs1,ifs2;
-    ifs1.open("/home/conrad/catkin_ws/src/openvr_headset_ros/models/Gazebo_Vive_Wand/left/model.sdf"); //TODO generalize.
+    ifs1.open(pkglocalpath + "/models/Gazebo_Vive_Wand/left/model.sdf"); //TODO generalize. // "/home/USERNAME/catkin_ws/src/openvr_headset_ros/models/Gazebo_Vive_Wand/left/model.sdf"
     std::stringstream stringstream1;
     stringstream1 << ifs1.rdbuf();
     sm.request.model_name = "Gazebo_Vive_Wand";
@@ -646,7 +651,7 @@ int main(int argc,char* argv[])
     sm.request.reference_frame = "world";
     spawn_model.call(sm);
 
-        system("rosrun gazebo_ros spawn_model -file /home/conrad/catkin_ws/src/openvr_headset_ros/models/Gazebo_Vive_Wand/left/model.sdf -sdf -model Vive_Controller_left -y 0 -x 0 -z 1");
+        system("rosrun gazebo_ros spawn_model -file " + pkglocalpath + "/models/Gazebo_Vive_Wand/left/model.sdf -sdf -model Vive_Controller_left -y 0 -x 0 -z 1"); // "rosrun gazebo_ros spawn_model -file /home/USERNAME/catkin_ws/src/openvr_headset_ros/models/Gazebo_Vive_Wand/left/model.sdf -sdf -model Vive_Controller_left -y 0 -x 0 -z 1"
 
 
     controller_right.model_name = "Vive_Controller_right";
@@ -654,7 +659,7 @@ int main(int argc,char* argv[])
 
 
 
-    ifs2.open("/home/conrad/catkin_ws/src/openvr_headset_ros/models/Gazebo_Vive_Wand/right/model.sdf"); //TODO generalize.
+    ifs2.open(pkglocalpath + "/models/Gazebo_Vive_Wand/right/model.sdf"); //TODO generalize. // "/home/USERNAME/catkin_ws/src/openvr_headset_ros/models/Gazebo_Vive_Wand/right/model.sdf"
     std::stringstream stringstream2;
     stringstream2 << ifs1.rdbuf();
     sm.request.model_name = "Gazebo_Vive_Wand";
@@ -663,7 +668,7 @@ int main(int argc,char* argv[])
     sm.request.reference_frame = "world";
     spawn_model.call(sm);
 
-    system("rosrun gazebo_ros spawn_model -file /home/conrad/catkin_ws/src/openvr_headset_ros/models/Gazebo_Vive_Wand/right/model.sdf -sdf -model Vive_Controller_right -y 0 -x 0 -z 1");
+    system("rosrun gazebo_ros spawn_model -file " + pkglocalpath + "/models/Gazebo_Vive_Wand/right/model.sdf -sdf -model Vive_Controller_right -y 0 -x 0 -z 1"); // "rosrun gazebo_ros spawn_model -file /home/USERNAME/catkin_ws/src/openvr_headset_ros/models/Gazebo_Vive_Wand/right/model.sdf -sdf -model Vive_Controller_right -y 0 -x 0 -z 1"
 
 
         while(ros::ok())
