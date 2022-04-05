@@ -10,7 +10,6 @@ project(openvr_headset_ros)
 find_package(catkin REQUIRED COMPONENTS
   message_generation
   geometry_msgs
-  openvr_ros
   nodelet
   roscpp
   rospy
@@ -27,7 +26,7 @@ find_package(catkin REQUIRED COMPONENTS
   image_transport
   rviz
 )
-
+##  openvr_ros
 
 
 find_package(gazebo REQUIRED)

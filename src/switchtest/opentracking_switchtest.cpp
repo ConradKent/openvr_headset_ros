@@ -14,9 +14,9 @@
 #include <gazebo_msgs/ModelState.h>
 #include <gazebo_msgs/SpawnModel.h>
 #include <tf/transform_broadcaster.h>
-#include "openvr_ros/utility.h"
-#include "openvr_ros/TrackedDevicePose.h"
-
+//#include "openvr_ros/utility.h"
+//#include "openvr_ros/TrackedDevicePose.h"
+#include <openvr_headset_ros/TrackedDevicePose.h>
 
 #include "tf/transform_datatypes.h"
 #include <geometry_msgs/Quaternion.h>
@@ -571,7 +571,7 @@ int main(int argc,char* argv[])
     ros::NodeHandle nh;
 
     //TODO try to do this without setting up a new publisher maybe? seems ineffecient since everything's happening in this program.
-    ros::Publisher tracked_device_pose_publisher = nh.advertise<openvr_ros::TrackedDevicePose>("tracked_device_pose", 300);
+    ros::Publisher tracked_device_pose_publisher = nh.advertise<openvr_headset_ros::TrackedDevicePose>("tracked_device_pose", 300);
 
 
     ros::Rate r(180);

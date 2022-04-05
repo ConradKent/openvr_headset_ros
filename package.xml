@@ -50,7 +50,7 @@
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>geometry_msgs</build_depend>
-    <build_depend>openvr_ros</build_depend>
+  <!--  <build_depend>openvr_ros</build_depend> -->
   <build_depend>nodelet</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>roslib</build_depend>
@@ -83,7 +83,7 @@
 
   <!--<exec_depend>message_generation</exec_depend>-->
   <exec_depend>message_runtime</exec_depend>
-   <exec_depend>openvr_ros</exec_depend>
+  <!-- <exec_depend>openvr_ros</exec_depend> -->
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>nodelet</exec_depend>
   <exec_depend>roscpp</exec_depend>
