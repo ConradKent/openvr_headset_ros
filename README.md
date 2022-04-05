@@ -4,11 +4,11 @@ NOTE: The multi-headset functionality broke on my machine and thus lines in "ima
 
 ## What is this?
 
-openvr_headset_ros is a package for ros based on vrui_mdf by Zhenyu Shi(https://github.com/zhenyushi/vrui_mdf). The goal of this project is to provide an open source way to view a ros/gazebo simulation through a vr headset. This package will use openvr to get tracking info and send images to the headset for display. The package currently works with the original Vive headset and controllers or the Vive Pro headset and controllers, and with lighthouse version 1.0 or 2.0. Other SteamVR capable headsets should be relatively simple to add.
+openvr_headset_ros is a package for ros based on vrui_mdf by Zhenyu Shi (https://github.com/zhenyushi/vrui_mdf). The goal of this project is to provide an open source way to view a ros/gazebo simulation through a vr headset. This package will use openvr to get tracking info and send images to the headset for display. The package currently works with the original Vive headset and controllers or the Vive Pro headset and controllers, and with lighthouse version 1.0 or 2.0. Other SteamVR capable headsets should be relatively simple to add.
 
-**This is the development branch of the code. I'm trying to remove the openvr_ros dependency real quick, and use the "local" msg file for openvr_headset_ros instead.**
+**This is the development branch of the code. A quick attempt has been made to remove the openvr_ros dependency (using the "local" TrackedDevicePose.msg file in openvr_headset_ros instead). A quick attempt has also been made to try to replace all the hardcoded file locations ("/home/USERNAME") that were in the code previously.**
 
-**Also note that, in order to use this currently, you'll need to do a find-replace on all files to replace "/home/conrad" with "/home/YOURNAMEHERE" for whatever your username is for your computer system (e.g., if your username is janedoe, then "/home/janedoe" should be what you are replacing "/home/conrad" with). This will be fixed in a later update.**
+**Currently, these two updates have not been fully tested / debugged yet (as of Apr 5, 2022). If you run into any compilation or runtime errors, general issues with use, &etc., please do contact us and let us know so that we can help with that, thanks! :)**
 
 ## Some Gifs
 
