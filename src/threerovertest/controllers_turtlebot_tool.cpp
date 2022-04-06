@@ -432,7 +432,7 @@ int main(int argc, char **argv)
     Way_point_controller.once = false;
     Way_point_controller.delete_model = nh.serviceClient<gazebo_msgs::DeleteModel>("/gazebo/delete_model");
     Way_point_controller.spawn_model = nh.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_sdf_model");
-    Way_point_controller.readmodel(pkglocalpath + "/models/controller/tool/model.sdf"); // "/home/USERNAME/catkin_ws/src/openvr_headset_ros/models/controller/tool/model.sdf"
+    Way_point_controller.readmodel((pkglocalpath + "/models/controller/tool/model.sdf").c_str()); // readmodel req.s const char* currently // "/home/USERNAME/catkin_ws/src/openvr_headset_ros/models/controller/tool/model.sdf"
     Way_point_controller.client_get = nh.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
     Way_point_controller.base_control = nh.advertise<geometry_msgs::Twist>("/turtletool/cmd_vel", 1);
     Way_point_controller.get_state.request.model_name = "turtlebot3_tool_burger";
