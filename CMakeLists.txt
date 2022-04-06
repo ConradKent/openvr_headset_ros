@@ -98,7 +98,7 @@ add_message_files(DIRECTORY msg
 ## Generate added messages and services with any dependencies listed here
  generate_messages(
    DEPENDENCIES
-   openvr_headset_ros
+   openvr_headset_ros # is this required??
    geometry_msgs
    std_msgs
  )
@@ -141,7 +141,7 @@ add_message_files(DIRECTORY msg
 
 
 catkin_package(
- CATKIN_DEPENDS message_generation message_runtime roscpp std_msgs geometry_msgs
+ CATKIN_DEPENDS message_generation message_runtime roscpp std_msgs geometry_msgs # is message_generation req.d?
 # CATKIN_DEPENDS message_runtime roscpp std_msgs geometry_msgs
  INCLUDE_DIRS include 
  LIBRARIES ${PROJECT_NAME}
@@ -199,6 +199,7 @@ set(CMAKE_AUTOMOC ON)
 add_executable(opentracking
   src/opentracking.cpp
 )
+add_dependencies(opentracking ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
 target_link_libraries (opentracking LINK_PUBLIC
 	${catkin_LIBRARIES}
 	${Boost_LIBRARIES}
@@ -209,24 +210,28 @@ target_link_libraries (opentracking LINK_PUBLIC
 
 
 add_executable(imagesub src/imagesub.cpp)
+add_dependencies(imagesub ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
 target_include_directories(imagesub PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
                            $<INSTALL_INTERFACE:include>)
 target_link_libraries (imagesub OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
 
 add_executable(statictest src/statictest.cpp)
+add_dependencies(statictest ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
 target_include_directories(statictest PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
                            $<INSTALL_INTERFACE:include>)
 target_link_libraries (statictest OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
 
 add_executable(controllers src/controllers.cpp)
+add_dependencies(controllers ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
 target_include_directories(controllers PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
                            $<INSTALL_INTERFACE:include>)
 target_link_libraries (controllers OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
 
 add_executable(controllers_hector src/controllers_hector.cpp)
+add_dependencies(controllers_hector ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
 target_include_directories(statictest PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
                            $<INSTALL_INTERFACE:include>)
@@ -235,12 +240,14 @@ target_link_libraries (controllers_hector OpenGL::GL ${catkin_LIBRARIES} ${Boost
 ##-------------------LeftRight--------------------
 
 add_executable(controllers_turtlebot_left src/controllers_turtlebot_left.cpp)
+add_dependencies(?controllers_turtlebot_left ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
 target_include_directories(statictest PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
                            $<INSTALL_INTERFACE:include>)
 target_link_libraries (controllers_turtlebot_left OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
 
 add_executable(controllers_turtlebot_right src/controllers_turtlebot_right.cpp)
+add_dependencies(controllers_turtlebot_right ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
 target_include_directories(statictest PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
                            $<INSTALL_INTERFACE:include>)
@@ -249,12 +256,14 @@ target_link_libraries (controllers_turtlebot_right OpenGL::GL ${catkin_LIBRARIES
 ##-------------------SwitchTest--------------------
 
 add_executable(imagesub_switchtest src/switchtest/imagesub_switchtest.cpp)
+add_dependencies(imagesub_switchtest ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
 target_include_directories(imagesub_switchtest PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
                            $<INSTALL_INTERFACE:include>)
 target_link_libraries (imagesub_switchtest OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
 
 add_executable(opentracking_switchtest src/switchtest/opentracking_switchtest.cpp)
+add_dependencies(opentracking_switchtest ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
 target_link_libraries (opentracking_switchtest LINK_PUBLIC
 	${catkin_LIBRARIES}
 	${Boost_LIBRARIES}
@@ -263,12 +272,14 @@ target_link_libraries (opentracking_switchtest LINK_PUBLIC
 )
 
 add_executable(controllers_turtlebot_1 src/switchtest/controllers_turtlebot_1.cpp)
+add_dependencies(controllers_turtlebot_1 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
 target_include_directories(controllers_turtlebot_1 PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
                            $<INSTALL_INTERFACE:include>)
 target_link_libraries (controllers_turtlebot_1 OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
 
 add_executable(controllers_turtlebot_0 src/switchtest/controllers_turtlebot_0.cpp)
+add_dependencies(controllers_turtlebot_0 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
 target_include_directories(controllers_turtlebot_0 PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
                            $<INSTALL_INTERFACE:include>)
@@ -277,12 +288,14 @@ target_link_libraries (controllers_turtlebot_0 OpenGL::GL ${catkin_LIBRARIES} ${
 ##-------------------ThreeRoverTest--------------------
 
 add_executable(imagesub_threerover src/threerovertest/imagesub_threerover.cpp)
+add_dependencies(imagesub_threerover ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
 target_include_directories(imagesub_threerover PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
                            $<INSTALL_INTERFACE:include>)
 target_link_libraries (imagesub_threerover OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
 
 add_executable(opentracking_threerover src/threerovertest/opentracking_threerover.cpp)
+add_dependencies(opentracking_threerover ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
 target_link_libraries (opentracking_threerover LINK_PUBLIC
 	${catkin_LIBRARIES}
 	${Boost_LIBRARIES}
@@ -291,18 +304,21 @@ target_link_libraries (opentracking_threerover LINK_PUBLIC
 )
 
 add_executable(controllers_turtlebot_surv src/threerovertest/controllers_turtlebot_surv.cpp)
+add_dependencies(controllers_turtlebot_surv ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
 target_include_directories(controllers_turtlebot_surv PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
                            $<INSTALL_INTERFACE:include>)
 target_link_libraries (controllers_turtlebot_surv OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
 
 add_executable(controllers_turtlebot_tool src/threerovertest/controllers_turtlebot_tool.cpp)
+add_dependencies(controllers_turtlebot_tool ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
 target_include_directories(controllers_turtlebot_tool PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
                            $<INSTALL_INTERFACE:include>)
 target_link_libraries (controllers_turtlebot_tool OpenGL::GL ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${GLEW_LIBRARIES} ${GLUT_LIBRARIES} ${SDL2_LIBRARIES} ${OpenCV_LIBRARIES} ${OPENVR_LIBRARY} ${CMAKE_DL_LIBS})
 
 add_executable(controllers_turtlebot_samp src/threerovertest/controllers_turtlebot_samp.cpp)
+add_dependencies(controllers_turtlebot_samp ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
 target_include_directories(controllers_turtlebot_samp PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
                            $<INSTALL_INTERFACE:include>)
