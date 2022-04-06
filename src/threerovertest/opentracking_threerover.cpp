@@ -15,6 +15,7 @@
 #include <gazebo_msgs/SpawnModel.h>
 #include <tf/transform_broadcaster.h>
 //#include "openvr_ros/utility.h"
+#include <openvr/openvr.h>
 //#include "openvr_ros/TrackedDevicePose.h"
 #include <openvr_headset_ros/TrackedDevicePose.h>
 
