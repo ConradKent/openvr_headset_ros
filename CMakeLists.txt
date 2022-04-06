@@ -141,8 +141,8 @@ add_message_files(DIRECTORY msg
 
 
 catkin_package(
- CATKIN_DEPENDS message_generation message_runtime roscpp std_msgs geometry_msgs # is message_generation req.d?
-# CATKIN_DEPENDS message_runtime roscpp std_msgs geometry_msgs
+# CATKIN_DEPENDS message_generation message_runtime roscpp std_msgs geometry_msgs # is message_generation req.d?
+ CATKIN_DEPENDS message_runtime roscpp std_msgs geometry_msgs
  INCLUDE_DIRS include 
  LIBRARIES ${PROJECT_NAME}
 )
