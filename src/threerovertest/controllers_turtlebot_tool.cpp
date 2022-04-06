@@ -401,7 +401,7 @@ int main(int argc, char **argv)
     sm.request.reference_frame = "world";
     spawn_model.call(sm);
 
-    system("rosrun gazebo_ros spawn_model -file " + pkglocalpath + "/models/tool/model.sdf -sdf -model Tool -y 0 -x 0 -z 1"); // "rosrun gazebo_ros spawn_model -file /home/USERNAME/catkin_ws/src/openvr_headset_ros/models/tool/model.sdf -sdf -model Tool -y 0 -x 0 -z 1"
+    system(("rosrun gazebo_ros spawn_model -file " + pkglocalpath + "/models/tool/model.sdf -sdf -model Tool -y 0 -x 0 -z 1").c_str()); // "rosrun gazebo_ros spawn_model -file /home/USERNAME/catkin_ws/src/openvr_headset_ros/models/tool/model.sdf -sdf -model Tool -y 0 -x 0 -z 1"
 
     /* turtlebot twist command */
     ros::Publisher base_control = nh.advertise<geometry_msgs::Twist>("/turtletool/commands/velocity", 1);

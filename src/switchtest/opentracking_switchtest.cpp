@@ -618,7 +618,7 @@ int main(int argc,char* argv[])
                 sm.request.reference_frame = "world";
                 spawn_model.call(sm);
 
-                system("rosrun gazebo_ros spawn_model -file " + pkglocalpath + "/models/vr_view_vive/model.sdf -sdf -model vr_view_vive -y 0 -x 0 -z 1"); // "rosrun gazebo_ros spawn_model -file /home/USERNAME/catkin_ws/src/openvr_headset_ros/models/vr_view_vive/model.sdf -sdf -model vr_view_vive -y 0 -x 0 -z 1"
+                system(("rosrun gazebo_ros spawn_model -file " + pkglocalpath + "/models/vr_view_vive/model.sdf -sdf -model vr_view_vive -y 0 -x 0 -z 1").c_str()); // "rosrun gazebo_ros spawn_model -file /home/USERNAME/catkin_ws/src/openvr_headset_ros/models/vr_view_vive/model.sdf -sdf -model vr_view_vive -y 0 -x 0 -z 1"
 }   else if (pnHeight==2628 && pnWidth==2368) {*/
             //Use Vive Pro models
              if (0==0) {   
@@ -642,7 +642,7 @@ int main(int argc,char* argv[])
                 sm.request.reference_frame = "world";
                 spawn_model.call(sm);
 
-                system("rosrun gazebo_ros spawn_model -file " + pkglocalpath + "/models/vr_view_vive_pro/model.sdf -sdf -model vr_view_vive_pro -y 0 -x 0 -z 1"); // "rosrun gazebo_ros spawn_model -file /home/USERNAME/catkin_ws/src/openvr_headset_ros/models/vr_view_vive_pro/model.sdf -sdf -model vr_view_vive_pro -y 0 -x 0 -z 1"
+                system(("rosrun gazebo_ros spawn_model -file " + pkglocalpath + "/models/vr_view_vive_pro/model.sdf -sdf -model vr_view_vive_pro -y 0 -x 0 -z 1").c_str()); // "rosrun gazebo_ros spawn_model -file /home/USERNAME/catkin_ws/src/openvr_headset_ros/models/vr_view_vive_pro/model.sdf -sdf -model vr_view_vive_pro -y 0 -x 0 -z 1"
 			}
 /*}   else {std::cout << "no camera model found for this headset" << std::endl;}*/
 
@@ -749,7 +749,7 @@ int main(int argc,char* argv[])
     sm.request.reference_frame = "world";
     spawn_model.call(sm);
 
-        system("rosrun gazebo_ros spawn_model -file " + pkglocalpath + "/models/Gazebo_Vive_Wand/left/model.sdf -sdf -model Vive_Controller_left -y 0 -x 0 -z 1"); // "rosrun gazebo_ros spawn_model -file /home/USERNAME/catkin_ws/src/openvr_headset_ros/models/Gazebo_Vive_Wand/left/model.sdf -sdf -model Vive_Controller_left -y 0 -x 0 -z 1"
+        system(("rosrun gazebo_ros spawn_model -file " + pkglocalpath + "/models/Gazebo_Vive_Wand/left/model.sdf -sdf -model Vive_Controller_left -y 0 -x 0 -z 1").c_str()); // "rosrun gazebo_ros spawn_model -file /home/USERNAME/catkin_ws/src/openvr_headset_ros/models/Gazebo_Vive_Wand/left/model.sdf -sdf -model Vive_Controller_left -y 0 -x 0 -z 1"
 
 
     controller_right.model_name = "Vive_Controller_right";
@@ -766,7 +766,7 @@ int main(int argc,char* argv[])
     sm.request.reference_frame = "world";
     spawn_model.call(sm);
 
-    system("rosrun gazebo_ros spawn_model -file " + pkglocalpath + "/models/Gazebo_Vive_Wand/right/model.sdf -sdf -model Vive_Controller_right -y 0 -x 0 -z 1"); // "rosrun gazebo_ros spawn_model -file /home/USERNAME/catkin_ws/src/openvr_headset_ros/models/Gazebo_Vive_Wand/right/model.sdf -sdf -model Vive_Controller_right -y 0 -x 0 -z 1"
+    system(("rosrun gazebo_ros spawn_model -file " + pkglocalpath + "/models/Gazebo_Vive_Wand/right/model.sdf -sdf -model Vive_Controller_right -y 0 -x 0 -z 1").c_str()); // "rosrun gazebo_ros spawn_model -file /home/USERNAME/catkin_ws/src/openvr_headset_ros/models/Gazebo_Vive_Wand/right/model.sdf -sdf -model Vive_Controller_right -y 0 -x 0 -z 1"
 
 //Menu init
 int controller_channel = 64;
