@@ -240,7 +240,7 @@ target_link_libraries (controllers_hector OpenGL::GL ${catkin_LIBRARIES} ${Boost
 ##-------------------LeftRight--------------------
 
 add_executable(controllers_turtlebot_left src/controllers_turtlebot_left.cpp)
-add_dependencies(?controllers_turtlebot_left ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
+add_dependencies(controllers_turtlebot_left ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
 target_include_directories(statictest PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
                            $<INSTALL_INTERFACE:include>)
