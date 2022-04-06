@@ -16,6 +16,7 @@
 #include <opencv2/highgui.hpp>
 #include <openvr/openvr.h>
 
+#include <string>
 #include <ros/package.h> // for ros::package::getPath() to not have to hardcode the paths for this
 
 //----------------------------------------------------------------

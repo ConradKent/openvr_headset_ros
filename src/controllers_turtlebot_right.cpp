@@ -462,7 +462,8 @@ int main(int argc, char **argv)
     Way_point_controller.once = false;
     Way_point_controller.delete_model = nr.serviceClient<gazebo_msgs::DeleteModel>("/gazebo/delete_model");
     Way_point_controller.spawn_model = nr.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_sdf_model");
-    Way_point_controller.readmodel((pkglocalpath + "/../../../.gazebo/models/controller/right/model.sdf").c_str()); // readmodel req.s const char* currently // "/home/USERNAME/.gazebo/models/controller/right/model.sdf"
+    //Way_point_controller.readmodel((pkglocalpath + "/../../../.gazebo/models/controller/right/model.sdf").c_str()); // readmodel req.s const char* currently // "/home/USERNAME/.gazebo/models/controller/right/model.sdf"
+    Way_point_controller.readmodel((pkglocalpath + "/models/controller/right/model.sdf").c_str()); // readmodel req.s const char* currently // "/home/USERNAME/.gazebo/models/controller/right/model.sdf"
     Way_point_controller.client_get = nr.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
     Way_point_controller.base_control = nr.advertise<geometry_msgs::Twist>("/right_turtle/cmd_vel", 1);
     Way_point_controller.get_state.request.model_name = "turtlebot3_right_burger";
@@ -477,7 +478,8 @@ int main(int argc, char **argv)
     ThrowTo.once = false;
     ThrowTo.delete_model = nr.serviceClient<gazebo_msgs::DeleteModel>("/gazebo/delete_model");
     ThrowTo.spawn_model = nr.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_sdf_model");
-    ThrowTo.readmodel((pkglocalpath + "/../../../.gazebo/models/controller/right/model.sdf").c_str()); // readmodel req.s const char* currently // "/home/USERNAME/.gazebo/models/controller/right/model.sdf"
+    //ThrowTo.readmodel((pkglocalpath + "/../../../.gazebo/models/controller/right/model.sdf").c_str()); // readmodel req.s const char* currently // "/home/USERNAME/.gazebo/models/controller/right/model.sdf"
+    ThrowTo.readmodel((pkglocalpath + "/models/controller/right/model.sdf").c_str()); // readmodel req.s const char* currently // "/home/USERNAME/.gazebo/models/controller/right/model.sdf"
 
 
 

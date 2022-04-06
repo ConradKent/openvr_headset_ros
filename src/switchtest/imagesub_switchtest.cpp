@@ -24,6 +24,7 @@ eye of a VR headset using OpenVR.
 #include <openvr/openvr.h>
 #include <openvr_headset_ros/Vive.h>
 
+#include <string>
 #include <ros/package.h> // for ros::package::getPath() to not have to hardcode the paths for this
 
 // define callback function in a class so that data running inside the class can be used globally
