@@ -180,6 +180,8 @@ find_package(GLEW REQUIRED)
 find_package(GLUT REQUIRED)
 ##find_package(OpenVR REQUIRED)
 #find_package(catkin REQUIRED COMPONENTS thread)
+#find_package(Qt<QTVERSION> COMPONENTS Core)
+find_package(Qt5 COMPONENTS Core)
 
 ## Declare a C++ library
 #add_library(${PROJECT_NAME}
