@@ -1,11 +1,9 @@
 ﻿/*
-
 This new version of imagesub subscribes the images
 from ROS to OpenCV, then it takes the BGR OpenCV
 image data and adds it to an OpenGL texture2d in
 RGBA8, then it submits those texture2d's to each
 eye of a VR headset using OpenVR.
-
 */
 #include <SDL2/SDL.h>
 #include <iostream>
@@ -23,20 +21,18 @@ eye of a VR headset using OpenVR.
 #include <opencv2/highgui.hpp>
 #include <openvr/openvr.h>
 
-#include <string>
-#include <ros/package.h> // for ros::package::getPath() to not have to hardcode the paths for this
 
 // define callback function in a class so that data running inside the class can be used globally
 class Listener_image
 {
 public:
-	  cv::Mat image;
+          cv::Mat image;
 
-	  void callback(const sensor_msgs::ImageConstPtr& msg)
-	    {
+          void callback(const sensor_msgs::ImageConstPtr& msg)
+            {
             //copy image data to the image under the same class, which will be assign as a pointer. Use rba8 format as this is what OpenVR requires for rendering.
             cv_bridge::toCvShare(msg, "bgr8")->image.copyTo(image);
-            //flip(image,image,0); //flips the image upside down (the opencv and opengl formats read the pixel rows in a different order) MOVED TO MAIN LOOP DUE TO MESSAGE ADDITION
+            //flip(image,image,0); //flips the image upside down (the opencv and opengl formats read the pixel rows in a different order)
             }
 
 };
@@ -44,23 +40,23 @@ public:
 class Listener_message_ch0
 {
 public:
-		
-		std::string display_message_ch0;
-		void chatterCallback(const std_msgs::String::ConstPtr& msg)
-		{
-			display_message_ch0 = msg->data.c_str();
-		}
+                
+                std::string display_message_ch0;
+                void chatterCallback(const std_msgs::String::ConstPtr& msg)
+                {
+                        display_message_ch0 = msg->data.c_str();
+                }
 };
 
 class Listener_message_ch1
 {
 public:
-		
-		std::string display_message_ch1;
-		void chatterCallback(const std_msgs::String::ConstPtr& msg)
-		{
-			display_message_ch1 = msg->data.c_str();
-		}
+                
+                std::string display_message_ch1;
+                void chatterCallback(const std_msgs::String::ConstPtr& msg)
+                {
+                        display_message_ch1 = msg->data.c_str();
+                }
 };
 
 
@@ -74,7 +70,7 @@ int init_OpenVR();
 
 //-----------------------------------------------------------------------------
 // Purpose: helper to get a string from a tracked device property and turn it
-//			into a std::string. FROM https://github.com/matinas/openvrsimplexamples/blob/master/openvrsimplexamples/src/utils.cpp
+//                      into a std::string. FROM https://github.com/matinas/openvrsimplexamples/blob/master/openvrsimplexamples/src/utils.cpp
 //-----------------------------------------------------------------------------
 std::string GetTrackedDeviceString(vr::IVRSystem *pHmd, vr::TrackedDeviceIndex_t unDevice, vr::TrackedDeviceProperty prop, vr::TrackedPropertyError *peError = NULL)
 {
@@ -99,22 +95,22 @@ std::string GetTrackedDeviceClassString(vr::ETrackedDeviceClass td_class) {
 
         switch (td_class)
         {
-        case vr::TrackedDeviceClass_Invalid:			// = 0, the ID was not valid.
+        case vr::TrackedDeviceClass_Invalid:                    // = 0, the ID was not valid.
                 str_td_class = "invalid";
                 break;
-        case vr::TrackedDeviceClass_HMD:				// = 1, Head-Mounted Displays
+        case vr::TrackedDeviceClass_HMD:                                // = 1, Head-Mounted Displays
                 str_td_class = "hmd";
                 break;
-        case vr::TrackedDeviceClass_Controller:			// = 2, Tracked controllers
+        case vr::TrackedDeviceClass_Controller:                 // = 2, Tracked controllers
                 str_td_class = "controller";
                 break;
-        case vr::TrackedDeviceClass_GenericTracker:		// = 3, Generic trackers, similar to controllers
+        case vr::TrackedDeviceClass_GenericTracker:             // = 3, Generic trackers, similar to controllers
                 str_td_class = "generic tracker";
                 break;
-        case vr::TrackedDeviceClass_TrackingReference:	// = 4, Camera and base stations that serve as tracking reference points
+        case vr::TrackedDeviceClass_TrackingReference:  // = 4, Camera and base stations that serve as tracking reference points
                 str_td_class = "base station";
                 break;
-        case vr::TrackedDeviceClass_DisplayRedirect:	// = 5, Accessories that aren't necessarily tracked themselves, but may redirect video output from other tracked devices
+        case vr::TrackedDeviceClass_DisplayRedirect:    // = 5, Accessories that aren't necessarily tracked themselves, but may redirect video output from other tracked devices
                 str_td_class = "display redirect";
                 break;
         }
@@ -127,8 +123,6 @@ std::string GetTrackedDeviceClassString(vr::ETrackedDeviceClass td_class) {
 
 int main(int argc, char **argv)
 {
-    std::string pkglocalpath = ros::package::getPath("openvr_headset_ros"); // to not have to hardcode the paths for this
-    // should give back "/home/USERNAME/catkin_ws/src/openvr_headset_ros"
 
     //initialize glut and glew (opengl stuff)
     glutInit(&argc, argv);
@@ -172,49 +166,52 @@ int main(int argc, char **argv)
     image_transport::Subscriber sub_left = it.subscribe("/camera/rgb/left_eye", 1, &Listener_image::callback, &listener_left);
     image_transport::Subscriber sub_right = it.subscribe("/camera/rgb/right_eye", 1, &Listener_image::callback, &listener_right);
   
-	//message class and subscriber
-	Listener_message_ch0 listener_message0; //these do not need to be separate classes but they are because I'm lazy
-	Listener_message_ch1 listener_message1;
-	std::string display_message0 = "";
-	std::string display_message1 = "---";
-	std::string display_message2 = "---";
-	std::string display_message3 = "---";
-	ros::Subscriber message_sub0 = nh.subscribe("display_message_ch0", 10, &Listener_message_ch0::chatterCallback, &listener_message0);
-	ros::Subscriber message_sub1 = nh.subscribe("display_message_ch1", 10, &Listener_message_ch1::chatterCallback, &listener_message1);
+        //message class and subscriber
+        Listener_message_ch0 listener_message0; //these do not need to be separate classes but they are because I'm lazy
+        Listener_message_ch1 listener_message1;
+        std::string display_message0 = "";
+        std::string display_message1 = "---";
+        std::string display_message2 = "---";
+        std::string display_message3 = "---";
+        ros::Subscriber message_sub0 = nh.subscribe("display_message_ch0", 10, &Listener_message_ch0::chatterCallback, &listener_message0);
+        ros::Subscriber message_sub1 = nh.subscribe("display_message_ch1", 10, &Listener_message_ch1::chatterCallback, &listener_message1);
   
-	//message log info
-	cv::Point message_coords0;
-	cv::Point message_coords1;
-	cv::Point message_coords2;
-	cv::Point message_coords3;
-	cv::Point message_coordsheader;
-	double spacing = 30;
-	std::string display_header = "Message Log";
-	
-	message_coords0.x = .55*pnWidth;
-	message_coords0.y = .66*pnHeight;
-	
-	message_coords1.x = message_coords0.x;
-	message_coords1.y = message_coords0.y-spacing;
-	
-	message_coords2.x = message_coords0.x;
-	message_coords2.y = message_coords1.y-spacing;
-	
-	message_coords3.x = message_coords0.x;
-	message_coords3.y = message_coords2.y-spacing;
-	
-	message_coordsheader.x = message_coords0.x;
-	message_coordsheader.y = message_coords3.y-spacing;
-	
-	double textsize =0.8;
-	int thickness = 2;
+        //message log info
+        cv::Point message_coords0;
+        cv::Point message_coords1;
+        cv::Point message_coords2;
+        cv::Point message_coords3;
+        cv::Point message_coordsheader;
+        double spacing = 30;
+        std::string display_header = "Message Log";
+        
+        message_coords0.x = .55*pnWidth;
+        message_coords0.y = .66*pnHeight;
+        
+        message_coords1.x = message_coords0.x;
+        message_coords1.y = message_coords0.y-spacing;
+        
+        message_coords2.x = message_coords0.x;
+        message_coords2.y = message_coords1.y-spacing;
+        
+        message_coords3.x = message_coords0.x;
+        message_coords3.y = message_coords2.y-spacing;
+        
+        message_coordsheader.x = message_coords0.x;
+        message_coordsheader.y = message_coords3.y-spacing;
+        
+        double textsize =0.8;
+        int thickness = 2;
   
     //putting the image info from our listeners onto the opencv mats
     cv::Mat image_left(pnHeight,pnWidth, CV_8UC3,cv::Scalar(0,255,255));
     cv::Mat image_right(pnHeight,pnWidth, CV_8UC3,cv::Scalar(0,255,255));
 
-    listener_left.image = image_left(cv::Range(0,pnHeight),cv::Range(0,pnWidth));
-    listener_right.image = image_right(cv::Range(0,pnHeight),cv::Range(0,pnWidth));
+    cv::Mat image_left_flipped(pnHeight,pnWidth, CV_8UC3,cv::Scalar(0,255,255));
+    cv::Mat image_right_flipped(pnHeight,pnWidth, CV_8UC3,cv::Scalar(0,255,255));
+
+    listener_left.image = image_left_flipped(cv::Range(0,pnHeight),cv::Range(0,pnWidth));
+    listener_right.image = image_right_flipped(cv::Range(0,pnHeight),cv::Range(0,pnWidth));
 
 
     //Left eye texture and framebuffer binding
@@ -277,47 +274,47 @@ int main(int argc, char **argv)
         std::cout <<"Framebuffer not complete"<<std::endl;
         }
 
-
-cv::VideoWriter video(pkglocalpath + "/out.avi",cv::VideoWriter::fourcc('M','J','P','G'),30, cv::Size(pnWidth,pnHeight),true); // "/home/USERNAME/catkin_ws/src/openvr_headset_ros/out.avi"
+// outputs video to your .ros folder (should be in your home directory, try enabling hidden folders if you can't find it)
+cv::VideoWriter video("openvr_headset_ros.avi",cv::VideoWriter::fourcc('M','J','P','G'),30, cv::Size(pnWidth,pnHeight),true);
 
     while(ros::ok())
     {
         ros::spinOnce();
         // ros::spin() works too, but extra code can run outside the callback function between each spinning if spinOnce() is used
-				
-				
-				if (listener_message0.display_message_ch0 != display_message0 && listener_message1.display_message_ch1 != display_message0)
-				{
-					if (listener_message0.display_message_ch0 != display_message0)
-						{
-							display_message3=display_message2;
-							display_message2=display_message1;
-							display_message1=display_message0;
-							display_message0=listener_message0.display_message_ch0;
-						}
-					if (listener_message1.display_message_ch1 != display_message0)
-						{
-							display_message3=display_message2;
-							display_message2=display_message1;
-							display_message1=display_message0;
-							display_message0=listener_message1.display_message_ch1;
-						}
-				}
-				
-				//Put in the text
-				cv::putText(image_right, display_message0, message_coords0, 0, textsize, cv::Scalar(0,0,255), thickness, 8);
-				cv::putText(image_right, display_message1, message_coords1, 0, textsize, cv::Scalar(0,0,255), thickness, 8);
-				cv::putText(image_right, display_message2, message_coords2, 0, textsize, cv::Scalar(0,0,255), thickness, 8);
-				cv::putText(image_right, display_message3, message_coords3, 0, textsize, cv::Scalar(0,0,255), thickness, 8);
-				cv::putText(image_right, display_header, message_coordsheader, 0, textsize, cv::Scalar(0,0,255), thickness, 8);
-				
-				
-				
-				//flip the images upside down (the opencv and opengl formats read the pixel rows in a different order)
-				flip(image_left,image_left,0);
-				flip(image_right,image_right,0);
+                                
 
-				//Update vr, put images into OpenGL mats, send OpenGL mats to headset
+                                if (listener_message0.display_message_ch0 != display_message0 && listener_message1.display_message_ch1 != display_message0)
+                                {
+                                        if (listener_message0.display_message_ch0 != display_message0)
+                                                {
+                                                        display_message3=display_message2;
+                                                        display_message2=display_message1;
+                                                        display_message1=display_message0;
+                                                        display_message0=listener_message0.display_message_ch0;
+                                                }
+                                        if (listener_message1.display_message_ch1 != display_message0)
+                                                {
+                                                        display_message3=display_message2;
+                                                        display_message2=display_message1;
+                                                        display_message1=display_message0;
+                                                        display_message0=listener_message1.display_message_ch1;
+                                                }
+                                }
+                                
+                                //Put in the text
+                                cv::putText(image_right_flipped, display_message0, message_coords0, 0, textsize, cv::Scalar(0,0,255), thickness, 8);
+                                cv::putText(image_right_flipped, display_message1, message_coords1, 0, textsize, cv::Scalar(0,0,255), thickness, 8);
+                                cv::putText(image_right_flipped, display_message2, message_coords2, 0, textsize, cv::Scalar(0,0,255), thickness, 8);
+                                cv::putText(image_right_flipped, display_message3, message_coords3, 0, textsize, cv::Scalar(0,0,255), thickness, 8);
+                                cv::putText(image_right_flipped, display_header, message_coordsheader, 0, textsize, cv::Scalar(0,0,255), thickness, 8);
+                                
+                                
+                                
+                                //flip the images upside down (the opencv and opengl formats read the pixel rows in a different order)
+                                flip(image_left_flipped,image_left,0);
+                                flip(image_right_flipped,image_right,0);
+
+                                //Update vr, put images into OpenGL mats, send OpenGL mats to headset
                 vr::TrackedDevicePose_t pose[vr::k_unMaxTrackedDeviceCount];
                 vr::VRCompositor()->WaitGetPoses(pose, vr::k_unMaxTrackedDeviceCount, NULL, 0);
 
@@ -334,7 +331,7 @@ cv::VideoWriter video(pkglocalpath + "/out.avi",cv::VideoWriter::fourcc('M','J',
 //glTexImage2D(GL_TEXTURE_2D, 0,GL_RGBA,image_right.cols,image_right.rows,0,GL_BGR,GL_UNSIGNED_BYTE,image_right.data);
                 glFinish();
 
-                video.write(image_right);
+video.write(image_right);
 
             r.sleep();
     }

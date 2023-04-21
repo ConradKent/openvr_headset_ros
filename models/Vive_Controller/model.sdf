@@ -4,20 +4,20 @@
     <static>true</static>
     <link name="link">
       <collision name="collision">
-        <pose>0 0 -0.1 0.4 0 1.57075</pose>
+        <pose>0 0 0 3.14159 0 1.57075</pose>
         <geometry>
           <mesh>
-            <scale>0.0010 0.0010 0.0010</scale>
+            <scale>0.001 0.001 0.001</scale>
             <uri>model://Vive_Controller/meshes/HTC_Vive_controller.stl</uri>
           </mesh>
         </geometry>
       </collision>
       <visual name="visual">
-        <pose>0 0 -0.1 0.4 0 1.57075</pose>
+        <pose>0 0 0 3.14159 0 1.57075</pose>
         <geometry>
           <mesh>
-            <scale>0.0010 0.0010 0.0010</scale>
-            <uri>model://media/materials/scripts/gazebo.material</uri>
+            <scale>0.001 0.001 0.001</scale>
+            <uri>model://Vive_Controller/meshes/HTC_Vive_controller.stl</uri>
           </mesh>
         </geometry>
          <material>

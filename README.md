@@ -1,14 +1,10 @@
 # openvr_headset_ros
 
-NOTE: The multi-headset functionality broke on my machine and thus lines in "imagesub.cpp" that relate to switching between vive and vive pro have been removed and the resolutions specified in the vive-pro's camera model have been changed. A programmatic way to generate a camera model to use would fix these issues and is being investigated.
+
 
 ## What is this?
 
 openvr_headset_ros is a package for ros based on vrui_mdf by Zhenyu Shi (https://github.com/zhenyushi/vrui_mdf). The goal of this project is to provide an open source way to view a ros/gazebo simulation through a vr headset. This package will use openvr to get tracking info and send images to the headset for display. The package currently works with the original Vive headset and controllers or the Vive Pro headset and controllers, and with lighthouse version 1.0 or 2.0. Other SteamVR capable headsets should be relatively simple to add.
-
-**This is the development branch of the code. A quick attempt has been made to remove the openvr_ros dependency (using the "local" TrackedDevicePose.msg file in openvr_headset_ros instead). A quick attempt has also been made to try to replace all the hardcoded file locations ("/home/USERNAME") that were in the code previously.**
-
-**Currently, these two updates have not been fully tested / debugged yet (as of Apr 5, 2022). If you run into any compilation or runtime errors, general issues with use, &etc., please do contact us and let us know so that we can help with that, thanks! :)**
 
 ## Some Gifs
 
@@ -69,6 +65,20 @@ Install steam using:
 		
 Log in to steam/make and account and install SteamVR: https://store.steampowered.com/app/250820/SteamVR/
 
+### Graphics Drivers
+
+AMD:
+
+For my AMD graphics card (rx 5700xt) I have had the best results using the default graphics drivers that come with Ubuntu.
+
+NVIDIA:
+
+Install proprietary NVIDIA drivers using
+
+		$sudo apt install nvidia-driver-525
+		
+I have had better results installing the drivers through the command line instead of the GUI
+
 ### OpenVR
 
 https://github.com/ValveSoftware/openvr
@@ -85,21 +95,25 @@ Install by using:
 ### ROS/Gazebo
 
 Install ROS Noetic and Gazebo using this tutorial: http://wiki.ros.org/noetic/Installation/Ubuntu
-Set up a Catkin Workspace (~/catkin_ws) using this tutorial: http://wiki.ros.org/catkin/Tutorials/create_a_workspace
+Set up a Catkin Workspace (~/catkin_ws) using this tutorial: http://wiki.ros.org/catkin/Tutorials/create_a_workspace. The rest of this document assumes that your workspace is called "catkin_ws" and is located in your home folder.
 
 ## Install Process:
 
 Once OpenCV, OpenGL, SteamVR, OpenVR, and ROS are installed:
 
-### Install Turtlebot 3:
+### Install Turtlebot 3 and turtlebot_msgs:
 
 		$cd ~/catkin_ws/src
 		$git clone -b noetic-devel https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git
 		$cd ~/catkin_ws && catkin_make
 		
-### Install Hector Quadrotor:
+		$cd ~/catkin_ws/src
+		$git clone -b noetic-devel https://github.com/ROBOTIS-GIT/turtlebot3_msgs.git
+		$cd ~/catkin_ws && catkin_make
+		
+### Install Hector Quadrotor (Currently not working, no need to install unless you want to try to fix):
 
-Hector is an old package and requires some work to install. First, make sure Qt5 is installed (sudo apt-get install qt5-default).
+Hector requires some work to install. First, make sure Qt5 is installed (sudo apt-get install qt5-default).
 
 You'll need to make a new catkin_ws workspace in the same way as the original. If you don't have a separate workspace already, follow this guide: http://wiki.ros.org/catkin/Tutorials/create_a_workspace and call the new ws "catkin_ws_2".
 
@@ -143,34 +157,65 @@ If you can't... Well you might have to figure that out on your own. This is runn
 		$cd ..
 		$catkin_make
 
+### Add model path to .bashrc
+
+We need to tell gazebo where some of our models are. First do this:
+		
+		$cd ~/catkin_ws
+		$gedit ~/.bashrc
+
+Now paste the following two lines at the end of your .bashrc file:
+		$export GAZEBO_MODEL_PATH=~/catkin_dev/src/openvr_headset_ros/models:${GAZEBO_MODEL_PATH}
+		$export GAZEBO_RESOURCE_PATH=~/catkin_dev/src/openvr_headset_ros/models:${GAZEBO_RESOURCE_PATH}
+
+### Getting openvr_headset_ros to run with your specific headset
+
+Follow the section below to run "VR_empty_test.launch". Once it starts up, there should be a Height and Width number returned to the terminal that you used to launch it. Record these numbers, they are the pixel width and height of each of the eyes of your headset (these steps work the same on single-display or dual-display headsets)
+
+Close the terminal, then close Gazebo, then close SteamVR. Go to openvr_headset_ros/models/vr_view_vive_pro/model.sdf. On lines 29-30 and 81-82 change those numbers to match the Width and Height you got from the terminal.
+
+Eventually there will be a more general way to change the width/height on the fly, but for now I'm just having the vr_view_vive_pro model hardcoded in and having the user change the width and height themselves.
+
 ### Running openvr_headset_ros example code
 		
-To run any example code, open a new terminal and source ROS and your catkin workspace according to: http://wiki.ros.org/catkin/Tutorials/create_a_workspace. Make sure SteamVR is running and that your VR headset and controllers are connected. Then run:
+To run any example code, open a new terminal and source ROS and your catkin workspace according to: http://wiki.ros.org/catkin/Tutorials/create_a_workspace. Make sure SteamVR is running and that your VR headset and controllers are connected.
 
-When launching, make sure that SteamVR is open and that the headset and controllers are active. I've also found it best to have your finger over the sensor inside the headset that wakes it up (The sensor that aims at your forehead to check if you have the headset on). 
+When launching, make sure that SteamVR is open and that the headset and controllers are active. I've also found it best to have your finger over the sensor inside the headset that wakes it up. When you're done close the terminal, then Gazebo, then SteamVR. 
+
+How I source my catkin workspace (yours might be different, follow the above tutorial):
+
+		$cd catkin_ws
+		$source devel/setup.bash
 
 To launch an empty scene with headset/controllers:
 
 		$roslaunch openvr_headset_ros VR_empty_test.launch
 		
-To run the turtlebot 3 example:
+To run the basic turtlebot 3 example:
 
 		$export TURTLEBOT3_MODEL=burger
 		$roslaunch openvr_headset_ros VR_turtlebot.launch
+		
+The turtlebot has three control methods. Throwto, Velocity, and Waypoint. To switch between each control method, hit the grip button. To aim the Throwto point or Waypoint, hold down the trigger and move the flat cylinder around. Throwto will teleport the robot there, Waypoint will have the robot navigate to there. To use Velocity, hold the trigger down and move the controller to directly control the robot's motors. This will be changed to using the joystick of the controller eventually. 
+		
+To run the robonaut example:
 
+		$roslaunch openvr_headset_ros VR_robonaut.launch
+		
+All the other example code can be run in the same way. threerovertest.launch and VR_turtlebot_moon_test.launch are both interesting.
+
+TODO: describe the control scheme for the threerovertest and other multi-turtlebot examples.
+
+HECTOR QUADROTOR CODE IS CURRENTLY NOT RUNNING, HERE ARE THE OLD INSTRUCTIONS:
 To run the hector_quadrotor example (see note below this as well):
 
 		$roslaunch openvr_headset_ros VR_quadrotor.launch
 
-After launching the quadrotor, wait a few seconds for everything to set up. Then, open a new terminal, source your catkin_ws, and type
+After launching the quadrotor, wait a few seconds for everything to set up. The quadrotor needs to fully load in to enable the motors. Then, open a new terminal, source your catkin_ws, and type
 
 		$rosservice call /enable_motors "enable: true"
-		
-The quadrotor needs to fully load in to enable the motors, I'll add something better to the code eventually but this works for now.
 
-The turtlebot and quadrotor examples have three control methods. Throwto, Velocity, and Waypoint. To switch between each control method, hit the grip button (on Vive/Vive Pro controllers. Not sure if grip is mapped the same for other controllers). To aim the Throwto point or Waypoint, hold down the trigger and move the flat cylinder around. Throwto will teleport the robot there, Waypoint will have the robot navigate to there. To use Velocity, hold the trigger down and move the controller to directly control the robot's motors. This will be changed to using the joystick of the controller soon. 
-
-## Code Based On (updates to comments in code to show where different parts are from coming soon):
+## Code Based On
 
 ### vrui_mdf
 This package was adapted from vrui_mdf to use OpenVR in place of Vrui.
@@ -180,3 +225,26 @@ See the repository commit history, and/or: https://github.com/zhenyushi/vrui_mdf
 ### OpenVR_ros
 The tracking code is heavily inspired by/adopted from OpenVR_ros.
 
+## Stable software versions:
+SteamVR:    App ID: 250820
+   	 Build ID: 9276252
+   	 Installed Content Updated: Sep 20 2022
+   	 (Using the default version, not any betas)
+
+ROS: 1.15.14
+
+Gazebo: 11.11.0
+
+Graphics Driver:
+-AMD: Using default (mesa) drivers for this version of ubuntu. DO NOT download any amdgpu packages and use those, those broke steamvr for some reason.
+-NVIDIA: Proprietary NVIDIA drivers (detailed in installation section)
+
+OpenVR:     commit 4c85abcb7f7f1f02adaf3812018c99fc593bc341
+   	 Author: Joe Ludwig <joe@valvesoftware.com>
+   	 Date:   Wed Feb 24 16:57:03 2021 -0800
+
+SDL2: 2.0.10
+
+Vulkan:     Vulkan Instance Version: 1.3.224 (comes from default mesa package as far as I can tell)
+
+Tested with both AMD CPU/AMD GPU and with Intel CPU/NVIDIA GPU
