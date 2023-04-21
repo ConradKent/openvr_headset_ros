@@ -61,6 +61,7 @@ GLEW is the "GL Extension Wrangler". It grabs things related to OpenGL and makes
 Steam is a popular platform for hosting games, software, and tools. It is the only portion of this package that is closed source, unfortunately, but SteamVR is necessary for interfacing with VR headsets.
 
 Install steam using:
+
 		$sudo apt install steam
 		
 Log in to steam/make and account and install SteamVR: https://store.steampowered.com/app/250820/SteamVR/
@@ -165,7 +166,9 @@ We need to tell gazebo where some of our models are. First do this:
 		$gedit ~/.bashrc
 
 Now paste the following two lines at the end of your .bashrc file:
+
 		$export GAZEBO_MODEL_PATH=~/catkin_dev/src/openvr_headset_ros/models:${GAZEBO_MODEL_PATH}
+		
 		$export GAZEBO_RESOURCE_PATH=~/catkin_dev/src/openvr_headset_ros/models:${GAZEBO_RESOURCE_PATH}
 
 ### Getting openvr_headset_ros to run with your specific headset
