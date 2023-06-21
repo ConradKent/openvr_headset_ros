@@ -54,6 +54,8 @@
   <build_depend>nodelet</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>roslib</build_depend>
+  <build_depend>gazebo_plugins</build_depend>
+  <build_depend>gazebo_ros</build_depend>
   <build_depend>std_msgs</build_depend>
   <build_depend>std_srvs</build_depend>
   <build_depend>tf</build_depend>
@@ -72,6 +74,8 @@
   <build_export_depend>nodelet</build_export_depend>
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>roslib</build_export_depend>
+  <build_export_depend>gazebo_plugins</build_export_depend>
+  <build_export_depend>gazebo_ros</build_export_depend>
   <build_export_depend>std_msgs</build_export_depend>
   <build_export_depend>std_srvs</build_export_depend>
   <build_export_depend>tf</build_export_depend>
@@ -88,6 +92,8 @@
   <exec_depend>nodelet</exec_depend>
   <exec_depend>roscpp</exec_depend>
   <exec_depend>roslib</exec_depend>
+  <exec_depend>gazebo_plugins</exec_depend>
+  <exec_depend>gazebo_ros</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>std_srvs</exec_depend>
   <exec_depend>tf</exec_depend>

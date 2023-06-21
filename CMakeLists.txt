@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.16.3)
 project(openvr_headset_ros)
+set(CMAKE_CXX_STANDARD 17)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -12,6 +13,8 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   nodelet
   roscpp
+  gazebo_plugins
+  gazebo_ros
   rospy
   roslib
   std_msgs
@@ -142,7 +145,7 @@ add_message_files(DIRECTORY msg
 
 catkin_package(
 # CATKIN_DEPENDS message_generation message_runtime roscpp std_msgs geometry_msgs # is message_generation req.d?
- CATKIN_DEPENDS message_runtime roscpp std_msgs geometry_msgs
+ CATKIN_DEPENDS message_runtime roscpp gazebo_plugins gazebo_ros std_msgs geometry_msgs
  INCLUDE_DIRS include 
  LIBRARIES ${PROJECT_NAME}
 )
@@ -169,6 +172,7 @@ include_directories(
   ${Boost_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
   ${OPENVR_INCLUDE_DIR}
+  ${GAZEBO_INCLUDE_DIRS}
 )
 
 ##link_directories("$${OPENVR}/lib/linux64")
@@ -178,6 +182,7 @@ find_package(OpenCV REQUIRED)
 find_package(Boost REQUIRED COMPONENTS thread)
 find_package(GLEW REQUIRED)
 find_package(GLUT REQUIRED)
+find_package(gazebo REQUIRED)
 ##find_package(OpenVR REQUIRED)
 #find_package(catkin REQUIRED COMPONENTS thread)
 #find_package(Qt<QTVERSION> COMPONENTS Core)
@@ -207,6 +212,7 @@ target_link_libraries (opentracking LINK_PUBLIC
 	${Boost_LIBRARIES}
 	${OPENVR_LIBRARY}
 	${CMAKE_DL_LIBS}
+	${GAZEBO_LIBRARIES}
 )
 
 

@@ -4,19 +4,11 @@
 #include <iomanip>
 #include <stdexcept>
 
-
-//#include <Misc/FunctionCalls.h>
-//#include <Misc/ConfigurationFile.h>
-//#include <Realtime/Time.h>
-//#include <Geometry/AffineCombiner.h>
-
 #include <ros/ros.h>
 #include <gazebo_msgs/ModelState.h>
 #include <gazebo_msgs/SpawnModel.h>
 #include <tf/transform_broadcaster.h>
-//#include "openvr_ros/utility.h"
 #include <openvr/openvr.h>
-//#include "openvr_ros/TrackedDevicePose.h"
 #include <openvr_headset_ros/TrackedDevicePose.h>
 
 #include "tf/transform_datatypes.h"
@@ -32,6 +24,9 @@
 #include <string>
 #include <ros/package.h> // for ros::package::getPath() to not have to hardcode the paths for this
 
+// FOR NEW CAMERA TEST
+#include "gazebo/rendering/Camera.hh"
+#include "gazebo/rendering/RenderingIface.hh"
 /*TODO LIST
  * Controllers: Trackpad
  * Take more stuff out of main and add it to functions for better organization
@@ -470,6 +465,11 @@ int main(int argc,char* argv[])
     std::string pkglocalpath = ros::package::getPath("openvr_headset_ros"); // to not have to hardcode the paths for this
     // should give back "/home/USERNAME/catkin_ws/src/openvr_headset_ros"
 
+	// build camera of class gazebo::rendering::Camera
+	// https://github.com/gazebosim/gazebo-classic/blob/gazebo11/gazebo/rendering/Camera.hh
+	gazebo::rendering::Camera RightCamera("RightCamera",gazebo::rendering::get_scene("world")); //get_scene comes from https://github.com/gazebosim/gazebo-classic/blob/gazebo11/gazebo/rendering/RenderingIface.hh
+	//RightCamera.Load();
+
     vr::IVRSystem* vr_pointer = NULL;
     vr_pointer = initialize();
 
@@ -498,32 +498,11 @@ int main(int argc,char* argv[])
     uint32_t pnHeight;
     vr_pointer->GetRecommendedRenderTargetSize(&pnWidth, &pnHeight );
 
+
+
     std::cout << "Width: " << pnWidth << std::endl;
     std::cout << "Height: " << pnHeight << std::endl;
-    //TODO clean this up, this is just proof of concept with code that I know works for now. I'll generalize the path to the sdf and get the vr_view tags as variables later.
-    /*if (pnHeight==2056 && pnWidth==1852) { //The recommended sizes changed during some update for some reason. TODO is to generalize this and have it build the camera model programmatically.
-            //Use Vive models
-            camera.model_name = "vr_view_vive";
-            camera.reference_frame="world";
 
-            //ros::Subscriber sub=n.subscribe("tracked_device_pose", 1, callback_positioner); //TODO make sure I understand what the "1" argument is doing correctly. Should be fine as long as I spin ROS right?
-
-            //{
-                //CHECK this and make sure we're spawning correctly. Gazebo recommends spawning via roslaunch so we might switch to that.
-                gazebo_msgs::SpawnModel sm;
-                ros::ServiceClient spawn_model;
-                std::ifstream ifs;
-                ifs.open(pkglocalpath + "/models/vr_view_vive/model.sdf"); //TODO generalize. // "/home/USERNAME/catkin_ws/src/openvr_headset_ros/models/vr_view_vive/model.sdf"
-                std::stringstream stringstream;
-                stringstream << ifs.rdbuf();
-                sm.request.model_name = "vr_view_vive";
-                sm.request.model_xml = stringstream.str();
-                sm.request.robot_namespace = ros::this_node::getNamespace();
-                sm.request.reference_frame = "world";
-                spawn_model.call(sm);
-
-                system(("rosrun gazebo_ros spawn_model -file " + pkglocalpath + "/models/vr_view_vive/model.sdf -sdf -model vr_view_vive -y 0 -x 0 -z 1").c_str()); // "rosrun gazebo_ros spawn_model -file /home/USERNAME/catkin_ws/src/openvr_headset_ros/models/vr_view_vive/model.sdf -sdf -model vr_view_vive -y 0 -x 0 -z 1"
-}   else if (pnHeight==2628 && pnWidth==2368) {*/
             //Use Vive Pro models (we're just using the vive pro model and hardcoding the width/height for now)
              if (0==0) {   
             camera.model_name = "vr_view_vive_pro";
@@ -548,9 +527,6 @@ int main(int argc,char* argv[])
 
                 system(("rosrun gazebo_ros spawn_model -file " + pkglocalpath + "/models/vr_view_vive_pro/model.sdf -sdf -model vr_view_vive_pro -y 0 -x 0 -z 1").c_str()); // "rosrun gazebo_ros spawn_model -file /home/USERNAME/catkin_ws/src/openvr_headset_ros/models/vr_view_vive_pro/model.sdf -sdf -model vr_view_vive_pro -y 0 -x 0 -z 1"
 			}
-/*}   else {std::cout << "no camera model found for this headset" << std::endl;}*/
-
-
 
     //----------------------------------------------------------
     //Get number of controllers and set an identifier for the left and right (Left and right aren't actually the controllers set as left and right, this is just to keep track of them)
@@ -607,35 +583,6 @@ int main(int argc,char* argv[])
 		} //for(vr::TrackedDeviceIndex_t...
                 
                 
-                
-                
-                
- /* THIS WAS KIND OF POINTLESS, AND DIDN'T ACTUALLY TEST FOR THE CORRECT IDs. TODO: DELETE IF NOTHING BREAKS
-                if (controller_count==0){
-                    controller_Right_id=id;
-                    controller_count=controller_count+1;
-                }
-                    else {
-                    controller_Left_id=id;
-                    controller_count=controller_count+1;
-                }
-                break;
-            case vr::ETrackedDeviceClass::TrackedDeviceClass_GenericTracker:
-            std::cout << "trackers not supported" << std::endl;
-                break;
-            default:
-                break;
-
-        }
-        }
-
-        else {
-            std::cout << "ERROR: openvr_headset_ros only supports two controllers at a time" << std::endl;
-            shutdown(vr_pointer);
-        }
-        }
-*/
-
     //---------Spawn Controllers------------
 
     controller_left.model_name = "Vive_Controller_left";
@@ -691,8 +638,6 @@ int main(int argc,char* argv[])
 
 
             /* left controller */
-            // std::cout << POSlz << std::endl; //(just for debugging)
-           //ROS_INFO("POSlz: %f", POSlz); //check rate (just for debugging)
             controller_left.pose.position.x = -1*POSlz;
             controller_left.pose.position.y = -1*POSlx;
             controller_left.pose.position.z = POSly;
@@ -739,5 +684,8 @@ int main(int argc,char* argv[])
             r.sleep();
 
         }
+        
+          shutdown(vr_pointer);
+		  return 0;
     //}
 }
